@@ -1,0 +1,8 @@
+﻿{
+  "name": "fixed-point",
+  "version": "0.1.0",
+  "type": "library",
+  "displayName": "Fixed Point",
+  "unity": "2021.2",
+  "description": "Fixed point math."
+}
