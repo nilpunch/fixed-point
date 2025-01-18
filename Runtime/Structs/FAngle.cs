@@ -22,16 +22,16 @@ namespace Mathematics.Fixed
 			get => Radians * FP.Rad2Deg;
 		}
 
-		public Rotation2D Counterclockwise
+		public FRotation2D Counterclockwise
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => new Rotation2D(this);
+			get => new FRotation2D(this);
 		}
 
-		public Rotation2D Clockwise
+		public FRotation2D Clockwise
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => new Rotation2D(new FAngle(-Radians));
+			get => new FRotation2D(new FAngle(-Radians));
 		}
 
 		public static FAngle Zero
