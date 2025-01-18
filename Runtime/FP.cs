@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Mathematics.Fixed
 {
 	[Serializable]
-	public struct FP : IEquatable<FP>, IComparable<FP>
+	public struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
 		public const int FractionalPlaces = 32;
 
@@ -12,6 +12,8 @@ namespace Mathematics.Fixed
 		public const int BitsAmountMinusSign = BitsAmount - 1;
 		public const long FractionalMask = (long)(0xFFFFFFFFFFFFFFFF >> (BitsAmount - FractionalPlaces));
 		public const long IntegerSignMask = unchecked((long)(0xFFFFFFFFFFFFFFFF << FractionalPlaces));
+		public const long IntegerFractionalMask = (long)(0xFFFFFFFFFFFFFFFF >> 1);
+		public const long SignMask = 1L << BitsAmountMinusSign;
 
 		public static FP Epsilon
 		{
@@ -43,10 +45,22 @@ namespace Mathematics.Fixed
 			get => FromRaw(0L);
 		}
 
+		public static FP MinusOne
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(MinusOneRaw);
+		}
+
 		public static FP Half
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => FromRaw(HalfRaw);
+		}
+
+		public static FP Quarter
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(QuarterRaw);
 		}
 
 		public static FP Pi
@@ -55,10 +69,28 @@ namespace Mathematics.Fixed
 			get => FromRaw(PiRaw);
 		}
 
-		public static FP PiOver2
+		public static FP HalfPi
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(PiOver2Raw);
+			get => FromRaw(HalfPiRaw);
+		}
+
+		public static FP TwoPi
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(TwoPiRaw);
+		}
+
+		public static FP Rad2Deg
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(Rad2DegRaw);
+		}
+
+		public static FP Deg2Rad
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(Deg2RadRaw);
 		}
 
 		public static FP Log2Max
@@ -83,15 +115,21 @@ namespace Mathematics.Fixed
 		public const long MaxValueRaw = long.MaxValue;
 		public const long MinValueRaw = long.MinValue;
 		public const long OneRaw = 1L << FractionalPlaces;
-		public const long HalfRaw = (FractionalMask + 1) / 2;
-		public const long PiTimes2Raw = 0x6487ED511;
-		public const long PiRaw = 0x3243F6A88;
-		public const long PiOver2Raw = 0x1921FB544;
+		public const long MinusOneRaw = IntegerSignMask;
+		public const long HalfRaw = FractionalMask / 2;
+		public const long QuarterRaw = FractionalMask / 4;
+
+		public const double RealPi = 3.141592653589793;
+		public const long PiRaw = (long)(RealPi * OneRaw);
+		public const long HalfPiRaw = (long)(0.5 * RealPi * OneRaw);
+		public const long TwoPiRaw = (long)(2 * RealPi * OneRaw);
+
+		public const long Deg2RadRaw = (long)(RealPi / 180.0 * OneRaw);
+		public const long Rad2DegRaw = (long)(180.0 / RealPi * OneRaw);
+
 		public const long Ln2Raw = 0xB17217F7;
 		public const long Log2MaxRaw = 0x1F00000000;
 		public const long Log2MinRaw = -0x2000000000;
-
-		public const long SignMask = 1L << BitsAmountMinusSign;
 
 		public long RawValue;
 
@@ -156,6 +194,16 @@ namespace Mathematics.Fixed
 			return FromRaw(sum);
 		}
 
+		/// <summary>
+		/// Performs multiplication without checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator *(FP x, int scalar)
+		{
+			return FromRaw(x.RawValue * scalar);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
 			var xl = x.RawValue;
@@ -214,85 +262,107 @@ namespace Mathematics.Fixed
 			return FromRaw(result);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator /(FP x, int scalar)
+		{
+			return FromRaw(x.RawValue / scalar);
+		}
+
 		/// <summary>
 		/// Performs modulo as fast as possible. Throws if x == MinValue and y == -1.
 		/// Use the <see cref="FMath.SafeMod"/> for a more reliable but slower modulo.
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator %(FP x, FP y)
 		{
 			return FromRaw(x.RawValue % y.RawValue);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
 		{
 			return x.RawValue == MinValueRaw ? MaxValue : FromRaw(-x.RawValue);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(FP x, FP y)
 		{
 			return x.RawValue == y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(FP x, FP y)
 		{
 			return x.RawValue != y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >(FP x, FP y)
 		{
 			return x.RawValue > y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator <(FP x, FP y)
 		{
 			return x.RawValue < y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >=(FP x, FP y)
 		{
 			return x.RawValue >= y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator <=(FP x, FP y)
 		{
 			return x.RawValue <= y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(long value)
 		{
 			return FromRaw(value * OneRaw);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator long(FP value)
 		{
 			return value.RawValue >> FractionalPlaces;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(float value)
 		{
 			return FromRaw((long)(value * OneRaw));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator float(FP value)
 		{
 			return (float)value.RawValue / OneRaw;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(double value)
 		{
 			return FromRaw((long)(value * OneRaw));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator double(FP value)
 		{
 			return (double)value.RawValue / OneRaw;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(decimal value)
 		{
 			return FromRaw((long)(value * OneRaw));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator decimal(FP value)
 		{
 			return (decimal)value.RawValue / OneRaw;
@@ -300,7 +370,7 @@ namespace Mathematics.Fixed
 
 		public override bool Equals(object obj)
 		{
-			return obj is FP && ((FP)obj).RawValue == RawValue;
+			return obj is FP fp && fp.RawValue == RawValue;
 		}
 
 		public override int GetHashCode()
@@ -308,21 +378,26 @@ namespace Mathematics.Fixed
 			return RawValue.GetHashCode();
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Equals(FP other)
 		{
 			return RawValue == other.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int CompareTo(FP other)
 		{
 			return RawValue.CompareTo(other.RawValue);
 		}
 
-		public override string ToString()
-		{
-			// Up to 10 decimal places
-			return ((decimal)this).ToString("0.##########");
-		}
+		public string ToString(string format, IFormatProvider formatProvider) =>
+			((float)this).ToString(format, formatProvider);
+
+		public string ToString(string format) => ((float)this).ToString(format);
+
+		public string ToString(IFormatProvider provider) => ((float)this).ToString(provider);
+
+		public override string ToString() => ((decimal)this).ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static int CountLeadingZeroes(ulong x)

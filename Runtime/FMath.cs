@@ -5,6 +5,30 @@ namespace Mathematics.Fixed
 {
 	public static class FMath
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Sin(FP value)
+		{
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Cos(FP value)
+		{
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Tan(FP value)
+		{
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Atan2(FP y, FP x)
+		{
+			throw new NotImplementedException();
+		}
+
 		/// <summary>
 		/// Returns a number indicating the sign of a Fix64 number.
 		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
@@ -26,6 +50,16 @@ namespace Mathematics.Fixed
 				value.RawValue < 0 ? -1 :
 				value.RawValue > 0 ? 1 :
 				0);
+		}
+
+		/// <summary>
+		/// Returns a number indicating the sign of a Fix64 number.
+		/// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP CopySign(FP to, FP from)
+		{
+			return FP.FromRaw(to.RawValue & FP.IntegerFractionalMask | from.RawValue & FP.SignMask);
 		}
 
 		/// <summary>
@@ -55,14 +89,103 @@ namespace Mathematics.Fixed
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Max(FP x, FP y)
+		{
+			long rawResult = x.RawValue;
+			if (y.RawValue > x.RawValue)
+			{
+				rawResult = y.RawValue;
+			}
+			return FP.FromRaw(rawResult);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Min(FP x, FP y)
+		{
+			long rawResult = x.RawValue;
+			if (y.RawValue < x.RawValue)
+			{
+				rawResult = y.RawValue;
+			}
+			return FP.FromRaw(rawResult);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Lerp(FP start, FP end, FP t)
+		{
+			if (t.RawValue < 0)
+			{
+				t.RawValue = 0L;
+			}
+			if (t.RawValue > FP.OneRaw)
+			{
+				t.RawValue = FP.OneRaw;
+			}
+			return start + t * (end - start);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP LerpUnclamped(FP start, FP end, FP t)
+		{
+			return start + t * (end - start);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP MoveTowards(FP current, FP target, FP maxDelta)
+		{
+			return Abs(target - current) <= maxDelta ? target : current + Sign(target - current) * maxDelta;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Clamp01(FP value)
+		{
+			if (value.RawValue < 0)
+			{
+				return FP.Zero;
+			}
+			if (value.RawValue > FP.OneRaw)
+			{
+				return FP.One;
+			}
+			return value;
+		}
+
+		/// <summary>
+		/// Compares two values with some epsilon and returns true if they are similar.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool ApproximatelyEqual(FP x, FP y)
+		{
+			return ApproximatelyEqual(x, y, FP.Epsilon);
+		}
+
+		/// <summary>
+		/// Compares two values with some epsilon and returns true if they are similar.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool ApproximatelyEqual(FP x, FP y, FP epsilon)
+		{
+			var difference = Abs(x - y);
+			return difference <= epsilon;
+		}
+
 		/// <summary>
 		/// Returns the largest integer less than or equal to the specified number.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Floor(FP value)
 		{
-			// Just zero out the fractional part
 			return FP.FromRaw(value.RawValue & FP.IntegerSignMask);
+		}
+
+		/// <summary>
+		/// Returns the largest integer less than or equal to the specified number.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int FloorToInt(FP value)
+		{
+			return (int)FP.FromRaw(value.RawValue & FP.IntegerSignMask);
 		}
 
 		/// <summary>

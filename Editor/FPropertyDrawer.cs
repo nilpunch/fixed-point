@@ -20,7 +20,7 @@ namespace Mathematics.Fixed.Editor
 				var propertyValue = (float)FP.FromRaw(valueProperty.longValue);
 
 				EditorGUI.BeginChangeCheck();
-				var newValue = EditorGUI.FloatField(position, new GUIContent(property.name), propertyValue);
+				var newValue = EditorGUI.FloatField(position, new GUIContent(property.displayName), propertyValue);
 				if (EditorGUI.EndChangeCheck())
 				{
 					valueProperty.longValue = ((FP)newValue).RawValue;
