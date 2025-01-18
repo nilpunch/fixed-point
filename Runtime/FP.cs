@@ -7,18 +7,79 @@ namespace Mathematics.Fixed
 	public struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
 		public const int FractionalPlaces = 32;
+		public const int CalculationsEpsilonScaling = 10;
 
 		public const int BitsAmount = sizeof(long) * 8;
 		public const int BitsAmountMinusSign = BitsAmount - 1;
-		public const long FractionalMask = (long)(0xFFFFFFFFFFFFFFFF >> (BitsAmount - FractionalPlaces));
-		public const long IntegerSignMask = unchecked((long)(0xFFFFFFFFFFFFFFFF << FractionalPlaces));
-		public const long IntegerFractionalMask = (long)(0xFFFFFFFFFFFFFFFF >> 1);
+		public const int IntegerBitsAmount = BitsAmountMinusSign - FractionalPlaces;
+		public const long FractionalMask = (long)(~0UL >> (BitsAmount - FractionalPlaces));
+		public const long IntegerSignMask = unchecked((long)(~0UL << FractionalPlaces));
+		public const long IntegerFractionalMask = (long)(~0UL >> 1);
 		public const long SignMask = 1L << BitsAmountMinusSign;
+
+		public const long EpsilonRaw = 1L;
+		public const long CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
+		public const long CalculationsEpsilonRaw = CalculationsEpsilonSqrRaw * CalculationsEpsilonScaling;
+
+		public const long MaxValueRaw = long.MaxValue;
+		public const long MinValueRaw = long.MinValue;
+		public const long OneRaw = 1L << FractionalPlaces;
+		public const long MinusOneRaw = IntegerSignMask;
+		public const long TwoRaw = OneRaw * 2;
+		public const long HalfRaw = OneRaw / 2;
+		public const long QuarterRaw = OneRaw / 4;
+
+		public const double RealPi = 3.141592653589793;
+		public const long PiRaw = (long)(RealPi * OneRaw);
+		public const long HalfPiRaw = (long)(0.5 * RealPi * OneRaw);
+		public const long TwoPiRaw = (long)(2 * RealPi * OneRaw);
+
+		public const long Deg2RadRaw = (long)(RealPi / 180.0 * OneRaw);
+		public const long Rad2DegRaw = (long)(180.0 / RealPi * OneRaw);
+
+		public const long Ln2Raw = (long)(0.69314718056 * OneRaw);
+		public const long Log2MaxRaw = IntegerBitsAmount * OneRaw;
+		public const long Log2MinRaw = -(IntegerBitsAmount + 1) * OneRaw;
+
+		public long RawValue;
+
+		/// <summary>
+		/// This is the constructor from raw value.
+		/// </summary>
+		/// <param name="rawValue"></param>
+		public FP(long rawValue)
+		{
+			RawValue = rawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static unsafe FP FromRaw(long rawValue)
+		{
+			return *(FP*)(&rawValue);
+		}
 
 		public static FP Epsilon
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => FromRaw(EpsilonRaw);
+		}
+
+		/// <summary>
+		/// Epsilon for linear operations.
+		/// </summary>
+		public static FP CalculationsEpsilon
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(CalculationsEpsilonRaw);
+		}
+
+		/// <summary>
+		/// More precise epsilon for operations with squares involved.
+		/// </summary>
+		public static FP CalculationsEpsilonSqr
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(CalculationsEpsilonSqrRaw);
 		}
 
 		public static FP MaxValue
@@ -37,6 +98,12 @@ namespace Mathematics.Fixed
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => FromRaw(OneRaw);
+		}
+
+		public static FP Two
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(TwoRaw);
 		}
 
 		public static FP Zero
@@ -111,43 +178,6 @@ namespace Mathematics.Fixed
 			get => FromRaw(Ln2Raw);
 		}
 
-		public const long EpsilonRaw = 1L;
-		public const long MaxValueRaw = long.MaxValue;
-		public const long MinValueRaw = long.MinValue;
-		public const long OneRaw = 1L << FractionalPlaces;
-		public const long MinusOneRaw = IntegerSignMask;
-		public const long HalfRaw = FractionalMask / 2;
-		public const long QuarterRaw = FractionalMask / 4;
-
-		public const double RealPi = 3.141592653589793;
-		public const long PiRaw = (long)(RealPi * OneRaw);
-		public const long HalfPiRaw = (long)(0.5 * RealPi * OneRaw);
-		public const long TwoPiRaw = (long)(2 * RealPi * OneRaw);
-
-		public const long Deg2RadRaw = (long)(RealPi / 180.0 * OneRaw);
-		public const long Rad2DegRaw = (long)(180.0 / RealPi * OneRaw);
-
-		public const long Ln2Raw = 0xB17217F7;
-		public const long Log2MaxRaw = 0x1F00000000;
-		public const long Log2MinRaw = -0x2000000000;
-
-		public long RawValue;
-
-		/// <summary>
-		/// This is the constructor from raw value.
-		/// </summary>
-		/// <param name="rawValue"></param>
-		public FP(long rawValue)
-		{
-			RawValue = rawValue;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe FP FromRaw(long rawValue)
-		{
-			return *(FP*)(&rawValue);
-		}
-
 		/// <summary>
 		/// Adds x and y without performing overflow checking.
 		/// </summary>
@@ -195,7 +225,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Performs multiplication without checking for overflow.
+		/// Performs fast multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, int scalar)
@@ -242,7 +272,7 @@ namespace Mathematics.Fixed
 				quotient += div << bitPos;
 
 				// Detect overflow
-				if ((div & ~(0xFFFFFFFFFFFFFFFF >> bitPos)) != 0)
+				if ((div & ~(~0UL >> bitPos)) != 0)
 				{
 					return ((xl ^ yl) & MinValueRaw) == 0 ? MaxValue : MinValue;
 				}

@@ -9,12 +9,12 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public struct FAngle : IEquatable<FAngle>
 	{
+		public FP Radians;
+
 		private FAngle(FP radians)
 		{
 			Radians = radians;
 		}
-
-		public FP Radians;
 
 		public FP Degrees
 		{
@@ -73,7 +73,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Normalize360(FAngle angle)
 		{
-			FP angleRad = angle.Radians % FP.TwoPi;
+			var angleRad = angle.Radians % FP.TwoPi;
 
 			if (angleRad < FP.Zero)
 			{
@@ -89,7 +89,7 @@ namespace Mathematics.Fixed
 
 		public static FAngle Normalize180(FAngle angle)
 		{
-			FP angleRad = angle.Radians % FP.TwoPi;
+			var angleRad = angle.Radians % FP.TwoPi;
 
 			if (angleRad <= -FP.Pi)
 			{
@@ -106,7 +106,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Lerp360(FAngle from, FAngle to, FP factor)
 		{
-			FAngle difference = Normalize180(to - from);
+			var difference = Normalize180(to - from);
 
 			return Normalize360(from + difference * FMath.Clamp01(factor));
 		}
@@ -114,7 +114,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Lerp180(FAngle from, FAngle to, FP factor)
 		{
-			FAngle difference = Normalize180(to - from);
+			var difference = Normalize180(to - from);
 
 			return Normalize180(from + difference * FMath.Clamp01(factor));
 		}
@@ -140,7 +140,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle MoveTowards(FAngle from, FAngle to, FAngle maxDelta)
 		{
-			FAngle delta = FAngle.Delta(from, to);
+			var delta = FAngle.Delta(from, to);
 
 			if (-maxDelta < delta && delta < maxDelta)
 				return to;

@@ -285,8 +285,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP DistanceSqr(FVector2 a, FVector2 b)
 		{
-			FP deltaX = a.X - b.X;
-			FP deltaY = a.Y - b.Y;
+			var deltaX = a.X - b.X;
+			var deltaY = a.Y - b.Y;
 			return deltaX * deltaX + deltaY * deltaY;
 		}
 
@@ -296,7 +296,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 Normalize(FVector2 a)
 		{
-			FP length = Length(a);
+			var length = Length(a);
 			return a / length;
 		}
 
@@ -307,8 +307,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 NormalizeSafe(FVector2 a, FVector2 defaultValue = new FVector2())
 		{
-			FP lengthSqr = LengthSqr(a);
-			if (lengthSqr < FP.Epsilon)
+			var lengthSqr = LengthSqr(a);
+			if (lengthSqr < FP.CalculationsEpsilonSqr)
 				return defaultValue;
 			return a / FMath.Sqrt(lengthSqr);
 		}
@@ -328,8 +328,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 Orthonormal(FVector2 a)
 		{
-			FVector2 orthogonal = Orthogonal(a);
-			FP length = Length(orthogonal);
+			var orthogonal = Orthogonal(a);
+			var length = Length(orthogonal);
 			return orthogonal / length;
 		}
 
@@ -370,12 +370,12 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Compares two vectors with <see cref="FP.Epsilon"/> and returns true if they are similar.
+		/// Compares two vectors with <see cref="FP.CalculationsEpsilonSqr"/> and returns true if they are similar.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FVector2 a, FVector2 b)
 		{
-			return ApproximatelyEqual(a, b, FP.Epsilon);
+			return ApproximatelyEqual(a, b, FP.CalculationsEpsilonSqr);
 		}
 
 		/// <summary>

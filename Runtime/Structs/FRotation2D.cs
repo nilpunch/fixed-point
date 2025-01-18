@@ -40,14 +40,14 @@ namespace Mathematics.Fixed
 		public static FRotation2D Identity
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => new FRotation2D();
+			get => new FRotation2D(FP.Zero, FP.Zero);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator *(FRotation2D rotation2D, FVector2 vector)
 		{
-			FP sin = rotation2D.Sin;
-			FP cos = rotation2D.Cos;
+			var sin = rotation2D.Sin;
+			var cos = rotation2D.Cos;
 			return new FVector2(
 				vector.X * cos - vector.Y * sin,
 				vector.X * sin + vector.Y * cos
@@ -57,13 +57,13 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FRotation2D operator *(FRotation2D a, FRotation2D b)
 		{
-			FP sinA = a.Sin;
-			FP cosA = a.Cos;
-			FP sinB = b.Sin;
-			FP cosB = b.Cos;
+			var sinA = a.Sin;
+			var cosA = a.Cos;
+			var sinB = b.Sin;
+			var cosB = b.Cos;
 
-			FP cos = cosA * cosB - sinA * sinB;
-			FP sin = sinA * cosB + cosA * sinB;
+			var cos = cosA * cosB - sinA * sinB;
+			var sin = sinA * cosB + cosA * sinB;
 
 			return new FRotation2D(sin, FP.One - cos);
 		}
@@ -77,7 +77,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FRotation2D FromToRotation(FVector2 fromDirection, FVector2 toDirection)
 		{
-			FP angleRadians = FMath.Atan2(toDirection.Y, toDirection.X) - FMath.Atan2(fromDirection.Y, fromDirection.X);
+			var angleRadians = FMath.Atan2(toDirection.Y, toDirection.X) - FMath.Atan2(fromDirection.Y, fromDirection.X);
 			return new FRotation2D(FAngle.FromRadians(angleRadians));
 		}
 	}

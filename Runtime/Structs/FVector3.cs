@@ -305,9 +305,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP DistanceSqr(FVector3 a, FVector3 b)
 		{
-			FP deltaX = a.X - b.X;
-			FP deltaY = a.Y - b.Y;
-			FP deltaZ = a.Z - b.Z;
+			var deltaX = a.X - b.X;
+			var deltaY = a.Y - b.Y;
+			var deltaZ = a.Z - b.Z;
 			return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
 		}
 
@@ -317,7 +317,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 Normalize(FVector3 a)
 		{
-			FP length = Length(a);
+			var length = Length(a);
 			return a / length;
 		}
 
@@ -328,8 +328,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 NormalizeSafe(FVector3 a, FVector3 defaultValue = new FVector3())
 		{
-			FP lengthSqr = LengthSqr(a);
-			if (lengthSqr < FP.Epsilon)
+			var lengthSqr = LengthSqr(a);
+			if (lengthSqr < FP.CalculationsEpsilonSqr)
 				return defaultValue;
 			return a / FMath.Sqrt(lengthSqr);
 		}
@@ -352,9 +352,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 Orthonormal(FVector3 a)
 		{
-			FP length = Length(a);
-			FP s = FMath.CopySign(length, a.Z);
-			FP h = a.Z + s;
+			var length = Length(a);
+			var s = FMath.CopySign(length, a.Z);
+			var h = a.Z + s;
 			return new FVector3(s * h - a.X * a.X, -a.X * a.Y, -a.X * h);
 		}
 
@@ -395,12 +395,12 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Compares two vectors with <see cref="FP.Epsilon"/> and returns true if they are similar.
+		/// Compares two vectors with <see cref="FP.CalculationsEpsilonSqr"/> and returns true if they are similar.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FVector3 a, FVector3 b)
 		{
-			return ApproximatelyEqual(a, b, FP.Epsilon);
+			return ApproximatelyEqual(a, b, FP.CalculationsEpsilonSqr);
 		}
 
 		/// <summary>

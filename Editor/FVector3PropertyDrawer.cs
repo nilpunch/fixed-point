@@ -23,6 +23,9 @@ namespace Mathematics.Fixed.Editor
 				var yValue = (float)FP.FromRaw(yProperty.longValue);
 				var zValue = (float)FP.FromRaw(zProperty.longValue);
 
+				bool wideMode = EditorGUIUtility.wideMode;
+				EditorGUIUtility.wideMode = true;
+
 				EditorGUI.BeginChangeCheck();
 				var newValue = EditorGUI.Vector3Field(position, new GUIContent(property.displayName), new Vector3(xValue, yValue, zValue));
 				if (EditorGUI.EndChangeCheck())
@@ -31,6 +34,8 @@ namespace Mathematics.Fixed.Editor
 					yProperty.longValue = ((FP)newValue.y).RawValue;
 					zProperty.longValue = ((FP)newValue.z).RawValue;
 				}
+				
+				EditorGUIUtility.wideMode = wideMode;
 			}
 			EditorGUI.EndProperty();
 		}

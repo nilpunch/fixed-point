@@ -24,6 +24,18 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Asin(FP value)
+		{
+			throw new NotImplementedException();
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Acos(FP value)
+		{
+			throw new NotImplementedException();
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan2(FP y, FP x)
 		{
 			throw new NotImplementedException();
@@ -157,7 +169,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FP x, FP y)
 		{
-			return ApproximatelyEqual(x, y, FP.Epsilon);
+			return ApproximatelyEqual(x, y, FP.CalculationsEpsilonSqr);
 		}
 
 		/// <summary>
