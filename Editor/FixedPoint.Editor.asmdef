@@ -1,0 +1,19 @@
+{
+    "name": "FixedPoint.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:401db8312f319734b8ce2e50f0180af2",
+        "GUID:343deaaf83e0cee4ca978e7df0b80d21"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
