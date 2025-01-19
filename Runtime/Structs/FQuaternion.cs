@@ -156,7 +156,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator /(FQuaternion a, FP b)
 		{
-			return new FQuaternion(a.X / b, a.Y / b, a.Z / b, a.W / b);
+			var invB = FP.One / b;
+			return new FQuaternion(a.X * invB, a.Y * invB, a.Z * invB, a.W * invB);
 		}
 
 		/// <summary>

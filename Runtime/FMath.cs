@@ -104,7 +104,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Max(FP x, FP y)
 		{
-			long rawResult = x.RawValue;
+			var rawResult = x.RawValue;
 			if (y.RawValue > x.RawValue)
 			{
 				rawResult = y.RawValue;
@@ -115,7 +115,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Min(FP x, FP y)
 		{
-			long rawResult = x.RawValue;
+			var rawResult = x.RawValue;
 			if (y.RawValue < x.RawValue)
 			{
 				rawResult = y.RawValue;
