@@ -242,7 +242,7 @@ namespace Mathematics.Fixed
 				}
 			}
 
-			// If a = b or a = b then theta = 0 then we can return interpolation between a and b
+			// If a = b or a = b then theta = 0 then we can return interpolation between a and b.
 			if (FMath.Abs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
 			{
 				return Nlerp(a, b, t, longPath);
@@ -264,7 +264,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion Nlerp(FQuaternion a, FQuaternion b, FP t, bool longPath = false)
 		{
-			return FQuaternion.NormalizeSafe(Lerp(a, b, t, longPath), FQuaternion.Identity);
+			return FQuaternion.NormalizeSafe(Lerp(a, b, t, longPath));
 		}
 
 		/// <summary>
@@ -321,29 +321,32 @@ namespace Mathematics.Fixed
 			if (trace1 + FP.CalculationsEpsilon > trace2 && trace1 + FP.CalculationsEpsilon > trace3)
 			{
 				var s = FMath.Sqrt(trace1) * 2;
+				var invS = FP.One / s;
 				return new FQuaternion(
 					FP.Quarter * s,
-					(rotatedUp.X + sideAxis.Y) / s,
-					(lookAt.X + sideAxis.Z) / s,
-					(rotatedUp.Z - lookAt.Y) / s);
+					(rotatedUp.X + sideAxis.Y) * invS,
+					(lookAt.X + sideAxis.Z) * invS,
+					(rotatedUp.Z - lookAt.Y) * invS);
 			}
 			else if (trace2 + FP.CalculationsEpsilon > trace1 && trace2 + FP.CalculationsEpsilon > trace3)
 			{
 				var s = FMath.Sqrt(trace2) * 2;
+				var invS = FP.One / s;
 				return new FQuaternion(
-					(rotatedUp.X + sideAxis.Y) / s,
+					(rotatedUp.X + sideAxis.Y) * invS,
 					FP.Quarter * s,
-					(lookAt.Y + rotatedUp.Z) / s,
-					(lookAt.X - sideAxis.Z) / s);
+					(lookAt.Y + rotatedUp.Z) * invS,
+					(lookAt.X - sideAxis.Z) * invS);
 			}
 			else
 			{
 				var s = FMath.Sqrt(trace3) * 2;
+				var invS = FP.One / s;
 				return new FQuaternion(
-					(lookAt.X + sideAxis.Z) / s,
-					(lookAt.Y + rotatedUp.Z) / s,
+					(lookAt.X + sideAxis.Z) * invS,
+					(lookAt.Y + rotatedUp.Z) * invS,
 					FP.Quarter * s,
-					(sideAxis.Y - rotatedUp.X) / s);
+					(sideAxis.Y - rotatedUp.X) * invS);
 			}
 		}
 
@@ -425,10 +428,20 @@ namespace Mathematics.Fixed
 
 		/// <summary>
 		/// Returns a safe normalized version of a quaternion.
+		/// Returns the <see cref="Identity"/> when quaternion length close to zero.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FQuaternion NormalizeSafe(FQuaternion a)
+		{
+			return NormalizeSafe(a, Identity);
+		}
+		
+		/// <summary>
+		/// Returns a safe normalized version of a quaternion.
 		/// Returns the given default value when quaternion length close to zero.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FQuaternion NormalizeSafe(FQuaternion a, FQuaternion defaultValue = new FQuaternion())
+		public static FQuaternion NormalizeSafe(FQuaternion a, FQuaternion defaultValue)
 		{
 			var sqrLength = LengthSqr(a);
 			if (sqrLength < FP.CalculationsEpsilonSqr)
