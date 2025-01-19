@@ -216,6 +216,24 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
+		/// Returns the componentwise multiplication.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FVector3 operator *(FVector3 a, int b)
+		{
+			return new FVector3(a.X * b, a.Y * b, a.Z * b);
+		}
+		
+		/// <summary>
+		/// Returns the componentwise multiplication.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FVector3 operator *(int b, FVector3 a)
+		{
+			return a * b;
+		}
+
+		/// <summary>
 		/// Returns the componentwise division.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -230,16 +248,17 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator /(FVector3 a, FP b)
 		{
-			return new FVector3(a.X / b, a.Y / b, a.Z / b);
+			var invB = FP.One / b;
+			return new FVector3(a.X * invB, a.Y * invB, a.Z * invB);
 		}
 
 		/// <summary>
 		/// Returns the componentwise division.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FVector3 operator /(FP a, FVector3 b)
+		public static FVector3 operator /(FVector3 a, int b)
 		{
-			return b / a;
+			return new FVector3(a.X / b, a.Y / b, a.Z / b);
 		}
 
 		/// <summary>
@@ -330,7 +349,9 @@ namespace Mathematics.Fixed
 		{
 			var lengthSqr = LengthSqr(a);
 			if (lengthSqr < FP.CalculationsEpsilonSqr)
+			{
 				return defaultValue;
+			}
 			return a / FMath.Sqrt(lengthSqr);
 		}
 

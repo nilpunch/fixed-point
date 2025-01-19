@@ -194,6 +194,24 @@ namespace Mathematics.Fixed
 		{
 			return b * a;
 		}
+		
+		/// <summary>
+		/// Returns the componentwise multiplication.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FVector2 operator *(FVector2 a, int b)
+		{
+			return new FVector2(a.X * b, a.Y * b);
+		}
+
+		/// <summary>
+		/// Returns the componentwise multiplication.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FVector2 operator *(int b, FVector2 a)
+		{
+			return a * b;
+		}
 
 		/// <summary>
 		/// Returns the componentwise division.
@@ -210,16 +228,17 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator /(FVector2 a, FP b)
 		{
-			return new FVector2(a.X / b, a.Y / b);
+			var invB = FP.One / b;
+			return new FVector2(a.X * invB, a.Y * invB);
 		}
 
 		/// <summary>
 		/// Returns the componentwise division.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FVector2 operator /(FP a, FVector2 b)
+		public static FVector2 operator /(FVector2 a, int b)
 		{
-			return b / a;
+			return new FVector2(a.X / b, a.Y / b);
 		}
 
 		/// <summary>

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	public static class FMath
+	public static partial class FMath
 	{
 		/// <summary>
 		/// Adds x and y. Performs saturating addition, i.e. in case of overflow, 
@@ -147,42 +147,6 @@ namespace Mathematics.Fixed
 			return FP.FromRaw(x.RawValue == FP.MinValueRaw & y.RawValue == -1 ? 0 : x.RawValue % y.RawValue);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Sin(FP value)
-		{
-			throw new NotImplementedException();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Cos(FP value)
-		{
-			throw new NotImplementedException();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Tan(FP value)
-		{
-			throw new NotImplementedException();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Asin(FP value)
-		{
-			throw new NotImplementedException();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Acos(FP value)
-		{
-			throw new NotImplementedException();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Atan2(FP y, FP x)
-		{
-			throw new NotImplementedException();
-		}
-
 		/// <summary>
 		/// Returns a number indicating the sign of a Fix64 number.
 		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
@@ -223,7 +187,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Abs(FP value)
 		{
-			var mask = value.RawValue >> FP.BitsAmountMinusSign;
+			var mask = value.RawValue >> FP.SizeInBitsMinusSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -239,7 +203,7 @@ namespace Mathematics.Fixed
 				return FP.MaxValue;
 			}
 
-			var mask = value.RawValue >> FP.BitsAmountMinusSign;
+			var mask = value.RawValue >> FP.SizeInBitsMinusSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -339,7 +303,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int FloorToInt(FP value)
 		{
-			return (int)FP.FromRaw(value.RawValue & FP.IntegerSignMask);
+			return (int)value;
 		}
 
 		/// <summary>
@@ -359,7 +323,7 @@ namespace Mathematics.Fixed
 		public static int CeilToInt(FP value)
 		{
 			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
-			return hasFractionalPart ? (int)Floor(value) + 1 : (int)value;
+			return hasFractionalPart ? (int)value + 1 : (int)value;
 		}
 
 		/// <summary>
@@ -419,7 +383,7 @@ namespace Mathematics.Fixed
 			var result = 0UL;
 
 			// Second-to-top bit.
-			var bit = 1UL << (FP.BitsAmount - 2);
+			var bit = 1UL << (FP.SizeInBits - 2);
 
 			while (bit > num)
 			{
@@ -449,7 +413,7 @@ namespace Mathematics.Fixed
 				if (i == 0)
 				{
 					// Then process it again to get the lowest 16 bits.
-					if (num > (1UL << (FP.BitsAmount / 2)) - 1)
+					if (num > (1UL << (FP.SizeInBits / 2)) - 1)
 					{
 						// The remainder 'num' is too large to be shifted left
 						// by 32, so we have to add 1 to result manually and
@@ -458,16 +422,16 @@ namespace Mathematics.Fixed
 						//       = num + result^2 - (result + 0.5)^2
 						//       = num - result - 0.5
 						num -= result;
-						num = (num << (FP.BitsAmount / 2)) - FP.HalfRaw;
-						result = (result << (FP.BitsAmount / 2)) + FP.HalfRaw;
+						num = (num << (FP.SizeInBits / 2)) - FP.HalfRaw;
+						result = (result << (FP.SizeInBits / 2)) + FP.HalfRaw;
 					}
 					else
 					{
-						num <<= (FP.BitsAmount / 2);
-						result <<= (FP.BitsAmount / 2);
+						num <<= (FP.SizeInBits / 2);
+						result <<= (FP.SizeInBits / 2);
 					}
 
-					bit = 1UL << (FP.BitsAmount / 2 - 2);
+					bit = 1UL << (FP.SizeInBits / 2 - 2);
 				}
 			}
 
@@ -500,7 +464,7 @@ namespace Mathematics.Fixed
 
 			if (x == FP.One)
 			{
-				return neg ? FP.One / (FP)2 : (FP)2;
+				return neg ? FP.One / 2 : FP.Two;
 			}
 
 			if (x >= FP.Log2Max)
@@ -529,7 +493,7 @@ namespace Mathematics.Fixed
 			var i = 1;
 			while (term.RawValue != 0)
 			{
-				term = x * term * FP.Ln2 / (FP)i;
+				term = x * term * FP.Ln2 / i;
 				result += term;
 				i++;
 			}

@@ -4,45 +4,10 @@ using System.Runtime.CompilerServices;
 namespace Mathematics.Fixed
 {
 	[Serializable]
-	public struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
+	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
 		public const int FractionalPlaces = 32;
 		public const int CalculationsEpsilonScaling = 10;
-
-		public const int BitsAmount = sizeof(long) * 8;
-		public const int BitsAmountMinusSign = BitsAmount - 1;
-		public const int IntegerBitsAmount = BitsAmountMinusSign - FractionalPlaces;
-		public const long FractionalMask = (long)(~0UL >> (BitsAmount - FractionalPlaces));
-		public const long IntegerSignMask = unchecked((long)(~0UL << FractionalPlaces));
-		public const long IntegerFractionalMask = (long)(~0UL >> 1);
-		public const long SignMask = 1L << BitsAmountMinusSign;
-
-		public const long EpsilonRaw = 1L;
-		public const long CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
-		public const long CalculationsEpsilonRaw = CalculationsEpsilonSqrRaw * CalculationsEpsilonScaling;
-
-		public const long MaxValueRaw = long.MaxValue;
-		public const long MinValueRaw = long.MinValue;
-		public const long OneRaw = 1L << FractionalPlaces;
-		public const long MinusOneRaw = IntegerSignMask;
-		public const long TwoRaw = OneRaw * 2;
-		public const long HalfRaw = OneRaw / 2;
-		public const long QuarterRaw = OneRaw / 4;
-
-		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
-		public const long PiRaw = PiBase61 >> (61 - FractionalPlaces);
-		public const long HalfPiRaw = PiRaw / 2;
-		public const long TwoPiRaw = PiRaw * 2;
-
-		public const long Deg2RadBase61 = 40244552544872904L; // (long)(0.017453292519943295 * (1L << 61));
-		public const long Rad2DegBase57 = 8257192040480628736L; // (long)(57.29577951308232 * (1L << 57));
-		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalPlaces);
-		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalPlaces);
-
-		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
-		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalPlaces);
-		public const long Log2MaxRaw = IntegerBitsAmount * OneRaw;
-		public const long Log2MinRaw = -(IntegerBitsAmount + 1) * OneRaw;
 
 		public long RawValue;
 
@@ -55,126 +20,6 @@ namespace Mathematics.Fixed
 		public static unsafe FP FromRaw(long rawValue)
 		{
 			return *(FP*)(&rawValue);
-		}
-
-		public static FP Epsilon
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(EpsilonRaw);
-		}
-
-		/// <summary>
-		/// Epsilon for linear operations.
-		/// </summary>
-		public static FP CalculationsEpsilon
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(CalculationsEpsilonRaw);
-		}
-
-		/// <summary>
-		/// More precise epsilon for operations with squares involved.
-		/// </summary>
-		public static FP CalculationsEpsilonSqr
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(CalculationsEpsilonSqrRaw);
-		}
-
-		public static FP MaxValue
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(MaxValueRaw);
-		}
-
-		public static FP MinValue
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(MinValueRaw);
-		}
-
-		public static FP One
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(OneRaw);
-		}
-
-		public static FP Two
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(TwoRaw);
-		}
-
-		public static FP Zero
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(0L);
-		}
-
-		public static FP MinusOne
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(MinusOneRaw);
-		}
-
-		public static FP Half
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(HalfRaw);
-		}
-
-		public static FP Quarter
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(QuarterRaw);
-		}
-
-		public static FP Pi
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(PiRaw);
-		}
-
-		public static FP HalfPi
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(HalfPiRaw);
-		}
-
-		public static FP TwoPi
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(TwoPiRaw);
-		}
-
-		public static FP Rad2Deg
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(Rad2DegRaw);
-		}
-
-		public static FP Deg2Rad
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(Deg2RadRaw);
-		}
-
-		public static FP Log2Max
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(Log2MaxRaw);
-		}
-
-		public static FP Log2Min
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(Log2MinRaw);
-		}
-
-		public static FP Ln2
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(Ln2Raw);
 		}
 
 		/// <summary>
@@ -237,7 +82,7 @@ namespace Mathematics.Fixed
 			var remainder = (ulong)(xl >= 0 ? xl : -xl);
 			var divider = (ulong)(yl >= 0 ? yl : -yl);
 			var quotient = 0UL;
-			var bitPos = BitsAmount / 2 + 1;
+			var bitPos = SizeInBits / 2 + 1;
 
 			// If the divider is divisible by 2^n, take advantage of it.
 			while ((divider & 0xF) == 0 && bitPos >= 4)
@@ -438,11 +283,11 @@ namespace Mathematics.Fixed
 		}
 
 		public string ToString(string format, IFormatProvider formatProvider) =>
-			((float)this).ToString(format, formatProvider);
+			((double)this).ToString(format, formatProvider);
 
-		public string ToString(string format) => ((float)this).ToString(format);
+		public string ToString(string format) => ((double)this).ToString(format);
 
-		public string ToString(IFormatProvider provider) => ((float)this).ToString(provider);
+		public string ToString(IFormatProvider provider) => ((double)this).ToString(provider);
 
 		public override string ToString() => ((decimal)this).ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
 

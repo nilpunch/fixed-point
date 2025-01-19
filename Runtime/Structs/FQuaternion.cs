@@ -3,9 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	/// <summary>
-	/// Normalized quaternion with unit length. Represent rotation.
-	/// </summary>
 	[Serializable]
 	public struct FQuaternion : IEquatable<FQuaternion>, IFormattable
 	{
@@ -118,7 +115,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Rotate vector by the quaternion.
+		/// Rotate vector by the quaternion. Valid only for normalized quaternions.
 		/// </summary>
 		public static FVector3 operator *(FQuaternion unitQuaternion, FVector3 vector)
 		{
@@ -138,6 +135,32 @@ namespace Mathematics.Fixed
 				(FP.One - (yy2 + zz2)) * vector.X + (xy2 - wz2) * vector.Y + (xz2 + wy2) * vector.Z,
 				(xy2 + wz2) * vector.X + (FP.One - (xx2 + zz2)) * vector.Y + (yz2 - wx2) * vector.Z,
 				(xz2 - wy2) * vector.X + (yz2 + wx2) * vector.Y + (FP.One - (xx2 + yy2)) * vector.Z);
+			return result;
+		}
+
+		/// <summary>
+		/// Returns the vector transformed by the quaternion, including scale and rotation.
+		/// Also known as sandwich product: q * vec * conj(q)
+		/// </summary>
+		public static FVector3 Sandwich(FQuaternion quaternion, FVector3 vector)
+		{
+			var twoX = quaternion.X * 2;
+			var twoY = quaternion.Y * 2;
+			var twoZ = quaternion.Z * 2;
+			var xx = quaternion.X * quaternion.X;
+			var yy = quaternion.Y * quaternion.Y;
+			var zz = quaternion.Z * quaternion.Z;
+			var ww = quaternion.W * quaternion.W;
+			var xy2 = quaternion.X * twoY;
+			var xz2 = quaternion.X * twoZ;
+			var yz2 = quaternion.Y * twoZ;
+			var wx2 = quaternion.W * twoX;
+			var wy2 = quaternion.W * twoY;
+			var wz2 = quaternion.W * twoZ;
+			var result = new FVector3(
+				(ww + xx - yy - zz) * vector.X + (xy2 - wz2) * vector.Y + (xz2 + wy2) * vector.Z,
+				(xy2 + wz2) * vector.X + (ww - xx + yy - zz) * vector.Y + (yz2 - wx2) * vector.Z,
+				(xz2 - wy2) * vector.X + (yz2 + wx2) * vector.Y + (ww - xx - yy + zz) * vector.Z);
 			return result;
 		}
 
@@ -200,21 +223,12 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// The conjugate of a quaternion.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FQuaternion Conjugate(FQuaternion a)
-		{
-			return new FQuaternion(-a.X, -a.Y, -a.Z, a.W);
-		}
-
-		/// <summary>
 		/// The inverse of a quaternion.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion Inverse(FQuaternion a)
 		{
-			return Conjugate(a);
+			return new FQuaternion(-a.X, -a.Y, -a.Z, a.W);
 		}
 
 		/// <summary>
@@ -265,7 +279,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion Nlerp(FQuaternion a, FQuaternion b, FP t, bool longPath = false)
 		{
-			return FQuaternion.NormalizeSafe(Lerp(a, b, t, longPath));
+			return NormalizeSafe(Lerp(a, b, t, longPath));
 		}
 
 		/// <summary>

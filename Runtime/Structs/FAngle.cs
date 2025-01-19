@@ -140,24 +140,24 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle MoveTowards(FAngle from, FAngle to, FAngle maxDelta)
 		{
-			var delta = FAngle.Delta(from, to);
+			var delta = Delta(from, to);
 
 			if (-maxDelta < delta && delta < maxDelta)
 				return to;
 
-			return FAngle.FromRadians(FMath.MoveTowards(from.Radians, (from + delta).Radians, maxDelta.Radians));
+			return FromRadians(FMath.MoveTowards(from.Radians, (from + delta).Radians, maxDelta.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Max(FAngle a, FAngle b)
 		{
-			return FAngle.FromRadians(FMath.Max(a.Radians, b.Radians));
+			return FromRadians(FMath.Max(a.Radians, b.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Min(FAngle a, FAngle b)
 		{
-			return FAngle.FromRadians(FMath.Min(a.Radians, b.Radians));
+			return FromRadians(FMath.Min(a.Radians, b.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
