@@ -6,7 +6,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalPlaces = 48;
+		public const int FractionalPlaces = 32;
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
@@ -106,7 +106,7 @@ namespace Mathematics.Fixed
 				remainder = remainder % divider;
 				quotient += div << bitPos;
 
-				// Detect overflow
+				// Detect overflow.
 				if ((div & ~(~0UL >> bitPos)) != 0)
 				{
 					return ((xl ^ yl) & MinValueRaw) == 0 ? MaxValue : MinValue;

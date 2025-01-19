@@ -24,7 +24,8 @@ namespace Mathematics.Fixed
 		public const long TwoRaw = OneRaw * 2;
 		public const long HalfRaw = OneRaw / 2;
 		public const long QuarterRaw = OneRaw / 4;
-		
+
+		// 61 is the largest N such that (2^N)*PI < long.MaxValue.
 		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
 		public const long PiRaw = PiBase61 >> (61 - FractionalPlaces);
 		public const long HalfPiRaw = PiRaw / 2;
