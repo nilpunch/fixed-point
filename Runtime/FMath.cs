@@ -187,7 +187,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Abs(FP value)
 		{
-			var mask = value.RawValue >> FP.SizeInBitsMinusSign;
+			var mask = value.RawValue >> FP.SizeMinusSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -203,7 +203,7 @@ namespace Mathematics.Fixed
 				return FP.MaxValue;
 			}
 
-			var mask = value.RawValue >> FP.SizeInBitsMinusSign;
+			var mask = value.RawValue >> FP.SizeMinusSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -383,7 +383,7 @@ namespace Mathematics.Fixed
 			var result = 0UL;
 
 			// Second-to-top bit.
-			var bit = 1UL << (FP.SizeInBits - 2);
+			var bit = 1UL << (FP.Size - 2);
 
 			while (bit > num)
 			{
@@ -413,7 +413,7 @@ namespace Mathematics.Fixed
 				if (i == 0)
 				{
 					// Then process it again to get the lowest 16 bits.
-					if (num > (1UL << (FP.SizeInBits / 2)) - 1)
+					if (num > (1UL << (FP.Size / 2)) - 1)
 					{
 						// The remainder 'num' is too large to be shifted left
 						// by 32, so we have to add 1 to result manually and
@@ -422,16 +422,16 @@ namespace Mathematics.Fixed
 						//       = num + result^2 - (result + 0.5)^2
 						//       = num - result - 0.5
 						num -= result;
-						num = (num << (FP.SizeInBits / 2)) - FP.HalfRaw;
-						result = (result << (FP.SizeInBits / 2)) + FP.HalfRaw;
+						num = (num << (FP.Size / 2)) - FP.HalfRaw;
+						result = (result << (FP.Size / 2)) + FP.HalfRaw;
 					}
 					else
 					{
-						num <<= (FP.SizeInBits / 2);
-						result <<= (FP.SizeInBits / 2);
+						num <<= (FP.Size / 2);
+						result <<= (FP.Size / 2);
 					}
 
-					bit = 1UL << (FP.SizeInBits / 2 - 2);
+					bit = 1UL << (FP.Size / 2 - 2);
 				}
 			}
 

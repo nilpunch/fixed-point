@@ -4,13 +4,13 @@ namespace Mathematics.Fixed
 {
 	public partial struct FP
 	{
-		public const int SizeInBits = sizeof(long) * 8;
-		public const int SizeInBitsMinusSign = SizeInBits - 1;
-		public const int IntegerSizeInBits = SizeInBitsMinusSign - FractionalPlaces;
-		public const long FractionalMask = (long)(~0UL >> (SizeInBits - FractionalPlaces));
+		public const int Size = sizeof(long) * 8;
+		public const int SizeMinusSign = Size - 1;
+		public const int IntegerPlaces = SizeMinusSign - FractionalPlaces;
+		public const long FractionalMask = (long)(~0UL >> (Size - FractionalPlaces));
 		public const long IntegerSignMask = unchecked((long)(~0UL << FractionalPlaces));
 		public const long IntegerFractionalMask = (long)(~0UL >> 1);
-		public const long SignMask = 1L << SizeInBitsMinusSign;
+		public const long SignMask = 1L << SizeMinusSign;
 
 		public const long EpsilonRaw = 1L;
 		public const long CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
@@ -37,8 +37,8 @@ namespace Mathematics.Fixed
 		
 		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
 		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalPlaces);
-		public const long Log2MaxRaw = IntegerSizeInBits * OneRaw;
-		public const long Log2MinRaw = -(IntegerSizeInBits + 1) * OneRaw;
+		public const long Log2MaxRaw = IntegerPlaces * OneRaw;
+		public const long Log2MinRaw = -(IntegerPlaces + 1) * OneRaw;
 
 		public static FP Epsilon
 		{

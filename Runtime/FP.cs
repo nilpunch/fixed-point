@@ -6,7 +6,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalPlaces = 32;
+		public const int FractionalPlaces = 48;
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
@@ -82,7 +82,7 @@ namespace Mathematics.Fixed
 			var remainder = (ulong)(xl >= 0 ? xl : -xl);
 			var divider = (ulong)(yl >= 0 ? yl : -yl);
 			var quotient = 0UL;
-			var bitPos = SizeInBits / 2 + 1;
+			var bitPos = Size / 2 + 1;
 
 			// If the divider is divisible by 2^n, take advantage of it.
 			while ((divider & 0xF) == 0 && bitPos >= 4)
