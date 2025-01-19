@@ -29,24 +29,23 @@ namespace Mathematics.Fixed
 		public const long HalfRaw = OneRaw / 2;
 		public const long QuarterRaw = OneRaw / 4;
 
-		public const double RealPi = 3.141592653589793;
-		public const long PiRaw = (long)(RealPi * OneRaw);
-		public const long HalfPiRaw = (long)(0.5 * RealPi * OneRaw);
-		public const long TwoPiRaw = (long)(2 * RealPi * OneRaw);
+		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
+		public const long PiRaw = PiBase61 >> (61 - FractionalPlaces);
+		public const long HalfPiRaw = PiRaw / 2;
+		public const long TwoPiRaw = PiRaw * 2;
 
-		public const long Deg2RadRaw = (long)(RealPi / 180.0 * OneRaw);
-		public const long Rad2DegRaw = (long)(180.0 / RealPi * OneRaw);
+		public const long Deg2RadBase61 = 40244552544872904L; // (long)(0.017453292519943295 * (1L << 61));
+		public const long Rad2DegBase57 = 8257192040480628736L; // (long)(57.29577951308232 * (1L << 57));
+		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalPlaces);
+		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalPlaces);
 
-		public const long Ln2Raw = (long)(0.69314718056 * OneRaw);
+		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
+		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalPlaces);
 		public const long Log2MaxRaw = IntegerBitsAmount * OneRaw;
 		public const long Log2MinRaw = -(IntegerBitsAmount + 1) * OneRaw;
 
 		public long RawValue;
 
-		/// <summary>
-		/// This is the constructor from raw value.
-		/// </summary>
-		/// <param name="rawValue"></param>
 		public FP(long rawValue)
 		{
 			RawValue = rawValue;

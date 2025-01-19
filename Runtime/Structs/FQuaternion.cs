@@ -445,12 +445,10 @@ namespace Mathematics.Fixed
 		public static FQuaternion EnsureNormalization(FQuaternion a)
 		{
 			var lengthSqr = LengthSqr(a);
-
 			if (FMath.Abs(FP.One - lengthSqr) > FP.CalculationsEpsilonSqr)
 			{
 				return a / FMath.Sqrt(lengthSqr);
 			}
-
 			return a;
 		}
 	}
