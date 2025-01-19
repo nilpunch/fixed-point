@@ -223,15 +223,6 @@ namespace Mathematics.Fixed
 			return FromRaw(sum);
 		}
 
-		/// <summary>
-		/// Performs fast multiplication without checking for overflow.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP operator *(FP x, int scalar)
-		{
-			return FromRaw(x.RawValue * scalar);
-		}
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
@@ -291,12 +282,6 @@ namespace Mathematics.Fixed
 			return FromRaw(result);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP operator /(FP x, int scalar)
-		{
-			return FromRaw(x.RawValue / scalar);
-		}
-
 		/// <summary>
 		/// Performs modulo as fast as possible. Throws if x == MinValue and y == -1.
 		/// Use the <see cref="FMath.SafeMod"/> for a more reliable but slower modulo.
@@ -307,10 +292,31 @@ namespace Mathematics.Fixed
 			return FromRaw(x.RawValue % y.RawValue);
 		}
 
+		/// <summary>
+		/// Negate x without performing overflow checking.
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
 		{
-			return x.RawValue == MinValueRaw ? MaxValue : FromRaw(-x.RawValue);
+			return FromRaw(-x.RawValue);
+		}
+
+		/// <summary>
+		/// Performs fast multiplication without checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator *(FP x, int scalar)
+		{
+			return FromRaw(x.RawValue * scalar);
+		}
+
+		/// <summary>
+		/// Performs fast division without checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator /(FP x, int scalar)
+		{
+			return FromRaw(x.RawValue / scalar);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -349,6 +355,18 @@ namespace Mathematics.Fixed
 			return x.RawValue <= y.RawValue;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator FP(int value)
+		{
+			return FromRaw(value * OneRaw);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator int(FP value)
+		{
+			return (int)(value.RawValue >> FractionalPlaces);
+		}
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(long value)
 		{
