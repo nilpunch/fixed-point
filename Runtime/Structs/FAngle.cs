@@ -87,6 +87,7 @@ namespace Mathematics.Fixed
 			return new FAngle(angleRad);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Normalize180(FAngle angle)
 		{
 			var angleRad = angle.Radians % FP.TwoPi;

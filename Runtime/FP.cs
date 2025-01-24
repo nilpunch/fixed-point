@@ -82,7 +82,7 @@ namespace Mathematics.Fixed
 			var remainder = (ulong)(xl >= 0 ? xl : -xl);
 			var divider = (ulong)(yl >= 0 ? yl : -yl);
 			var quotient = 0UL;
-			var bitPos = Size / 2 + 1;
+			var bitPos = FractionalPlaces + 1;
 
 			// If the divider is divisible by 2^n, take advantage of it.
 			while ((divider & 0xF) == 0 && bitPos >= 4)
@@ -103,7 +103,7 @@ namespace Mathematics.Fixed
 				bitPos -= shift;
 
 				var div = remainder / divider;
-				remainder = remainder % divider;
+				remainder %= divider;
 				quotient += div << bitPos;
 
 				// Detect overflow.
@@ -151,6 +151,15 @@ namespace Mathematics.Fixed
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, int scalar)
+		{
+			return FromRaw(x.RawValue * scalar);
+		}
+
+		/// <summary>
+		/// Performs fast multiplication without checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator *(int scalar, FP x)
 		{
 			return FromRaw(x.RawValue * scalar);
 		}
@@ -211,7 +220,7 @@ namespace Mathematics.Fixed
 		{
 			return (int)(value.RawValue >> FractionalPlaces);
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator FP(long value)
 		{
