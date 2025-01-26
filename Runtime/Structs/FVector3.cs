@@ -291,6 +291,20 @@ namespace Mathematics.Fixed
 			return new FVector3(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FVector3 MoveTowards(FVector3 current, FVector3 target, FP maxDistanceDelta) {
+			var direction = target - current;
+ 
+			var sqrLength = LengthSqr(direction);
+ 
+			if (sqrLength == FP.Zero || maxDistanceDelta >= FP.Zero && sqrLength <= maxDistanceDelta * maxDistanceDelta)
+				return target;
+ 
+			var distance = FMath.Sqrt(sqrLength);
+ 
+			return current + direction / distance * maxDistanceDelta;
+		}
+
 		/// <summary>
 		/// Returns the length of a vector.
 		/// </summary>
