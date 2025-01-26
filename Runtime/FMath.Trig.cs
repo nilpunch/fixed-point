@@ -5,12 +5,17 @@ namespace Mathematics.Fixed
 {
 	public static partial class FMath
 	{
-		public const int LutPrecision = 16; // Must be <= FractionalPlaces
-		public const int PowerSeriesTerms = 5;
+		public const int SinPrecision = 16; // Corelate with lut size. Must be <= FractionalPlaces.
+		public const int TanPrecision = 18; // Corelate with lut size. Must be <= FractionalPlaces.
 
-		public const int LutShift = FP.FractionalPlaces - LutPrecision;
-		public const int LutSize = (int)(FP.HalfPiRaw >> LutShift);
+		public const int SinIterations = 5; // Power series iterations.
+		public const int TanIterations = 20; // Continued fraction expansion iterations.
 
+		public const int SinLutShift = FP.FractionalPlaces - SinPrecision;
+		public const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift);
+		public const int TanLutShift = FP.FractionalPlaces - TanPrecision;
+		public const int TanLutSize = (int)(FP.HalfPiRaw >> TanLutShift);
+		
 		private static FP[] s_sinLut;
 		private static FP[] s_tanLut;
 
@@ -66,10 +71,10 @@ namespace Mathematics.Fixed
 				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2)
 			}
 
-			var lutIndex = (int)(rawRadians >> LutShift);
-			if (lutIndex >= LutSize)
+			var lutIndex = (int)(rawRadians >> SinLutShift);
+			if (lutIndex >= SinLutSize)
 			{
-				lutIndex = LutSize - 1;
+				lutIndex = SinLutSize - 1;
 			}
 
 			var sinValue = s_sinLut[lutIndex];
@@ -129,10 +134,10 @@ namespace Mathematics.Fixed
 				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2)
 			}
 
-			var lutIndex = (int)(rawRadians >> LutShift);
-			if (lutIndex >= LutSize)
+			var lutIndex = (int)(rawRadians >> TanLutShift);
+			if (lutIndex >= TanLutSize)
 			{
-				lutIndex = LutSize - 1;
+				lutIndex = TanLutSize - 1;
 			}
 
 			var tanValue = s_tanLut[lutIndex];
@@ -162,17 +167,17 @@ namespace Mathematics.Fixed
 		{
 			var halfPi = FP.HalfPi;
 
-			var lut = new FP[LutSize];
-			for (var i = 0; i < LutSize; i++)
+			var lut = new FP[SinLutSize];
+			for (var i = 0; i < SinLutSize; i++)
 			{
-				var angle = (FP)i / (LutSize - 1) * halfPi;
+				var angle = (FP)i / (SinLutSize - 1) * halfPi;
 				var angleSqr = angle * angle;
 
 				var result = FP.Zero;
 				var pow = angle;
 				var fact = FP.One;
 
-				for (var j = 0; j < PowerSeriesTerms; ++j)
+				for (var j = 0; j < SinIterations; ++j)
 				{
 					result += pow / fact;
 					pow *= -angleSqr;
@@ -187,16 +192,24 @@ namespace Mathematics.Fixed
 
 		private static FP[] GenerateTanLut()
 		{
-			var lut = new FP[LutSize];
+			var lut = new FP[TanLutSize];
 			var halfPi = FP.HalfPi;
 
 			lut[^1] = FP.MaxValue;
 
-			for (var i = 0; i < LutSize - 1; i++)
+			for (var i = 0; i < TanLutSize - 1; i++)
 			{
-				var angle = (FP)i / (LutSize - 1) * halfPi;
+				var angle = (FP)i / (TanLutSize - 1) * halfPi;
+				var angleSqr = angle * angle;
 
-				lut[i] = Sin(angle) / Cos(angle);
+				var denominator = FP.One;
+
+				for (var n = TanIterations; n > 0; n--)
+				{
+					denominator = (FP)(n * 2 - 1) - angleSqr / denominator;
+				}
+
+				lut[i] = angle / denominator;
 			}
 
 			return lut;
