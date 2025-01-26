@@ -60,5 +60,22 @@ namespace Mathematics.Fixed
 			// Assert
 			return result;
 		}
+
+		[TestCase(FP.OneRaw, ExpectedResult = FP.OneRaw)]
+		[TestCase(FP.HalfRaw, ExpectedResult = FP.HalfRaw)]
+		[TestCase(-FP.PiRaw, ExpectedResult = -FP.PiRaw)]
+		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
+		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MinValueRaw)]
+		public long WhenDevidedByOne_ShouldReturnTheSameNumber(long rawValue)
+		{
+			// Arrange
+			var fp = FP.FromRaw(rawValue);
+
+			// Act
+			var result = fp / FP.One;
+
+			// Assert
+			return result.RawValue;
+		}
 	}
 }
