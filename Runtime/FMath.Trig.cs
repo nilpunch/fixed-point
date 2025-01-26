@@ -12,8 +12,11 @@ namespace Mathematics.Fixed
 		public const int LutSize = (int)(FP.HalfPiRaw >> LutShift);
 
 		private static FP[] s_sinLut;
-		private static FP s_sinLutInterval;
 
+		/// <summary>
+		/// Must be called once to use all the trig function.
+		/// Initializes lut tables.
+		/// </summary>
 		public static void Init()
 		{
 			if (s_sinLut != null)
@@ -22,7 +25,6 @@ namespace Mathematics.Fixed
 			}
 
 			s_sinLut = GenerateSinLut();
-			s_sinLutInterval = (FP)(LutSize - 1) / FP.HalfPi;
 		}
 
 		private static FP[] GenerateSinLut()
@@ -52,39 +54,43 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// The less the angle value, the more accuracy it gets.
+		/// Sin of the angle.
+		/// Accuracy degrade when operating with huge values.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Sin(FP angle)
+		public static FP Sin(FAngle angle)
 		{
-			// Precise gradual modulo for big numbers
-			// long rawAngle = angle.RawValue;
-			// for (int i = 0; i < FP.IntegerPlaces - 2; ++i)
-			// {
-			// 	rawAngle %= (FP.PiBase61 >> i);
-			// }
+			return Sin(angle.Radians);
+		}
 
+		/// <summary>
+		/// Sin of the angle in radians.
+		/// Accuracy degrade when operating with huge values.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Sin(FP radians)
+		{
 			// Fast modulo
-			var rawAngle = angle.RawValue % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
+			var rawRadians = radians.RawValue % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
-			if (rawAngle < 0)
+			if (rawRadians < 0)
 			{
-				rawAngle += FP.TwoPiRaw; // Map to [0, 2*Pi)
+				rawRadians += FP.TwoPiRaw; // Map to [0, 2*Pi)
 			}
 
-			var flipVertical = rawAngle >= FP.PiRaw;
+			var flipVertical = rawRadians >= FP.PiRaw;
 			if (flipVertical)
 			{
-				rawAngle -= FP.PiRaw; // Map to [0, Pi)
+				rawRadians -= FP.PiRaw; // Map to [0, Pi)
 			}
 
-			var flipHorizontal = rawAngle >= FP.HalfPiRaw;
+			var flipHorizontal = rawRadians >= FP.HalfPiRaw;
 			if (flipHorizontal)
 			{
-				rawAngle = FP.PiRaw - rawAngle; // Map to [0, Pi/2)
+				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2)
 			}
 
-			var lutIndex = (int)(rawAngle >> LutShift);
+			var lutIndex = (int)(rawRadians >> LutShift);
 			if (lutIndex >= LutSize)
 			{
 				lutIndex = LutSize - 1;
@@ -95,47 +101,35 @@ namespace Mathematics.Fixed
 			return flipVertical ? -sinValue : sinValue;
 		}
 
+		/// <summary>
+		/// Cos of the angle.
+		/// Accuracy degrade when operating with huge values.
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SinAcc(FP angle)
+		public static FP Cos(FAngle angle)
 		{
-			// Fast modulo
-			var rawAngle = angle.RawValue % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
-
-			if (rawAngle < 0)
-			{
-				rawAngle += FP.TwoPiRaw; // Map to [0, 2*Pi)
-			}
-
-			var flipVertical = rawAngle >= FP.PiRaw;
-			if (flipVertical)
-			{
-				rawAngle -= FP.PiRaw; // Map to [0, Pi)
-			}
-
-			var flipHorizontal = rawAngle >= FP.HalfPiRaw;
-			if (flipHorizontal)
-			{
-				rawAngle = FP.PiRaw - rawAngle; // Map to [0, Pi/2)
-			}
-
-			var clampedAngle = FP.FromRaw(rawAngle);
-
-			var rawIndex = clampedAngle * s_sinLutInterval;
-			var roundedIndex = Round(rawIndex);
-			var indexError = rawIndex - roundedIndex;
-
-			var nearestValue = s_sinLut[(int)roundedIndex];
-			var secondNearestValue = s_sinLut[(int)(roundedIndex + SignWithZero(indexError))];
-
-			var delta = (indexError * Abs(nearestValue - secondNearestValue)).RawValue;
-			var interpolatedValue = nearestValue.RawValue + delta;
-			return FP.FromRaw(flipVertical ? -interpolatedValue : interpolatedValue);
+			return Cos(angle.Radians);
 		}
 
+		/// <summary>
+		/// Cos of the angle in radians.
+		/// Accuracy degrade when operating with huge values.
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Cos(FP value)
+		public static FP Cos(FP radians)
 		{
-			throw new NotImplementedException();
+			var rawRadians = radians.RawValue;
+
+			if (rawRadians > 0)
+			{
+				rawRadians += -FP.PiRaw - FP.HalfPiRaw;
+			}
+			else
+			{
+				rawRadians = rawRadians + FP.HalfPiRaw;
+			}
+
+			return Sin(FP.FromRaw(rawRadians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

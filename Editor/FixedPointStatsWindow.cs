@@ -55,12 +55,17 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("Sin", FMath.Sin(FP.Deg2Rad * (FP)_testAngle).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Sin", Math.Sin(0.017453292519943295 * _testAngle).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Sin(FP.Deg2Rad * (FP)_testAngle) - Math.Sin(0.017453292519943295 * _testAngle)).ToString("G5"));
-			// EditorGUILayout.TextField("Sin Accurate", FMath.SinAcc(FP.Deg2Rad * (FP)_testAngle).ToString("F" + decimalDigitsOfAccuracy));
-			// EditorGUILayout.TextField("Delta Accurate", Math.Abs((double)FMath.SinAcc(FP.Deg2Rad * (FP)_testAngle) - Math.Sin(0.017453292519943295 * _testAngle)).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Cos (MaxValue)", ((double)FMath.Cos(FP.Deg2Rad * (FP)_testAngle)).ToString("G5"));
+			EditorGUILayout.TextField("Actual Cos (MaxValue)", Math.Cos((double)(FP.Deg2Rad * (FP)_testAngle)).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Cos(FP.Deg2Rad * (FP)_testAngle) - Math.Cos((double)(FP.Deg2Rad * (FP)_testAngle))).ToString("G5"));
 			EditorGUILayout.Space(5f);
 			EditorGUILayout.TextField("Sin (MaxValue)", ((double)FMath.Sin(FP.MaxValue)).ToString("G5"));
 			EditorGUILayout.TextField("Actual Sin (MaxValue)", Math.Sin((double)FP.MaxValue).ToString("G5"));
-			EditorGUILayout.TextField("Delta (MaxValue)", Math.Abs((double)FMath.Sin(FP.MaxValue) - Math.Sin((double)FP.MaxValue)).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Sin(FP.MaxValue) - Math.Sin((double)FP.MaxValue)).ToString("G5"));
+			EditorGUILayout.Space(5f);
+			EditorGUILayout.TextField("Cos (MaxValue)", ((double)FMath.Cos(FP.MaxValue)).ToString("G5"));
+			EditorGUILayout.TextField("Actual Cos (MaxValue)", Math.Cos((double)FP.MaxValue).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Cos(FP.MaxValue) - Math.Cos((double)FP.MaxValue)).ToString("G5"));
 		}
 	}
 }

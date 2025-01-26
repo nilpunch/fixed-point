@@ -5,6 +5,7 @@ namespace Mathematics.Fixed
 	public partial struct FP
 	{
 		public const int Size = sizeof(long) * 8;
+
 		public const int SizeMinusSign = Size - 1;
 		public const int IntegerPlaces = SizeMinusSign - FractionalPlaces;
 		public const long FractionalMask = (long)(~0UL >> (Size - FractionalPlaces));
@@ -25,7 +26,7 @@ namespace Mathematics.Fixed
 		public const long HalfRaw = OneRaw / 2;
 		public const long QuarterRaw = OneRaw / 4;
 
-		// 61 is the largest N such that (2^N)*PI < long.MaxValue.
+		// 61 is the largest N such that (long)(PI * 2^N) < long.MaxValue.
 		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
 		public const long PiRaw = PiBase61 >> (61 - FractionalPlaces);
 		public const long HalfPiRaw = PiRaw / 2;
