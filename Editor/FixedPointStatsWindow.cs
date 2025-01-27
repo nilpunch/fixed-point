@@ -7,6 +7,7 @@ namespace Mathematics.Fixed.Editor
 	public class FixedPointStatsWindow : EditorWindow
 	{
 		[SerializeField] private float _testAngle = 30;
+		[SerializeField, Range(-1, 1)] private float _testValue = 0;
 
 		private SerializedObject _serializedObject;
 		
@@ -50,10 +51,12 @@ namespace Mathematics.Fixed.Editor
 			FMath.Init();
 
 			EditorGUILayout.Space(10f);
-			EditorGUILayout.PropertyField(_serializedObject.FindProperty(nameof(_testAngle)), new GUIContent("Angle"));
+
+			EditorGUILayout.PropertyField(_serializedObject.FindProperty(nameof(_testAngle)), new GUIContent("Test Angle"));
 			_serializedObject.ApplyModifiedProperties();
 			var testFp = FP.Deg2Rad * (FP)_testAngle;
 			var testRadians = 0.017453292519943295 * _testAngle;
+
 			EditorGUILayout.TextField("Sin", FMath.Sin(testFp).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Sin", Math.Sin(testRadians).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Sin(testFp) - Math.Sin(testRadians)).ToString("G5"));
@@ -74,6 +77,14 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("Cos (MaxValue)", ((double)FMath.Cos(FP.MaxValue)).ToString("G5"));
 			EditorGUILayout.TextField("Actual Cos (MaxValue)", Math.Cos((double)FP.MaxValue).ToString("G5"));
 			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Cos(FP.MaxValue) - Math.Cos((double)FP.MaxValue)).ToString("G5"));
+			
+			EditorGUILayout.PropertyField(_serializedObject.FindProperty(nameof(_testValue)), new GUIContent("Test Value"));
+			_serializedObject.ApplyModifiedProperties();
+			var testValueFp = (FP)_testValue;
+
+			EditorGUILayout.TextField("Arcsin", FMath.Asin(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Delta", Math.Abs((double)FMath.Asin(testValueFp) - Math.Asin(_testValue)).ToString("G5"));
 		}
 	}
 }
