@@ -8,7 +8,7 @@ Can be used as a pure C# library or as a Unity package.
 
 ## Overview
 
-This library is based on [FixedMath.Net](https://github.com/asik/FixedMath.Net) but has been rewritten to avoid magic numbers.
+This library is based on [FixedMath.Net](https://github.com/asik/FixedMath.Net) but has been rewritten without hardcoded magic numbers that are tied to a specific scaling factor.
 
 ### Key Features
 
