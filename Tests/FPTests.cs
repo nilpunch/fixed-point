@@ -37,7 +37,7 @@ namespace Mathematics.Fixed
 			var fp = FP.FromRaw(rawValue);
 
 			// Act
-			var result = (int)fp;
+			var result = fp.ToInt();
 
 			// Assert
 			return result;

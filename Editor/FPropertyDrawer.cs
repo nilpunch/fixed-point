@@ -17,13 +17,13 @@ namespace Mathematics.Fixed.Editor
 
 			EditorGUI.BeginProperty(position, label, valueProperty);
 			{
-				var propertyValue = (float)FP.FromRaw(valueProperty.longValue);
+				var propertyValue = FP.FromRaw(valueProperty.longValue).ToFloat();
 
 				EditorGUI.BeginChangeCheck();
 				var newValue = EditorGUI.FloatField(position, new GUIContent(property.displayName), propertyValue);
 				if (EditorGUI.EndChangeCheck())
 				{
-					valueProperty.longValue = ((FP)newValue).RawValue;
+					valueProperty.longValue = newValue.ToFP().RawValue;
 				}
 			}
 			EditorGUI.EndProperty();

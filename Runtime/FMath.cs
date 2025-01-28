@@ -303,7 +303,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int FloorToInt(FP value)
 		{
-			return (int)value;
+			return value.ToInt();
 		}
 
 		/// <summary>
@@ -323,7 +323,7 @@ namespace Mathematics.Fixed
 		public static int CeilToInt(FP value)
 		{
 			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
-			return hasFractionalPart ? (int)value + 1 : (int)value;
+			return hasFractionalPart ? value.ToInt() + 1 : value.ToInt();
 		}
 
 		/// <summary>
@@ -359,7 +359,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int RoundToInt(FP value)
 		{
-			return (int)Round(value);
+			return Round(value).ToInt();
 		}
 
 		/// <summary>
@@ -484,7 +484,7 @@ namespace Mathematics.Fixed
 			* When the sum term drops to zero, we can stop summing.
 			*/
 
-			var integerPart = (int)Floor(x);
+			var integerPart = Floor(x).ToInt();
 			// Take fractional part of exponent
 			x = FP.FromRaw(x.RawValue & FP.FractionalMask);
 

@@ -51,13 +51,13 @@ namespace Mathematics.Fixed
 		{
 			// Arrange
 			FVector3 point = FVector3.Up;
-			FQuaternion scaling9 = new FQuaternion(FP.Zero, FP.Zero, FP.Zero, (FP)3);
+			FQuaternion scaling9 = new FQuaternion(FP.Zero, FP.Zero, FP.Zero, 3.ToFP());
 
 			// Act
 			FVector3 transformed = FQuaternion.Sandwich(scaling9, point);
 
 			// Assert
-			Assert.IsTrue(transformed == FVector3.Up * (FP)9);
+			Assert.IsTrue(transformed == FVector3.Up * 9.ToFP());
 		}
 	}
 }

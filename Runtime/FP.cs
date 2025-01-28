@@ -209,66 +209,6 @@ namespace Mathematics.Fixed
 			return x.RawValue <= y.RawValue;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator FP(int value)
-		{
-			return FromRaw(value * OneRaw);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator int(FP value)
-		{
-			return (int)(value.RawValue >> FractionalPlaces);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator FP(long value)
-		{
-			return FromRaw(value * OneRaw);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator long(FP value)
-		{
-			return value.RawValue >> FractionalPlaces;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator FP(float value)
-		{
-			return FromRaw((long)(value * OneRaw));
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator float(FP value)
-		{
-			return (float)value.RawValue / OneRaw;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator FP(double value)
-		{
-			return FromRaw((long)(value * OneRaw));
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator double(FP value)
-		{
-			return (double)value.RawValue / OneRaw;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator FP(decimal value)
-		{
-			return FromRaw((long)(value * OneRaw));
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static explicit operator decimal(FP value)
-		{
-			return (decimal)value.RawValue / OneRaw;
-		}
-
 		public override bool Equals(object obj)
 		{
 			return obj is FP fp && fp.RawValue == RawValue;
@@ -292,13 +232,13 @@ namespace Mathematics.Fixed
 		}
 
 		public string ToString(string format, IFormatProvider formatProvider) =>
-			((double)this).ToString(format, formatProvider);
+			this.ToDouble().ToString(format, formatProvider);
 
-		public string ToString(string format) => ((double)this).ToString(format);
+		public string ToString(string format) => this.ToDouble().ToString(format);
 
-		public string ToString(IFormatProvider provider) => ((double)this).ToString(provider);
+		public string ToString(IFormatProvider provider) => this.ToDouble().ToString(provider);
 
-		public override string ToString() => ((decimal)this).ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
+		public override string ToString() => this.ToDouble().ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static int CountLeadingZeroes(ulong x)

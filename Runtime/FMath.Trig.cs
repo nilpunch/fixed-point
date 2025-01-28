@@ -111,7 +111,7 @@ namespace Mathematics.Fixed
 			}
 			else
 			{
-				rawRadians = rawRadians + FP.HalfPiRaw;
+				rawRadians += FP.HalfPiRaw;
 			}
 
 			return Sin(FP.FromRaw(rawRadians));
@@ -187,7 +187,7 @@ namespace Mathematics.Fixed
 
 			for (var i = 0; i < SinLutSize; i++)
 			{
-				var angle = (FP)i / (SinLutSize - 1) * FP.HalfPi;
+				var angle = i.ToFP() / (SinLutSize - 1) * FP.HalfPi;
 				var angleSqr = angle * angle;
 
 				var result = FP.Zero;
@@ -215,14 +215,14 @@ namespace Mathematics.Fixed
 
 			for (var i = 0; i < TanLutSize; i++)
 			{
-				var angle = (FP)i / (TanLutSize - 1) * FP.HalfPi;
+				var angle = i.ToFP() / (TanLutSize - 1) * FP.HalfPi;
 				var angleSqr = angle * angle;
 
 				var denominator = FP.One;
 
 				for (var n = TanIterations; n > 0; n--)
 				{
-					denominator = (FP)(n * 2 - 1) - angleSqr / denominator;
+					denominator = (n * 2 - 1).ToFP() - angleSqr / denominator;
 				}
 
 				lut[i] = angle / denominator;
@@ -238,7 +238,7 @@ namespace Mathematics.Fixed
 
 			for (var i = 0; i < ArcsinLutSize; i++)
 			{
-				var value = (FP)i / (ArcsinLutSize - 1);
+				var value = i.ToFP() / (ArcsinLutSize - 1);
 				var valueSqr = value * value;
 
 				var result = value;
