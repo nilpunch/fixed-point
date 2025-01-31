@@ -381,49 +381,56 @@ namespace Mathematics.Fixed
 
 			const int correctionForOdd = FP.FractionalBits & 1;
 
-			// Find highest power of 4 ≤ x
+			// Find highest power of 4 <= x.
 			var bit = 1UL << (FP.AllBits - 2 + correctionForOdd);
 			while (bit > num)
 			{
 				bit >>= 2;
 			}
 
-			for (int i = 0; i < 2; ++i)
+			while (bit != 0)
 			{
-				while (bit != 0)
+				var t = result + bit;
+				result >>= 1;
+				if (num >= t)
 				{
-					var t = result + bit;
-					result >>= 1;
-					if (num >= t)
-					{
-						num -= t;
-						result += bit;
-					}
-					bit >>= 2;
+					num -= t;
+					result += bit;
 				}
+				bit >>= 2;
+			}
 
-				if (i == 0)
+			// & (FP.AllBits - 1) is a correction for 0 in fractional places.
+			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
+
+			LeftShift128(out var numHigh, ref num, FP.FractionalBits);
+			LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
+
+			var temp = result + bit;
+
+			// Early exit, if we can fallback to standart 64-bit version.
+			while (bit != 0 && (numHigh != 0 || resultHigh != 0 || temp < result))
+			{
+				AddToNew128(out var tempHigh, out temp, ref resultHigh, ref result, bit);
+				RightShift128(ref resultHigh, ref result, 1);
+				if (numHigh > tempHigh || (numHigh == tempHigh && num >= temp))
 				{
-					// & (FP.AllBits - 1) is a correction for 0 in fractional places.
-					bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
-
-					LeftShift128(out var numHigh, ref num, FP.FractionalBits);
-					LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
-
-					var t = result + bit;
-
-					while (bit != 0 && (numHigh != 0 || resultHigh != 0 || t < result))
-					{
-						AddToNew128(out var tHigh, out t, ref resultHigh, ref result, bit);
-						RightShift128(ref resultHigh, ref result, 1);
-						if (numHigh > tHigh || (numHigh == tHigh && num >= t))
-						{
-							Sub128(ref numHigh, ref num, ref tHigh, ref t);
-							Add128(ref resultHigh, ref result, bit);
-						}
-						bit >>= 2;
-					}
+					Sub128(ref numHigh, ref num, ref tempHigh, ref temp);
+					Add128(ref resultHigh, ref result, bit);
 				}
+				bit >>= 2;
+			}
+
+			while (bit != 0)
+			{
+				var t = result + bit;
+				result >>= 1;
+				if (num >= t)
+				{
+					num -= t;
+					result += bit;
+				}
+				bit >>= 2;
 			}
 
 			// Final rounding correction

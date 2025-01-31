@@ -29,6 +29,12 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP ToFP(this decimal value)
+		{
+			return FP.FromRaw((long)(value * FP.OneRaw));
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int ToInt(this FP value)
 		{
 			return (int)(value.RawValue >> FP.FractionalBits);
@@ -50,6 +56,12 @@ namespace Mathematics.Fixed
 		public static double ToDouble(this FP value)
 		{
 			return (double)value.RawValue / FP.OneRaw;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static decimal ToDecimal(this FP value)
+		{
+			return (decimal)value.RawValue / FP.OneRaw;
 		}
 	}
 }

@@ -6,7 +6,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalBits = 3;
+		public const int FractionalBits = 60;
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
