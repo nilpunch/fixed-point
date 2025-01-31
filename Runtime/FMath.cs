@@ -381,7 +381,7 @@ namespace Mathematics.Fixed
 
 			const int correctionForOdd = FP.FractionalBits & 1;
 
-			// Find highest power of 4 <= x.
+			// Find highest power of 4 <= num.
 			var bit = 1UL << (FP.AllBits - 2 + correctionForOdd);
 			while (bit > num)
 			{
@@ -400,7 +400,7 @@ namespace Mathematics.Fixed
 				bit >>= 2;
 			}
 
-			// & (FP.AllBits - 1) is a correction for 0 in fractional places.
+			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
 			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
 
 			LeftShift128(out var numHigh, ref num, FP.FractionalBits);
@@ -408,7 +408,7 @@ namespace Mathematics.Fixed
 
 			var temp = result + bit;
 
-			// Early exit, if we can fallback to standart 64-bit version.
+			// Exit early if we can continue with a standart 64-bit version.
 			while (bit != 0 && (numHigh != 0 || resultHigh != 0 || temp < result))
 			{
 				AddToNew128(out var tempHigh, out temp, ref resultHigh, ref result, bit);
@@ -433,7 +433,7 @@ namespace Mathematics.Fixed
 				bit >>= 2;
 			}
 
-			// Final rounding correction
+			// Rounding up.
 			if (num > result)
 			{
 				result++;
