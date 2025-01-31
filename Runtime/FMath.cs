@@ -363,82 +363,64 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Returns the square root of a specified number.
+		/// Calculates the square root of a fixed-point number.
 		/// </summary>
 		/// <exception cref="ArgumentOutOfRangeException">
-		/// The argument was negative.
+		/// Thrown if the input is negative.
 		/// </exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Sqrt(FP x)
 		{
-			var xl = x.RawValue;
-			if (xl < 0)
+			if (x.RawValue < 0)
 			{
-				// We cannot represent infinities like Single and Double, and Sqrt is
-				// mathematically undefined for x < 0. So we just throw an exception.
-				throw new ArgumentOutOfRangeException("Negative value passed to Sqrt", "x");
+				throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
 			}
 
-			var num = (ulong)xl;
-			var result = 0UL;
+			var num = (ulong)x.RawValue;
+			ulong result = 0;
 
-			// Second-to-top bit.
-			var bit = 1UL << (FP.Size - 2);
+			const int oddCorrection = FP.FractionalPlaces & 1;
 
+			// Find highest power of 4 ≤ x
+			var bit = 1UL << (FP.Size - 2 + oddCorrection);
 			while (bit > num)
 			{
 				bit >>= 2;
 			}
 
-			// The main part is executed twice, in order to avoid
-			// using 128 bit values in computations.
-			for (var i = 0; i < 2; ++i)
+			// First we get the top 48 bits of the answer.
+			while (bit != 0)
 			{
-				// First we get the top 48 bits of the answer.
-				while (bit != 0)
+				var t = result + bit;
+				result >>= 1;
+				if (num >= t)
 				{
-					if (num >= result + bit)
-					{
-						num -= result + bit;
-						result = (result >> 1) + bit;
-					}
-					else
-					{
-						result = result >> 1;
-					}
-
-					bit >>= 2;
+					num -= t;
+					result += bit;
 				}
-
-				if (i == 0)
-				{
-					// Then process it again to get the lowest 16 bits.
-					if (num > (1UL << (FP.Size / 2)) - 1)
-					{
-						// The remainder 'num' is too large to be shifted left
-						// by 32, so we have to add 1 to result manually and
-						// adjust 'num' accordingly.
-						// num = a - (result + 0.5)^2
-						//       = num + result^2 - (result + 0.5)^2
-						//       = num - result - 0.5
-						num -= result;
-						num = (num << (FP.Size / 2)) - FP.HalfRaw;
-						result = (result << (FP.Size / 2)) + FP.HalfRaw;
-					}
-					else
-					{
-						num <<= (FP.Size / 2);
-						result <<= (FP.Size / 2);
-					}
-
-					bit = 1UL << (FP.Size / 2 - 2);
-				}
+				bit >>= 2;
 			}
 
-			// Finally, if next bit would have been 1, round the result upwards.
+			bit = 1UL << ((FP.FractionalPlaces - 2 + oddCorrection) & (FP.Size - 1));
+			num <<= FP.FractionalPlaces;
+			result <<= FP.FractionalPlaces;
+
+			while (bit != 0)
+			{
+				var t = result + bit;
+				result >>= 1;
+				if (num >= t)
+				{
+					num -= t;
+					result += bit;
+				}
+				bit >>= 2;
+			}
+
+			// Final rounding correction
 			if (num > result)
 			{
-				++result;
+				result++;
 			}
 
 			return FP.FromRaw((long)result);

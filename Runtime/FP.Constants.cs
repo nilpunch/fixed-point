@@ -8,10 +8,10 @@ namespace Mathematics.Fixed
 
 		public const int SizeMinusSign = Size - 1;
 		public const int IntegerPlaces = SizeMinusSign - FractionalPlaces;
-		public const long FractionalMask = (long)(~0UL >> (Size - FractionalPlaces));
-		public const long IntegerSignMask = unchecked((long)(~0UL << FractionalPlaces));
-		public const long IntegerFractionalMask = (long)(~0UL >> 1);
-		public const long SignMask = 1L << SizeMinusSign;
+		public const long FractionalMask = long.MaxValue >> (SizeMinusSign - FractionalPlaces);
+		public const long IntegerSignMask = long.MaxValue << FractionalPlaces;
+		public const long IntegerFractionalMask = long.MaxValue;
+		public const long SignMask = long.MinValue;
 
 		public const long EpsilonRaw = 1L;
 		public const long CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
