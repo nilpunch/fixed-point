@@ -403,22 +403,30 @@ namespace Mathematics.Fixed
 			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
 			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
 
-			LeftShift128(out var numHigh, ref num, FP.FractionalBits);
-			LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
-
-			var temp = result + bit;
-
-			// Exit early if we can continue with a standart 64-bit version.
-			while (bit != 0 && (numHigh != 0 || resultHigh != 0 || temp < result))
+			if (FP.FractionalBits < FP.AllBits / 2) // Faster case for FP.FractionalBits <= 31.
 			{
-				AddToNew128(out var tempHigh, out temp, ref resultHigh, ref result, bit);
-				RightShift128(ref resultHigh, ref result, 1);
-				if (numHigh > tempHigh || (numHigh == tempHigh && num >= temp))
+				num <<= FP.FractionalBits;
+				result <<= FP.FractionalBits;
+			}
+			else
+			{
+				LeftShift128(out var numHigh, ref num, FP.FractionalBits);
+				LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
+
+				var t = result + bit;
+
+				// Exit early if we can continue with a standart 64-bit version.
+				while (bit != 0 && (numHigh != 0 || resultHigh != 0 || t < result))
 				{
-					Sub128(ref numHigh, ref num, ref tempHigh, ref temp);
-					Add128(ref resultHigh, ref result, bit);
+					AddToNew128(out var tHigh, out t, ref resultHigh, ref result, bit);
+					RightShift128(ref resultHigh, ref result, 1);
+					if (numHigh > tHigh || (numHigh == tHigh && num >= t))
+					{
+						Sub128(ref numHigh, ref num, ref tHigh, ref t);
+						Add128(ref resultHigh, ref result, bit);
+					}
+					bit >>= 2;
 				}
-				bit >>= 2;
 			}
 
 			while (bit != 0)
