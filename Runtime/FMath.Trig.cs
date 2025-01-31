@@ -13,13 +13,13 @@ namespace Mathematics.Fixed
 		public const int TanIterations = 20; // Continued fraction expansion iterations.
 		public const int ArcsinIterations = 30; // Taylor series iterations.
 
-		private const int SinLutShift = FP.FractionalPlaces - SinPrecision;
+		private const int SinLutShift = FP.FractionalBits - SinPrecision;
 		private const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift); // [0, HalfPi)
 
-		private const int TanLutShift = FP.FractionalPlaces - TanPrecision;
+		private const int TanLutShift = FP.FractionalBits - TanPrecision;
 		private const int TanLutSize = (int)(FP.HalfPiRaw >> TanLutShift); // [0, HalfPi)
 
-		private const int ArcsinLutShift = FP.FractionalPlaces - ArcsinPrecision;
+		private const int ArcsinLutShift = FP.FractionalBits - ArcsinPrecision;
 		private const int ArcsinLutSize = (int)(FP.OneRaw >> ArcsinLutShift); // [0, 1)
 
 		private static FP[] s_sinLut;

@@ -31,13 +31,13 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int ToInt(this FP value)
 		{
-			return (int)(value.RawValue >> FP.FractionalPlaces);
+			return (int)(value.RawValue >> FP.FractionalBits);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long ToLong(this FP value)
 		{
-			return value.RawValue >> FP.FractionalPlaces;
+			return value.RawValue >> FP.FractionalBits;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

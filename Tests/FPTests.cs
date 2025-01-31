@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Collections;
+using NUnit.Framework;
 
 namespace Mathematics.Fixed
 {
@@ -13,7 +15,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.OneRaw + FP.HalfRaw + FP.EpsilonRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 3)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 57)]
-		public int WhenRoundToInt_ThenRoundToInt(long rawValue)
+		public int RoundToInt(long rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -49,7 +51,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.OneRaw + FP.OneRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 4)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 58)]
-		public int WhenCeilToInt_ThenCeilToInt(long rawValue)
+		public int CeilToInt(long rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -66,7 +68,7 @@ namespace Mathematics.Fixed
 		[TestCase(-FP.PiRaw, ExpectedResult = -FP.PiRaw)]
 		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
 		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MinValueRaw)]
-		public long WhenDevidedByOne_ShouldReturnTheSameNumber(long rawValue)
+		public long WhenDevidedByOne_ThenReturnTheSameNumber(long rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -77,5 +79,106 @@ namespace Mathematics.Fixed
 			// Assert
 			return result.RawValue;
 		}
+
+		[TestCaseSource(nameof(TestCases))]
+		public void Sqrt(FP value)
+		{
+			if (FMath.Sign(value) < 0.ToFP())
+			{
+				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
+			}
+			else
+			{
+				var expected = Math.Sqrt(value.ToDouble());
+				var actual = FMath.Sqrt(value).ToDouble();
+				var delta = Math.Abs(expected - actual);
+				Assert.LessOrEqual(delta, FP.Epsilon.ToDouble());
+			}
+		}
+
+		[TestCaseSource(nameof(DivisionCases))]
+        public void Division(FP a, FP b)
+        {
+			var aDouble = a.ToDouble();
+			var bDouble = b.ToDouble();
+
+			if (b == FP.Zero)
+			{
+				Assert.Throws<DivideByZeroException>(() => Ignore(a / b));
+			}
+			else
+			{
+				var expected = aDouble / bDouble;
+				
+				// Expect saturation up to max and min values
+				if (expected > FP.MaxValue.ToDouble())
+				{
+					expected = FP.MaxValue.ToDouble();
+				}
+				else if (expected < FP.MinValue.ToDouble())
+				{
+					expected = FP.MinValue.ToDouble();
+				}
+
+				var actual = (a / b).ToDouble();
+				var delta = Math.Abs(expected - actual);
+
+				Assert.LessOrEqual(delta, FP.Epsilon.ToDouble());
+			}
+		}
+
+		private static void Ignore<T>(T value) { }
+
+		public static IEnumerable DivisionCases()
+		{
+			foreach (var a in TestCases)
+			{
+				foreach (var b in TestCases)
+				{
+					yield return new object[] { a, b };
+				}
+			}
+		}
+		
+		public static readonly FP[] TestCases =
+		{
+			// Small numbers
+			FP.FromRaw(0),
+			FP.FromRaw(1), FP.FromRaw(2), FP.FromRaw(3), FP.FromRaw(4), FP.FromRaw(5),
+			FP.FromRaw(6), FP.FromRaw(7), FP.FromRaw(8), FP.FromRaw(9), FP.FromRaw(10),
+			-FP.FromRaw(1), -FP.FromRaw(2), -FP.FromRaw(3), -FP.FromRaw(4), -FP.FromRaw(5),
+			-FP.FromRaw(6), -FP.FromRaw(7), -FP.FromRaw(8), -FP.FromRaw(9), -FP.FromRaw(-10),
+
+			// Integer numbers
+			1.ToFP(), 2.ToFP(), 3.ToFP(), 4.ToFP(), 5.ToFP(), 6.ToFP(),
+			(-1).ToFP(), (-2).ToFP(), (-3).ToFP(), (-4).ToFP(), (-5).ToFP(), (-6).ToFP(),
+
+			// Fractions (1/2, 1/4, 1/8)
+			FP.FromRaw(FP.OneRaw / 2), FP.FromRaw(FP.OneRaw / 4), FP.FromRaw(FP.OneRaw / 8),
+			-FP.FromRaw(FP.OneRaw / 2), -FP.FromRaw(FP.OneRaw / 4), -FP.FromRaw(FP.OneRaw / 8),
+
+			// Problematic carry
+			FP.FromRaw(FP.OneRaw - 1), -FP.FromRaw(FP.OneRaw - 1),
+			FP.FromRaw(FP.OneRaw + 1), -FP.FromRaw(FP.OneRaw + 1),
+
+			// Smallest and largest values
+			FP.MaxValue, FP.MinValue,
+
+			// Large random numbers
+			FP.FromRaw(6791302811978701836), FP.FromRaw(-8192141831180282065), FP.FromRaw(6222617001063736300), FP.FromRaw(-7871200276881732034),
+			FP.FromRaw(8249382838880205112), FP.FromRaw(-7679310892959748444), FP.FromRaw(7708113189940799513), FP.FromRaw(-5281862979887936768),
+			FP.FromRaw(8220231180772321456), FP.FromRaw(-5204203381295869580), FP.FromRaw(6860614387764479339), FP.FromRaw(-9080626825133349457),
+			FP.FromRaw(6658610233456189347), FP.FromRaw(-6558014273345705245), FP.FromRaw(6700571222183426493),
+
+			// Small random numbers
+			FP.FromRaw(-436730658), FP.FromRaw(-2259913246), FP.FromRaw(329347474), FP.FromRaw(2565801981), FP.FromRaw(3398143698), FP.FromRaw(137497017), FP.FromRaw(1060347500),
+			FP.FromRaw(-3457686027), FP.FromRaw(1923669753), FP.FromRaw(2891618613), FP.FromRaw(2418874813), FP.FromRaw(2899594950), FP.FromRaw(2265950765), FP.FromRaw(-1962365447),
+			FP.FromRaw(3077934393),
+
+			// Tiny random numbers
+			FP.FromRaw(-171),
+			FP.FromRaw(-359), FP.FromRaw(491), FP.FromRaw(844), FP.FromRaw(158), FP.FromRaw(-413), FP.FromRaw(-422), FP.FromRaw(-737), FP.FromRaw(-575), FP.FromRaw(-330),
+			FP.FromRaw(-376), FP.FromRaw(435), FP.FromRaw(-311), FP.FromRaw(116), FP.FromRaw(715), FP.FromRaw(-1024), FP.FromRaw(-487), FP.FromRaw(59), FP.FromRaw(724), FP.FromRaw(993)
+		};
 	}
 }

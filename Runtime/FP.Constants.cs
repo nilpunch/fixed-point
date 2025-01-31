@@ -4,12 +4,13 @@ namespace Mathematics.Fixed
 {
 	public partial struct FP
 	{
-		public const int Size = sizeof(long) * 8;
+		public const int AllBits = sizeof(long) * 8;
 
-		public const int SizeMinusSign = Size - 1;
-		public const int IntegerPlaces = SizeMinusSign - FractionalPlaces;
-		public const long FractionalMask = long.MaxValue >> (SizeMinusSign - FractionalPlaces);
-		public const long IntegerSignMask = long.MaxValue << FractionalPlaces;
+		public const int AllBitsWithoutSign = AllBits - 1;
+		public const int IntegerBits = AllBitsWithoutSign - FractionalBits;
+		public const int IntegerBitsWithSign = IntegerBits + 1;
+		public const long FractionalMask = long.MaxValue >> (AllBitsWithoutSign - FractionalBits);
+		public const long IntegerSignMask = long.MaxValue << FractionalBits;
 		public const long IntegerFractionalMask = long.MaxValue;
 		public const long SignMask = long.MinValue;
 
@@ -20,7 +21,7 @@ namespace Mathematics.Fixed
 		public const long MaxValueRaw = long.MaxValue;
 		public const long MinValueRaw = long.MinValue;
 
-		public const long OneRaw = 1L << FractionalPlaces;
+		public const long OneRaw = 1L << FractionalBits;
 		public const long MinusOneRaw = IntegerSignMask;
 		public const long TwoRaw = OneRaw * 2;
 		public const long HalfRaw = OneRaw / 2;
@@ -28,19 +29,19 @@ namespace Mathematics.Fixed
 
 		// 61 is the largest N such that (long)(PI * 2^N) < long.MaxValue.
 		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
-		public const long PiRaw = PiBase61 >> (61 - FractionalPlaces);
+		public const long PiRaw = PiBase61 >> (61 - FractionalBits);
 		public const long HalfPiRaw = PiRaw / 2;
 		public const long TwoPiRaw = PiRaw * 2;
 		
 		public const long Deg2RadBase61 = 40244552544872904L; // (long)(0.017453292519943295 * (1L << 61));
 		public const long Rad2DegBase57 = 8257192040480628736L; // (long)(57.29577951308232 * (1L << 57));
-		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalPlaces);
-		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalPlaces);
+		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalBits);
+		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalBits);
 		
 		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
-		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalPlaces);
-		public const long Log2MaxRaw = IntegerPlaces * OneRaw;
-		public const long Log2MinRaw = -(IntegerPlaces + 1) * OneRaw;
+		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalBits);
+		public const long Log2MaxRaw = IntegerBits * OneRaw;
+		public const long Log2MinRaw = -(IntegerBits + 1) * OneRaw;
 
 		public static FP Epsilon
 		{

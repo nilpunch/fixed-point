@@ -60,19 +60,19 @@ namespace Mathematics.Fixed
 			var yl = y.RawValue;
 
 			var xlo = (ulong)(xl & FP.FractionalMask);
-			var xhi = xl >> FP.FractionalPlaces;
+			var xhi = xl >> FP.FractionalBits;
 			var ylo = (ulong)(yl & FP.FractionalMask);
-			var yhi = yl >> FP.FractionalPlaces;
+			var yhi = yl >> FP.FractionalBits;
 
 			var lolo = xlo * ylo;
 			var lohi = (long)xlo * yhi;
 			var hilo = xhi * (long)ylo;
 			var hihi = xhi * yhi;
 
-			var loResult = lolo >> FP.FractionalPlaces;
+			var loResult = lolo >> FP.FractionalBits;
 			var midResult1 = lohi;
 			var midResult2 = hilo;
-			var hiResult = hihi << FP.FractionalPlaces;
+			var hiResult = hihi << FP.FractionalBits;
 
 			var overflow = false;
 			var sum = AddOverflowHelper((long)loResult, midResult1, ref overflow);
@@ -101,7 +101,7 @@ namespace Mathematics.Fixed
 
 			// If the integer sign part of hihi (unused in the result) are neither all 0s or 1s,
 			// then this means the result overflowed.
-			var topCarry = hihi >> FP.FractionalPlaces;
+			var topCarry = hihi >> FP.FractionalBits;
 			if (topCarry != 0 && topCarry != -1 /*&& xl != -17 && yl != -17*/)
 			{
 				return opSignsEqual ? FP.MaxValue : FP.MinValue;
@@ -187,7 +187,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Abs(FP value)
 		{
-			var mask = value.RawValue >> FP.SizeMinusSign;
+			var mask = value.RawValue >> FP.AllBitsWithoutSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -203,7 +203,7 @@ namespace Mathematics.Fixed
 				return FP.MaxValue;
 			}
 
-			var mask = value.RawValue >> FP.SizeMinusSign;
+			var mask = value.RawValue >> FP.AllBitsWithoutSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
 
@@ -377,44 +377,53 @@ namespace Mathematics.Fixed
 			}
 
 			var num = (ulong)x.RawValue;
-			ulong result = 0;
+			var result = 0UL;
 
-			const int oddCorrection = FP.FractionalPlaces & 1;
+			const int correctionForOdd = FP.FractionalBits & 1;
 
 			// Find highest power of 4 ≤ x
-			var bit = 1UL << (FP.Size - 2 + oddCorrection);
+			var bit = 1UL << (FP.AllBits - 2 + correctionForOdd);
 			while (bit > num)
 			{
 				bit >>= 2;
 			}
 
-			// First we get the top 48 bits of the answer.
-			while (bit != 0)
+			for (int i = 0; i < 2; ++i)
 			{
-				var t = result + bit;
-				result >>= 1;
-				if (num >= t)
+				while (bit != 0)
 				{
-					num -= t;
-					result += bit;
+					var t = result + bit;
+					result >>= 1;
+					if (num >= t)
+					{
+						num -= t;
+						result += bit;
+					}
+					bit >>= 2;
 				}
-				bit >>= 2;
-			}
 
-			bit = 1UL << ((FP.FractionalPlaces - 2 + oddCorrection) & (FP.Size - 1));
-			num <<= FP.FractionalPlaces;
-			result <<= FP.FractionalPlaces;
-
-			while (bit != 0)
-			{
-				var t = result + bit;
-				result >>= 1;
-				if (num >= t)
+				if (i == 0)
 				{
-					num -= t;
-					result += bit;
+					// & (FP.AllBits - 1) is a correction for 0 in fractional places.
+					bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
+
+					LeftShift128(out var numHigh, ref num, FP.FractionalBits);
+					LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
+
+					var t = result + bit;
+
+					while (bit != 0 && (numHigh != 0 || resultHigh != 0 || t < result))
+					{
+						AddToNew128(out var tHigh, out t, ref resultHigh, ref result, bit);
+						RightShift128(ref resultHigh, ref result, 1);
+						if (numHigh > tHigh || (numHigh == tHigh && num >= t))
+						{
+							Sub128(ref numHigh, ref num, ref tHigh, ref t);
+							Add128(ref resultHigh, ref result, bit);
+						}
+						bit >>= 2;
+					}
 				}
-				bit >>= 2;
 			}
 
 			// Final rounding correction
@@ -424,13 +433,60 @@ namespace Mathematics.Fixed
 			}
 
 			return FP.FromRaw((long)result);
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			void LeftShift128(out ulong high, ref ulong low, int shift)
+			{
+				high = low >> (FP.AllBits - shift);
+				low <<= shift;
+			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			void RightShift128(ref ulong high, ref ulong low, int shift)
+			{
+				low = (high << (FP.AllBits - shift)) | (low >> shift);
+				high >>= shift;
+			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			void Add128(ref ulong highA, ref ulong lowA, ulong b)
+			{
+				var sum = lowA + b;
+				if (sum < lowA)
+				{
+					++highA;
+				}
+				lowA = sum;
+			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			void AddToNew128(out ulong highC, out ulong lowC, ref ulong highA, ref ulong lowA, ulong b)
+			{
+				lowC = lowA + b;
+				highC = highA;
+				if (lowC < lowA)
+				{
+					++highC;
+				}
+			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			void Sub128(ref ulong highA, ref ulong lowA, ref ulong highB, ref ulong lowB)
+			{
+				if (lowA < lowB)
+				{
+					--highA;
+				}
+				lowA -= lowB;
+				highA -= highB;
+			}
 		}
 
 		/// <summary>
 		/// Returns 2 raised to the specified power.
 		/// Provides at least 6 decimals of accuracy.
 		/// </summary>
-		internal static FP Pow2(FP x)
+		public static FP Pow2(FP x)
 		{
 			if (x.RawValue == 0)
 			{
@@ -507,7 +563,7 @@ namespace Mathematics.Fixed
 			// algorithm (C. S. Turner,  "A Fast Binary Logarithm Algorithm", IEEE Signal
 			//     Processing Mag., pp. 124,140, Sep. 2010.)
 
-			long b = 1U << (FP.FractionalPlaces - 1);
+			long b = 1U << (FP.FractionalBits - 1);
 			long y = 0;
 
 			var rawX = x.RawValue;
@@ -525,7 +581,7 @@ namespace Mathematics.Fixed
 
 			var z = FP.FromRaw(rawX);
 
-			for (var i = 0; i < FP.FractionalPlaces; i++)
+			for (var i = 0; i < FP.FractionalBits; i++)
 			{
 				z = z * z;
 				if (z.RawValue >= (FP.OneRaw << 1))

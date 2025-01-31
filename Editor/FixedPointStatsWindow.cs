@@ -26,14 +26,14 @@ namespace Mathematics.Fixed.Editor
 		private void OnGUI()
 		{
 			const float log10Of2 = 0.30103f;
-			int decimalDigitsOfAccuracy = Mathf.CeilToInt(log10Of2 * FP.FractionalPlaces);
+			int decimalDigitsOfAccuracy = Mathf.CeilToInt(log10Of2 * FP.FractionalBits);
 
 			_serializedObject.Update();
 
 			EditorGUILayout.Space(5f);
 
-			EditorGUILayout.TextField("Fractional Places", FP.FractionalPlaces.ToString());
-			EditorGUILayout.TextField("Integer Places", FP.IntegerPlaces.ToString());
+			EditorGUILayout.TextField("Fractional Places", FP.FractionalBits.ToString());
+			EditorGUILayout.TextField("Integer Places", FP.IntegerBits.ToString());
 			EditorGUILayout.Space(10f);
 
 			EditorGUILayout.TextField("Max Integer Value", (FMath.Floor(FP.MaxValue).ToLong()).ToString());

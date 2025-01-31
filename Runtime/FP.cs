@@ -6,7 +6,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalPlaces = 31;
+		public const int FractionalBits = 3;
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
@@ -50,19 +50,19 @@ namespace Mathematics.Fixed
 			var yl = y.RawValue;
 
 			var xlo = (ulong)(xl & FractionalMask);
-			var xhi = xl >> FractionalPlaces;
+			var xhi = xl >> FractionalBits;
 			var ylo = (ulong)(yl & FractionalMask);
-			var yhi = yl >> FractionalPlaces;
+			var yhi = yl >> FractionalBits;
 
 			var lolo = xlo * ylo;
 			var lohi = (long)xlo * yhi;
 			var hilo = xhi * (long)ylo;
 			var hihi = xhi * yhi;
 
-			var loResult = lolo >> FractionalPlaces;
+			var loResult = lolo >> FractionalBits;
 			var midResult1 = lohi;
 			var midResult2 = hilo;
-			var hiResult = hihi << FractionalPlaces;
+			var hiResult = hihi << FractionalBits;
 
 			var sum = (long)loResult + midResult1 + midResult2 + hiResult;
 			return FromRaw(sum);
@@ -82,7 +82,7 @@ namespace Mathematics.Fixed
 			var remainder = (ulong)(xl >= 0 ? xl : -xl);
 			var divider = (ulong)(yl >= 0 ? yl : -yl);
 			var quotient = 0UL;
-			var bitPos = FractionalPlaces + 1;
+			var bitPos = FractionalBits + 1;
 
 			// If the divider is divisible by 2^n, take advantage of it.
 			while ((divider & 0xF) == 0 && bitPos >= 4)
