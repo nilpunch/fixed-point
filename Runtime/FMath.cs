@@ -376,14 +376,14 @@ namespace Mathematics.Fixed
 				throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
 			}
 
-			var num = (ulong)x.RawValue;
+			var value = (ulong)x.RawValue;
 			var result = 0UL;
 
 			const int correctionForOdd = FP.FractionalBits & 1;
 
 			// Find highest power of 4 <= num.
 			var bit = 1UL << (FP.AllBits - 2 + correctionForOdd);
-			while (bit > num)
+			while (bit > value)
 			{
 				bit >>= 2;
 			}
@@ -392,9 +392,9 @@ namespace Mathematics.Fixed
 			{
 				var t = result + bit;
 				result >>= 1;
-				if (num >= t)
+				if (value >= t)
 				{
-					num -= t;
+					value -= t;
 					result += bit;
 				}
 				bit >>= 2;
@@ -405,24 +405,24 @@ namespace Mathematics.Fixed
 
 			if (FP.FractionalBits < FP.AllBits / 2) // Faster case for FP.FractionalBits <= 31.
 			{
-				num <<= FP.FractionalBits;
+				value <<= FP.FractionalBits;
 				result <<= FP.FractionalBits;
 			}
 			else
 			{
-				LeftShift128(out var numHigh, ref num, FP.FractionalBits);
+				LeftShift128(out var valueHigh, ref value, FP.FractionalBits);
 				LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
 
 				var t = result + bit;
 
 				// Exit early if we can continue with a standart 64-bit version.
-				while (bit != 0 && (numHigh != 0 || resultHigh != 0 || t < result))
+				while (bit != 0 && (valueHigh != 0 || resultHigh != 0 || t < result))
 				{
 					AddToNew128(out var tHigh, out t, ref resultHigh, ref result, bit);
 					RightShift128(ref resultHigh, ref result, 1);
-					if (numHigh > tHigh || (numHigh == tHigh && num >= t))
+					if (valueHigh > tHigh || (valueHigh == tHigh && value >= t))
 					{
-						Sub128(ref numHigh, ref num, ref tHigh, ref t);
+						Sub128(ref valueHigh, ref value, ref tHigh, ref t);
 						Add128(ref resultHigh, ref result, bit);
 					}
 					bit >>= 2;
@@ -433,16 +433,16 @@ namespace Mathematics.Fixed
 			{
 				var t = result + bit;
 				result >>= 1;
-				if (num >= t)
+				if (value >= t)
 				{
-					num -= t;
+					value -= t;
 					result += bit;
 				}
 				bit >>= 2;
 			}
 
 			// Rounding up.
-			if (num > result)
+			if (value > result)
 			{
 				result++;
 			}

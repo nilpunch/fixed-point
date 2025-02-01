@@ -120,10 +120,13 @@ namespace Mathematics.Fixed
 					expected = FP.MinValue.ToDouble();
 				}
 
-				var actual = (a / b).ToDouble();
-				var delta = Math.Abs(expected - actual);
+				var actual = a / b;
+				var delta = Math.Abs(expected - actual.ToDouble());
 
-				Assert.LessOrEqual(delta, FP.Epsilon.ToDouble());
+				if (delta > FP.Epsilon.ToDouble())
+				{
+					Assert.AreEqual(expected.ToFP(), actual);
+				}
 			}
 		}
 

@@ -10,7 +10,7 @@ namespace Mathematics.Fixed
 		public const int ArcsinPrecision = 16; // Corelate with lut size. Must be <= FractionalPlaces.
 
 		public const int SinIterations = 5; // Taylor series iterations.
-		public const int TanIterations = 20; // Continued fraction expansion iterations.
+		public const int TanIterations = 5; // Continued fraction expansion iterations.
 		public const int ArcsinIterations = 30; // Taylor series iterations.
 
 		private const int SinLutShift = FP.FractionalBits - SinPrecision;
@@ -32,7 +32,7 @@ namespace Mathematics.Fixed
 		/// </summary>
 		public static void Init()
 		{
-			if (s_sinLut != null)
+			if (s_sinLut != null && s_tanLut != null && s_arcsinLut != null)
 			{
 				return;
 			}

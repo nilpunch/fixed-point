@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
@@ -11,15 +12,15 @@ namespace Mathematics.Fixed
 
 		public long RawValue;
 
-		public FP(long rawValue)
+		private FP(long rawValue)
 		{
 			RawValue = rawValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe FP FromRaw(long rawValue)
+		public static FP FromRaw(long rawValue)
 		{
-			return *(FP*)(&rawValue);
+			return new FP(rawValue);
 		}
 
 		/// <summary>
@@ -71,60 +72,155 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
+			var xRaw = x.RawValue;
+			var yRaw = y.RawValue;
 
-			if (yl == 0)
+			if (yRaw == 0)
 			{
 				throw new DivideByZeroException();
 			}
-
-			var remainder = (ulong)(xl >= 0 ? xl : -xl);
-			var divider = (ulong)(yl >= 0 ? yl : -yl);
+			
+			var remainder = (ulong)(xRaw >= 0 ? xRaw : -xRaw);
+			var divider = (ulong)(yRaw >= 0 ? yRaw : -yRaw);
 			var quotient = 0UL;
-			var bitPos = FractionalBits + 1;
+			var bit = 1UL << FractionalBits;
 
-			// If the divider is divisible by 2^n, take advantage of it.
-			while ((divider & 0xF) == 0 && bitPos >= 4)
+			// The algorithm requires D >= R.
+			while (divider < remainder)
 			{
-				divider >>= 4;
-				bitPos -= 4;
+				divider <<= 1;
+				bit <<= 1;
 			}
 
-			while (remainder != 0 && bitPos >= 0)
+			// Overflow.
+			if (bit == 0)
 			{
-				var shift = CountLeadingZeroes(remainder);
-				if (shift > bitPos)
+				return ((xRaw ^ yRaw) & MinValueRaw) == 0 ? MaxValue : MinValue;
+			}
+
+			if ((divider & (1UL << (AllBits - 1))) != 0)
+			{
+				// Perform one step manually to avoid overflows later.
+				// We know that divider's bottom bit is 0 here.
+				if (remainder >= divider)
 				{
-					shift = bitPos;
+					quotient |= bit;
+					remainder -= divider;
 				}
+				divider >>= 1;
+				bit >>= 1;
+			}
 
-				remainder <<= shift;
-				bitPos -= shift;
-
-				var div = remainder / divider;
-				remainder %= divider;
-				quotient += div << bitPos;
-
-				// Detect overflow.
-				if ((div & ~(~0UL >> bitPos)) != 0)
+			while (bit != 0 && remainder != 0)
+			{
+				if (remainder >= divider)
 				{
-					return ((xl ^ yl) & MinValueRaw) == 0 ? MaxValue : MinValue;
+					quotient |= bit;
+					remainder -= divider;
 				}
-
+		
 				remainder <<= 1;
-				--bitPos;
+				bit >>= 1;
 			}
 
 			// Rounding.
-			++quotient;
-			var result = (long)(quotient >> 1);
-			if (((xl ^ yl) & MinValueRaw) != 0)
+			if (remainder >= divider && quotient < ulong.MaxValue)
+			{
+				quotient++;
+			}
+
+			var result = (long)(quotient);
+
+			// Overflow.
+			if (result < 0)
+			{
+				result = MaxValueRaw;
+			}
+
+			// Applying the sign.
+			if (((xRaw ^ yRaw) & MinValueRaw) != 0)
 			{
 				result = -result;
 			}
 
 			return FromRaw(result);
+		}
+
+		// [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		// public static FP operator &(FP x, FP y)
+		// {
+		// 	var xRaw = x.RawValue;
+		// 	var yRaw = y.RawValue;
+		//
+		// 	if (yRaw == 0)
+		// 	{
+		// 		throw new DivideByZeroException();
+		// 	}
+		// 	
+		// 	var remainder = (ulong)(xRaw >= 0 ? xRaw : -xRaw);
+		// 	var divider = (ulong)(yRaw >= 0 ? yRaw : -yRaw);
+		// 	var quotient = 0UL;
+		// 	var bit = FractionalBits + 1;
+		//
+		// 	// If the divider is divisible by 2^n, take advantage of it.
+		// 	while ((divider & 0xF) == 0 && bit >= 4)
+		// 	{
+		// 		divider >>= 4;
+		// 		bit -= 4;
+		// 	}
+		//
+		// 	while (remainder != 0 && bit >= 0)
+		// 	{
+		// 		var shift = CountLeadingZeroes(remainder);
+		//
+		// 		if (shift > bit)
+		// 		{
+		// 			shift = bit;
+		// 		}
+		//
+		// 		remainder <<= shift;
+		// 		bit -= shift;
+		//
+		// 		var div = remainder / divider;
+		// 		remainder %= divider;
+		// 		quotient += div << bit;
+		//
+		// 		// Detect overflow.
+		// 		if ((div & ~(ulong.MaxValue >> bit)) != 0)
+		// 		{
+		// 			return ((xRaw ^ yRaw) & MinValueRaw) == 0 ? MaxValue : MinValue;
+		// 		}
+		//
+		// 		remainder <<= 1;
+		// 		--bit;
+		// 	}
+		//
+		// 	// Rounding.
+		// 	++quotient;
+		// 	var result = (long)(quotient >> 1);
+		// 	if (((xRaw ^ yRaw) & MinValueRaw) != 0)
+		// 	{
+		// 		result = -result;
+		// 	}
+		//
+		// 	return FromRaw(result);
+		// }
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int CountLeadingZeroes(ulong x)
+		{
+			var zeroes = 0;
+			while ((x & 0xF000000000000000) == 0)
+			{
+				zeroes += 4;
+				x <<= 4;
+			}
+			while ((x & 0x8000000000000000) == 0)
+			{
+				zeroes += 1;
+				x <<= 1;
+			}
+			return zeroes;
 		}
 
 		/// <summary>
@@ -238,25 +334,6 @@ namespace Mathematics.Fixed
 
 		public string ToString(IFormatProvider provider) => this.ToDouble().ToString(provider);
 
-		public override string ToString() => this.ToDouble().ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static int CountLeadingZeroes(ulong x)
-		{
-			var result = 0;
-			while ((x & 0xF000000000000000) == 0)
-			{
-				result += 4;
-				x <<= 4;
-			}
-
-			while ((x & 0x8000000000000000) == 0)
-			{
-				result += 1;
-				x <<= 1;
-			}
-
-			return result;
-		}
+		public override string ToString() => this.ToDouble().ToString("G", System.Globalization.CultureInfo.InvariantCulture);
 	}
 }
