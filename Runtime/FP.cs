@@ -18,9 +18,9 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP FromRaw(long rawValue)
+		public static unsafe FP FromRaw(long rawValue)
 		{
-			return new FP(rawValue);
+			return *(FP*)(&rawValue);
 		}
 
 		/// <summary>
