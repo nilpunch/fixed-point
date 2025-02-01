@@ -79,7 +79,7 @@ namespace Mathematics.Fixed
 			{
 				throw new DivideByZeroException();
 			}
-			
+
 			var remainder = (ulong)(xRaw >= 0 ? xRaw : -xRaw);
 			var divider = (ulong)(yRaw >= 0 ? yRaw : -yRaw);
 			var quotient = 0UL;
@@ -118,7 +118,7 @@ namespace Mathematics.Fixed
 					quotient |= bit;
 					remainder -= divider;
 				}
-		
+
 				remainder <<= 1;
 				bit >>= 1;
 			}
@@ -129,98 +129,20 @@ namespace Mathematics.Fixed
 				quotient++;
 			}
 
-			var result = (long)(quotient);
+			var result = (long)quotient;
 
-			// Overflow.
 			if (result < 0)
 			{
-				result = MaxValueRaw;
+				return ((xRaw ^ yRaw) & MinValueRaw) == 0 ? MaxValue : MinValue;
 			}
 
-			// Applying the sign.
+			// Applying the negative sign.
 			if (((xRaw ^ yRaw) & MinValueRaw) != 0)
 			{
 				result = -result;
 			}
 
 			return FromRaw(result);
-		}
-
-		// [MethodImpl(MethodImplOptions.AggressiveInlining)]
-		// public static FP operator &(FP x, FP y)
-		// {
-		// 	var xRaw = x.RawValue;
-		// 	var yRaw = y.RawValue;
-		//
-		// 	if (yRaw == 0)
-		// 	{
-		// 		throw new DivideByZeroException();
-		// 	}
-		// 	
-		// 	var remainder = (ulong)(xRaw >= 0 ? xRaw : -xRaw);
-		// 	var divider = (ulong)(yRaw >= 0 ? yRaw : -yRaw);
-		// 	var quotient = 0UL;
-		// 	var bit = FractionalBits + 1;
-		//
-		// 	// If the divider is divisible by 2^n, take advantage of it.
-		// 	while ((divider & 0xF) == 0 && bit >= 4)
-		// 	{
-		// 		divider >>= 4;
-		// 		bit -= 4;
-		// 	}
-		//
-		// 	while (remainder != 0 && bit >= 0)
-		// 	{
-		// 		var shift = CountLeadingZeroes(remainder);
-		//
-		// 		if (shift > bit)
-		// 		{
-		// 			shift = bit;
-		// 		}
-		//
-		// 		remainder <<= shift;
-		// 		bit -= shift;
-		//
-		// 		var div = remainder / divider;
-		// 		remainder %= divider;
-		// 		quotient += div << bit;
-		//
-		// 		// Detect overflow.
-		// 		if ((div & ~(ulong.MaxValue >> bit)) != 0)
-		// 		{
-		// 			return ((xRaw ^ yRaw) & MinValueRaw) == 0 ? MaxValue : MinValue;
-		// 		}
-		//
-		// 		remainder <<= 1;
-		// 		--bit;
-		// 	}
-		//
-		// 	// Rounding.
-		// 	++quotient;
-		// 	var result = (long)(quotient >> 1);
-		// 	if (((xRaw ^ yRaw) & MinValueRaw) != 0)
-		// 	{
-		// 		result = -result;
-		// 	}
-		//
-		// 	return FromRaw(result);
-		// }
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int CountLeadingZeroes(ulong x)
-		{
-			var zeroes = 0;
-			while ((x & 0xF000000000000000) == 0)
-			{
-				zeroes += 4;
-				x <<= 4;
-			}
-			while ((x & 0x8000000000000000) == 0)
-			{
-				zeroes += 1;
-				x <<= 1;
-			}
-			return zeroes;
 		}
 
 		/// <summary>

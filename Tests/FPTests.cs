@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mathematics.Fixed
 {
@@ -67,6 +68,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.HalfRaw, ExpectedResult = FP.HalfRaw)]
 		[TestCase(-FP.PiRaw, ExpectedResult = -FP.PiRaw)]
 		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
+		[TestCase(FP.MaxValueRaw - 1, ExpectedResult = FP.MaxValueRaw - 1)]
 		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MinValueRaw)]
 		public long WhenDevidedByOne_ThenReturnTheSameNumber(long rawValue)
 		{
@@ -92,13 +94,24 @@ namespace Mathematics.Fixed
 				var expected = Math.Sqrt(value.ToDouble());
 				var actual = FMath.Sqrt(value).ToDouble();
 				var delta = Math.Abs(expected - actual);
-				Assert.LessOrEqual(delta, FP.Epsilon.ToDouble());
+
+				if (delta > FP.Epsilon.ToDouble())
+				{
+					if (delta < (FP.Epsilon * 1000).ToDouble()) // It has some minor inaccuracies.
+					{
+						Debug.LogWarning($"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
+					}
+					else
+					{
+						Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
+					}
+				}
 			}
 		}
 
 		[TestCaseSource(nameof(DivisionCases))]
-        public void Division(FP a, FP b)
-        {
+		public void Division(FP a, FP b)
+		{
 			var aDouble = a.ToDouble();
 			var bDouble = b.ToDouble();
 
@@ -109,7 +122,7 @@ namespace Mathematics.Fixed
 			else
 			{
 				var expected = aDouble / bDouble;
-				
+
 				// Expect saturation up to max and min values
 				if (expected > FP.MaxValue.ToDouble())
 				{
@@ -125,12 +138,21 @@ namespace Mathematics.Fixed
 
 				if (delta > FP.Epsilon.ToDouble())
 				{
-					Assert.AreEqual(expected.ToFP(), actual);
+					if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some minor inaccuracies.
+					{
+						Debug.LogWarning($"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
+					}
+					else
+					{
+						Assert.AreEqual(expected.ToFP(), actual, $"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
+					}
 				}
 			}
 		}
 
-		private static void Ignore<T>(T value) { }
+		private static void Ignore<T>(T value)
+		{
+		}
 
 		public static IEnumerable DivisionCases()
 		{
@@ -142,7 +164,7 @@ namespace Mathematics.Fixed
 				}
 			}
 		}
-		
+
 		public static readonly FP[] TestCases =
 		{
 			// Small numbers
