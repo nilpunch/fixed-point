@@ -16,7 +16,7 @@ namespace Mathematics.Fixed
 			var yl = y.RawValue;
 			var sum = xl + yl;
 			// If signs of operands are equal and signs of sum and x are different
-			if (((~(xl ^ yl) & (xl ^ sum)) & FP.MinValueRaw) != 0)
+			if ((~(xl ^ yl) & (xl ^ sum) & FP.MinValueRaw) != 0)
 			{
 				sum = xl > 0 ? FP.MaxValueRaw : FP.MinValueRaw;
 			}
@@ -35,7 +35,7 @@ namespace Mathematics.Fixed
 			var yl = y.RawValue;
 			var diff = xl - yl;
 			// If signs of operands are different and signs of sum and x are different.
-			if ((((xl ^ yl) & (xl ^ diff)) & FP.MinValueRaw) != 0)
+			if (((xl ^ yl) & (xl ^ diff) & FP.MinValueRaw) != 0)
 			{
 				diff = xl < 0 ? FP.MinValueRaw : FP.MaxValueRaw;
 			}
@@ -364,6 +364,9 @@ namespace Mathematics.Fixed
 
 		/// <summary>
 		/// Calculates the square root of a fixed-point number.
+		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31.
+		/// It may have some rare minor inaccuracies, and they are tied to absolute precision.<br/>
+		/// Inaccuracies are in range [0, Epsilon * 1000).
 		/// </summary>
 		/// <exception cref="ArgumentOutOfRangeException">
 		/// Thrown if the input is negative.

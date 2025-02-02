@@ -97,7 +97,7 @@ namespace Mathematics.Fixed
 
 				if (delta > FP.Epsilon.ToDouble())
 				{
-					if (delta < (FP.Epsilon * 1000).ToDouble()) // It has some minor inaccuracies.
+					if (delta < (FP.Epsilon * 1000).ToDouble()) // It has some rare minor inaccuracies, and they are tied to absolute precision.
 					{
 						Debug.LogWarning($"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
 					}
@@ -109,7 +109,7 @@ namespace Mathematics.Fixed
 			}
 		}
 
-		[TestCaseSource(nameof(DivisionCases))]
+		[TestCaseSource(nameof(PairTestCases))]
 		public void Division(FP a, FP b)
 		{
 			var aDouble = a.ToDouble();
@@ -117,7 +117,8 @@ namespace Mathematics.Fixed
 
 			if (b == FP.Zero)
 			{
-				Assert.Throws<DivideByZeroException>(() => Ignore(a / b));
+				var expected = a < FP.Zero ? FP.MinValue : FP.MaxValue;
+				Assert.AreEqual(expected, a / b);
 			}
 			else
 			{
@@ -138,7 +139,7 @@ namespace Mathematics.Fixed
 
 				if (delta > FP.Epsilon.ToDouble())
 				{
-					if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some minor inaccuracies.
+					if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some rare minor inaccuracies, and they are tied to absolute precision.
 					{
 						Debug.LogWarning($"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
 					}
@@ -150,11 +151,27 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[TestCaseSource(nameof(PairTestCases))]
+		public void Atan2(FP y, FP x)
+		{
+			var yDouble = y.ToDouble();
+			var xDouble = x.ToDouble();
+
+			var expected = Math.Atan2(yDouble, xDouble);
+			var actual = FMath.Atan2(y, x);
+			var delta = Math.Abs(expected - actual.ToDouble());
+
+			if (delta > 0.005)
+			{
+				Assert.AreEqual(expected.ToFP(), actual, $"Atan({y}, {x}) = {actual}, but expected {expected}. Delta = {delta}.");
+			}
+		}
+
 		private static void Ignore<T>(T value)
 		{
 		}
 
-		public static IEnumerable DivisionCases()
+		public static IEnumerable PairTestCases()
 		{
 			foreach (var a in TestCases)
 			{
@@ -186,6 +203,9 @@ namespace Mathematics.Fixed
 			FP.FromRaw(FP.OneRaw - 1), -FP.FromRaw(FP.OneRaw - 1),
 			FP.FromRaw(FP.OneRaw + 1), -FP.FromRaw(FP.OneRaw + 1),
 
+			// PIs
+			FP.Pi, FP.HalfPi, -FP.HalfPi,
+			
 			// Smallest and largest values
 			FP.MaxValue, FP.MinValue,
 

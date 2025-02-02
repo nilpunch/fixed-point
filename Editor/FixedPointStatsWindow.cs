@@ -85,6 +85,10 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("Arcsin", FMath.Asin(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Asin(testValueFp).ToDouble() - Math.Asin(_testValue)).ToString("G5"));
+			
+			EditorGUILayout.TextField("Arctan", FMath.AtanSeries(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Delta", Math.Abs(FMath.AtanSeries(testValueFp).ToDouble() - Math.Atan(_testValue)).ToString("G5"));
 		}
 	}
 }

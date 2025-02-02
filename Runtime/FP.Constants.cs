@@ -24,6 +24,7 @@ namespace Mathematics.Fixed
 		public const long OneRaw = 1L << FractionalBits;
 		public const long MinusOneRaw = IntegerSignMask;
 		public const long TwoRaw = OneRaw * 2;
+		public const long ThreeRaw = OneRaw * 3;
 		public const long HalfRaw = OneRaw / 2;
 		public const long QuarterRaw = OneRaw / 4;
 
@@ -86,6 +87,12 @@ namespace Mathematics.Fixed
 		}
 
 		public static FP Two
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => FromRaw(TwoRaw);
+		}
+
+		public static FP Three
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => FromRaw(TwoRaw);

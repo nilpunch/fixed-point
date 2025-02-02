@@ -69,6 +69,11 @@ namespace Mathematics.Fixed
 			return FromRaw(sum);
 		}
 
+		/// <summary>
+		/// Division by 0 returns min or max value, depending on the sign of the numerator.
+		/// It has some rare minor inaccuracies, and they are tied to absolute precision.<br/>
+		/// Inaccuracies are in range [0, Epsilon * 2000).
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
@@ -77,7 +82,7 @@ namespace Mathematics.Fixed
 
 			if (yRaw == 0)
 			{
-				throw new DivideByZeroException();
+				return xRaw < 0 ? MinValue : MaxValue;
 			}
 
 			var remainder = (ulong)(xRaw >= 0 ? xRaw : -xRaw);

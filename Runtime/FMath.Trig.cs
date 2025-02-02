@@ -5,43 +5,6 @@ namespace Mathematics.Fixed
 {
 	public static partial class FMath
 	{
-		public const int SinPrecision = 16; // Corelate with lut size. Must be <= FractionalPlaces.
-		public const int TanPrecision = 18; // Corelate with lut size. Must be <= FractionalPlaces.
-		public const int ArcsinPrecision = 16; // Corelate with lut size. Must be <= FractionalPlaces.
-
-		public const int SinIterations = 5; // Taylor series iterations.
-		public const int TanIterations = 5; // Continued fraction expansion iterations.
-		public const int ArcsinIterations = 30; // Taylor series iterations.
-
-		private const int SinLutShift = FP.FractionalBits - SinPrecision;
-		private const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift); // [0, HalfPi)
-
-		private const int TanLutShift = FP.FractionalBits - TanPrecision;
-		private const int TanLutSize = (int)(FP.HalfPiRaw >> TanLutShift); // [0, HalfPi)
-
-		private const int ArcsinLutShift = FP.FractionalBits - ArcsinPrecision;
-		private const int ArcsinLutSize = (int)(FP.OneRaw >> ArcsinLutShift); // [0, 1)
-
-		private static FP[] s_sinLut;
-		private static FP[] s_tanLut;
-		private static FP[] s_arcsinLut;
-
-		/// <summary>
-		/// Must be called once to use all the trig function.
-		/// Initializes lut tables.
-		/// </summary>
-		public static void Init()
-		{
-			if (s_sinLut != null && s_tanLut != null && s_arcsinLut != null)
-			{
-				return;
-			}
-
-			s_sinLut = GenerateSinLut();
-			s_tanLut = GenerateTanLut();
-			s_arcsinLut = GenerateArcsinLut();
-		}
-
 		/// <summary>
 		/// Sin of the angle.
 		/// Accuracy degrade when operating with huge values.
@@ -161,11 +124,11 @@ namespace Mathematics.Fixed
 				rawValue = -rawValue; // Map to [0, 1]
 			}
 
-			var lutIndex = (int)(rawValue >> ArcsinLutShift);
+			var lutIndex = (int)(rawValue >> AsinLutShift);
 
-			var arcsinValue = s_arcsinLut[lutIndex];
+			var AsinValue = s_asinLut[lutIndex];
 
-			return flipVertical ? -arcsinValue : arcsinValue;
+			return flipVertical ? -AsinValue : AsinValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -174,89 +137,178 @@ namespace Mathematics.Fixed
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Returns the arctan of of the specified number, calculated using Euler series
+		/// This function has at least 7 decimals of accuracy.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Atan(FP z)
+		{
+			if (z.RawValue == 0)
+				return FP.Zero;
+
+			// Force positive values for argument
+			// Atan(-z) = -Atan(z).
+			var neg = z.RawValue < 0;
+			if (neg)
+			{
+				z = SafeNeg(z);
+			}
+
+			var invert = z > FP.One;
+			if (invert) z = FP.One / z;
+
+			var result = FP.One;
+			var term = FP.One;
+
+			var zSq = z * z;
+			var zSq2 = zSq * FP.Two;
+			var zSqPlusOne = zSq + FP.One;
+			var zSq12 = zSqPlusOne * FP.Two;
+			var dividend = zSq2;
+			var divisor = zSqPlusOne * FP.Three;
+
+			for (var i = 2; i < 30; ++i)
+			{
+				term *= dividend / divisor;
+				result += term;
+
+				dividend += zSq2;
+				divisor += zSq12;
+
+				if (term.RawValue == 0)
+				{
+					break;
+				}
+			}
+
+			result = result * z / zSqPlusOne;
+
+			if (invert)
+			{
+				result = FP.HalfPi - result;
+			}
+
+			if (neg)
+			{
+				result = -result;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Atan2 aproximation.<br/>
+		/// Has fixed precision below 0.005 rad (0.2864789 deg).
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan2(FP y, FP x)
 		{
-			throw new NotImplementedException();
-		}
+			// Just some magic number for approximation.
+			const long consantRawBase61 = 645636042579834306L; // (long)(0.28M * (1L << 61));
+			const long constantRaw = consantRawBase61 >> (61 - FP.FractionalBits);
 
-		private static FP[] GenerateSinLut()
-		{
-			var lut = new FP[SinLutSize + 1];
-			lut[^1] = FP.One;
-
-			for (var i = 0; i < SinLutSize; i++)
+			var yRaw = y.RawValue;
+			var xRaw = x.RawValue;
+			if (xRaw == 0)
 			{
-				var angle = i.ToFP() / (SinLutSize - 1) * FP.HalfPi;
-				var angleSqr = angle * angle;
-
-				var result = FP.Zero;
-				var term = angle;
-				var factDenominator = FP.One;
-
-				for (var n = 1; n <= SinIterations; ++n)
+				if (yRaw > 0)
 				{
-					result += term / factDenominator;
-
-					term *= -angleSqr;
-					factDenominator *= 2 * n * (2 * n + 1);
+					return FP.HalfPi;
 				}
-
-				lut[i] = result;
+				if (yRaw == 0)
+				{
+					return FP.Zero;
+				}
+				return -FP.HalfPi;
 			}
 
-			return lut;
-		}
+			FP angle;
 
-		private static FP[] GenerateTanLut()
-		{
-			var lut = new FP[TanLutSize + 1];
-			lut[^1] = FP.MaxValue;
+			var z = y / x;
+			var constant = FP.FromRaw(constantRaw);
+			var denominator = SafeAdd(FP.One, SafeMul(constant * z, z));
 
-			for (var i = 0; i < TanLutSize; i++)
+			// Deal with overflow
+			if (denominator == FP.MaxValue)
 			{
-				var angle = i.ToFP() / (TanLutSize - 1) * FP.HalfPi;
-				var angleSqr = angle * angle;
-
-				var denominator = FP.One;
-
-				for (var n = TanIterations; n > 0; n--)
-				{
-					denominator = (n * 2 - 1).ToFP() - angleSqr / denominator;
-				}
-
-				lut[i] = angle / denominator;
+				return yRaw < 0 ? -FP.HalfPi : FP.HalfPi;
 			}
 
-			return lut;
+			if (SafeAbs(z) < FP.One)
+			{
+				angle = z / denominator;
+				if (xRaw < 0)
+				{
+					if (yRaw < 0)
+					{
+						return angle - FP.Pi;
+					}
+					return angle + FP.Pi;
+				}
+			}
+			else
+			{
+				angle = FP.HalfPi - z / (z * z + constant);
+				if (yRaw < 0)
+				{
+					return angle - FP.Pi;
+				}
+			}
+			return angle;
 		}
 
-		private static FP[] GenerateArcsinLut()
+		/// <summary>
+		/// The accuracy of this is 0.01 rad in general. Ups to 0.2 with a huge numbers.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Atan2Fast(FP y, FP x)
 		{
-			var lut = new FP[ArcsinLutSize + 1];
-			lut[^1] = FP.HalfPi;
+			const long a3 = FP.PiRaw / 16;
+			const long a1 = 5 * FP.PiRaw / 16;
+			const long a0 = FP.PiRaw / 4;
+			const long a30 = 3 * FP.PiRaw / 4;
 
-			for (var i = 0; i < ArcsinLutSize; i++)
+			var yRaw = y.RawValue;
+			var xRaw = x.RawValue;
+
+			if (xRaw == 0)
 			{
-				var value = i.ToFP() / (ArcsinLutSize - 1);
-				var valueSqr = value * value;
-
-				var result = value;
-				var factor = value;
-
-				for (var n = 0; n <= ArcsinIterations; n++)
+				if (yRaw > 0)
 				{
-					factor *= (2 * n + 1) * (2 * n + 2);
-					factor *= valueSqr * (2 * n + 1);
-					factor /= 4 * (n + 1) * (n + 1) * (2 * n + 3);
-
-					result += factor;
+					return FP.HalfPi;
 				}
-
-				lut[i] = result;
+				if (yRaw == 0)
+				{
+					return FP.Zero;
+				}
+				return -FP.HalfPi;
 			}
 
-			return lut;
+			FP angle;
+
+			// Absolute value of y
+			var absY = SafeAbs(y);
+
+			if (xRaw >= 0)
+			{
+				var r = SafeSub(x, absY) / SafeAdd(x, absY);
+				var r3 = r * r * r;
+				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a0);
+			}
+			else
+			{
+				var r = SafeAdd(x, absY) / SafeSub(absY, x);
+				var r3 = r * r * r;
+				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a30);
+			}
+
+			if (yRaw < 0)
+			{
+				angle = -angle;
+			}
+
+			return angle;
 		}
 	}
 }
