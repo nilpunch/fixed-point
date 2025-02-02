@@ -109,6 +109,19 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[TestCaseSource(nameof(TestCases))]
+		public void Atan(FP value)
+		{
+			var expected = Math.Atan(value.ToDouble());
+			var actual = FMath.AtanSeries(value);
+			var delta = Math.Abs(expected - actual.ToDouble());
+
+			if (delta > 0.00000001)
+			{
+				Assert.AreEqual(expected.ToFP(), actual, $"Atan({value}) = {actual}, but expected {expected}. Delta = {delta}.");
+			}
+		}
+
 		[TestCaseSource(nameof(PairTestCases))]
 		public void Division(FP a, FP b)
 		{

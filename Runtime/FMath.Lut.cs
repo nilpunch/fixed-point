@@ -8,7 +8,7 @@
 		public const int AtanPrecision = 20; // Corelate with lut size. Must be <= FP.AllBits.
 
 		public const int SinIterations = 6; // Taylor series iterations.
-		public const int AtanIterations = 30; // Taylor series iterations.
+		public const int AtanIterations = 20; // Taylor series iterations.
 
 		private const int SinLutShift = FP.FractionalBits - SinPrecision;
 		private const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift); // [0, HalfPi)
@@ -111,28 +111,43 @@
 			return result;
 		}
 
-		public static FP AtanSeries(FP angle)
+		public static FP AtanSeries(FP value)
 		{
-			if (angle > FP.One || angle < -FP.One)
+			var isNegative = value.RawValue < 0;
+			if (isNegative)
 			{
-				return FP.HalfPi - AtanSeries01(FP.One / angle);
+				value = SafeNeg(value);
 			}
 
-			return AtanSeries01(angle);
+			const long eightTenth = FP.OneRaw * 7 / 10;
+			const long fefteenTenth = FP.OneRaw * 15 / 10;
+
+			// Increase accuracy near 1.
+			var iterations = AtanIterations;
+			if (value > FP.FromRaw(eightTenth) && value < FP.FromRaw(fefteenTenth))
+			{
+				iterations += 100;
+			}
+
+			var result = value > FP.One 
+				? FP.HalfPi - AtanSeries01(FP.One / value, iterations)
+				: AtanSeries01(value, iterations);
+
+			return isNegative ? -result : result;
 		}
-		
-		private static FP AtanSeries01(FP angle)
+
+		private static FP AtanSeries01(FP value, int iterations = AtanIterations)
 		{
-			var angleSqr = angle * angle;
+			var valueSqr = value * value;
 
 			var result = FP.Zero;
-			var term = angle;
+			var term = value;
 			var denominator = FP.One;
 
-			for (var n = 1; n <= AtanIterations; ++n)
+			for (var n = 1; n <= iterations; ++n)
 			{
 				result += term / denominator;
-				term *= -angleSqr;
+				term *= -valueSqr;
 				denominator += FP.Two;
 			}
 

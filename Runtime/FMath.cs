@@ -364,9 +364,9 @@ namespace Mathematics.Fixed
 
 		/// <summary>
 		/// Calculates the square root of a fixed-point number.
-		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31.
-		/// It may have some rare minor inaccuracies, and they are tied to absolute precision.<br/>
-		/// Inaccuracies are in range [0, Epsilon * 1000).
+		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31. Otherwise
+		/// may have some rare minor inaccuracies, that are tied to absolute precision.<br/>
+		/// If any, inaccuracies are in range [0, Epsilon * 1000).
 		/// </summary>
 		/// <exception cref="ArgumentOutOfRangeException">
 		/// Thrown if the input is negative.
@@ -406,6 +406,7 @@ namespace Mathematics.Fixed
 			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
 			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
 
+#pragma warning disable CS0162 // Unreachable code detected
 			if (FP.FractionalBits < FP.AllBits / 2) // Faster case for FP.FractionalBits <= 31.
 			{
 				value <<= FP.FractionalBits;
@@ -431,6 +432,7 @@ namespace Mathematics.Fixed
 					bit >>= 2;
 				}
 			}
+#pragma warning restore CS0162 // Unreachable code detected
 
 			while (bit != 0)
 			{

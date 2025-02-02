@@ -12,6 +12,6 @@ This library is based on [FixedMath.Net](https://github.com/asik/FixedMath.Net) 
 
 ### Key Features
 
-- The number of fractional places can be controlled using a single constant.
+- The number of fractional bits can be controlled using a single constant.
 - LUTs are generated deterministically at runtime with adjustable precision and size.
-- Avoids static initializers, preventing IL2CPP from introducing unnecessary static guards in hot paths.
+- Avoids static initializers, preventing IL2CPP from introducing unnecessary static guards.
