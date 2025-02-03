@@ -3,22 +3,20 @@
 	public static partial class FMath
 	{
 		public const int SinPrecision = 16; // Corelate with lut size. Must be <= FP.FractionalBits.
-		public const int TanPrecision = 18; // Corelate with lut size. Must be <= FP.FractionalBits.
-		public const int AsinPrecision = 16; // Corelate with lut size. Must be <= FP.FractionalPlaces.
-		public const int AtanPrecision = 20; // Corelate with lut size. Must be <= FP.AllBits.
-
 		public const int SinIterations = 6; // Taylor series iterations.
-		public const int AtanIterations = 20; // Taylor series iterations.
-
 		private const int SinLutShift = FP.FractionalBits - SinPrecision;
 		private const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift); // [0, HalfPi)
 
+		public const int TanPrecision = 18; // Corelate with lut size. Must be <= FP.FractionalBits.
 		private const int TanLutShift = FP.FractionalBits - TanPrecision;
 		private const int TanLutSize = (int)(FP.HalfPiRaw >> TanLutShift); // [0, HalfPi)
 
+		public const int AsinPrecision = 16; // Corelate with lut size. Must be <= FP.FractionalPlaces.
 		private const int AsinLutShift = FP.FractionalBits - AsinPrecision;
 		private const int AsinLutSize = (int)(FP.OneRaw >> AsinLutShift); // [0, 1)
 
+		public const int AtanPrecision = 20; // Corelate with lut size. Must be <= FP.AllBits.
+		public const int AtanIterations = 20; // Taylor series iterations.
 		private const int AtanLutShift = FP.AllBits - AtanPrecision;
 		private const int AtanLutSize = (int)(FP.MaxValueRaw >> AtanLutShift); // [0, MaxValue)
 

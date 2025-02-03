@@ -22,7 +22,6 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Sin(FP radians)
 		{
-			// Fast modulo
 			var rawRadians = radians.RawValue % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
 			if (rawRadians < 0)
@@ -87,7 +86,6 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Tan(FP radians)
 		{
-			// Fast modulo
 			var rawRadians = radians.RawValue % FP.PiRaw; // Map to [-Pi, Pi)
 
 			if (rawRadians < 0)
@@ -204,58 +202,35 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan2(FP y, FP x)
 		{
-			// Just some magic number for approximation.
-			const long consantRawBase61 = 645636042579834306L; // (long)(0.28M * (1L << 61));
-			const long constantRaw = consantRawBase61 >> (61 - FP.FractionalBits);
-
-			var yRaw = y.RawValue;
-			var xRaw = x.RawValue;
-			if (xRaw == 0)
+			if (x.RawValue > 0)
 			{
-				if (yRaw > 0)
-				{
-					return FP.HalfPi;
-				}
-				if (yRaw == 0)
-				{
-					return FP.Zero;
-				}
-				return -FP.HalfPi;
+				return Atan(y / x);
 			}
 
-			FP angle;
-
-			var z = y / x;
-			var constant = FP.FromRaw(constantRaw);
-			var denominator = SafeAdd(FP.One, SafeMul(constant * z, z));
-
-			// Deal with overflow
-			if (denominator == FP.MaxValue)
+			if (x.RawValue < 0)
 			{
-				return yRaw < 0 ? -FP.HalfPi : FP.HalfPi;
-			}
-
-			if (SafeAbs(z) < FP.One)
-			{
-				angle = z / denominator;
-				if (xRaw < 0)
+				if (y.RawValue >= 0)
 				{
-					if (yRaw < 0)
-					{
-						return angle - FP.Pi;
-					}
-					return angle + FP.Pi;
+					y.RawValue = Atan(y / x).RawValue + FP.HalfPiRaw;
 				}
-			}
-			else
-			{
-				angle = FP.HalfPi - z / (z * z + constant);
-				if (yRaw < 0)
+				else
 				{
-					return angle - FP.Pi;
+					y.RawValue = Atan(y / x).RawValue - FP.HalfPiRaw;
 				}
+				return y;
 			}
-			return angle;
+
+			if (y.RawValue > 0)
+			{
+				return FP.HalfPi;
+			}
+
+			if (y.RawValue == 0)
+			{
+				return FP.Zero;
+			}
+
+			return -FP.HalfPi;
 		}
 
 		/// <summary>

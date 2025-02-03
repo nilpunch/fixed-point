@@ -25,6 +25,25 @@ namespace Mathematics.Fixed.Editor
 
 		private void OnGUI()
 		{
+			if (GUILayout.Button("Calculate"))
+			{
+				string sum = string.Empty;
+				for (int i = 0; i < 64; ++i)
+				{
+					var result = Math.Atan(1.0 / Math.Pow(2, i));
+					sum += (long)(result * (1UL << 63)) + ",\n";
+				}
+				Debug.Log(sum);
+
+				double cos = 1f;
+				for (int i = 0; i < 64; ++i)
+				{
+					var result = Math.Atan(1.0 / Math.Pow(2, i));
+					cos *= Math.Cos(result);
+				}
+				Debug.Log((long)(cos * (1UL << 63)));
+			}
+			
 			const float log10Of2 = 0.30103f;
 			int decimalDigitsOfAccuracy = Mathf.CeilToInt(log10Of2 * FP.FractionalBits);
 
@@ -49,6 +68,7 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("One Degrees In Rad", FP.Deg2Rad.ToString("F" + decimalDigitsOfAccuracy));
 
 			FMath.Init();
+			FCordic.Init();
 
 			EditorGUILayout.Space(10f);
 
@@ -57,18 +77,24 @@ namespace Mathematics.Fixed.Editor
 			var testFp = FP.Deg2Rad * _testAngle.ToFP();
 			var testRadians = 0.017453292519943295 * _testAngle;
 
-			EditorGUILayout.TextField("Sin", FMath.Sin(testFp).ToString("F" + decimalDigitsOfAccuracy));
+			FCordic.SinCosRaw(testFp.RawValue, out var sinRaw, out var cosRaw);
+			var sinFP = FP.FromRaw(sinRaw);
+			var cosFP = FP.FromRaw(cosRaw);
+			
+			EditorGUILayout.TextField("Sin", sinFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Sin", Math.Sin(testRadians).ToString("F" + decimalDigitsOfAccuracy));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Sin(testFp).ToDouble() - Math.Sin(testRadians)).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs(sinFP.ToDouble() - Math.Sin(testRadians)).ToString("G5"));
 			EditorGUILayout.Space(2f);
-			EditorGUILayout.TextField("Cos", (FMath.Cos(testFp).ToDouble()).ToString("G5"));
+			EditorGUILayout.TextField("Cos", (cosFP.ToDouble()).ToString("G5"));
 			EditorGUILayout.TextField("Actual Cos", Math.Cos(testRadians).ToString("G5"));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Cos(testFp).ToDouble() - Math.Cos(testRadians)).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs(cosFP.ToDouble() - Math.Cos(testRadians)).ToString("G5"));
 			EditorGUILayout.Space(2f);
-			EditorGUILayout.TextField("Tan", FMath.Tan(testFp).ToDouble().ToString("G5"));
+			
+			var tanFP = FP.FromRaw(FCordic.TanRaw(testFp.RawValue));
+			EditorGUILayout.TextField("Tan", tanFP.ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Tan", Math.Tan(testRadians).ToString("G5"));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Tan(testFp).ToDouble() - Math.Tan(testRadians)).ToString("G5"));
-
+			EditorGUILayout.TextField("Delta", Math.Abs(tanFP.ToDouble() - Math.Tan(testRadians)).ToString("G5"));
+			
 			EditorGUILayout.Space(5f);
 			EditorGUILayout.TextField("Sin (MaxValue)", FMath.Sin(FP.MaxValue).ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Sin (MaxValue)", Math.Sin(FP.MaxValue.ToDouble()).ToString("G5"));
@@ -82,13 +108,13 @@ namespace Mathematics.Fixed.Editor
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
 
-			EditorGUILayout.TextField("Arcsin", FMath.Asin(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
-			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Asin(testValueFp).ToDouble() - Math.Asin(_testValue)).ToString("G5"));
-			
-			EditorGUILayout.TextField("Arctan", FMath.AtanSeries(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
+			// EditorGUILayout.TextField("Arcsin", FMath.Asin(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
+			// EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
+			// EditorGUILayout.TextField("Delta", Math.Abs(FMath.Asin(testValueFp).ToDouble() - Math.Asin(_testValue)).ToString("G5"));
+			var atanFP = FP.FromRaw(FCordic.AtanRaw(testValueFp.RawValue));
+			EditorGUILayout.TextField("Arctan", atanFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.AtanSeries(testValueFp).ToDouble() - Math.Atan(_testValue)).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs(atanFP.ToDouble() - Math.Atan(_testValue)).ToString("G5"));
 		}
 	}
 }
