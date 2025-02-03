@@ -11,24 +11,6 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Adds x and y without performing overflow checking.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long AddRaw(long x, long y)
-		{
-			return x + y;
-		}
-
-		/// <summary>
-		/// Subtracts y from x without performing overflow checking.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long SubRaw(long x, long y)
-		{
-			return x - y;
-		}
-
-		/// <summary>
 		/// Performs multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -28,7 +28,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
 		{
-			var result = AddRaw(x.RawValue, y.RawValue);
+			var result = x.RawValue + y.RawValue;
 			return FromRaw(result);
 		}
 
@@ -38,7 +38,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x, FP y)
 		{
-			var result = SubRaw(x.RawValue, y.RawValue);
+			var result = x.RawValue - y.RawValue;
 			return FromRaw(result);
 		}
 

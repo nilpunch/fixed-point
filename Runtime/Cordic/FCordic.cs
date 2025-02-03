@@ -1,5 +1,11 @@
+using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
+
 namespace Mathematics.Fixed
 {
+	[Il2CppSetOption(Option.NullChecks, false)]
+	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public static class FCordic
 	{
 		public const int Precision = 16;
@@ -21,9 +27,9 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void SinCosRaw(long angle, out long sin, out long cos)
 		{
-			// Fast modulo
 			angle = angle % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
 			if (angle < 0)
@@ -59,6 +65,7 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long TanRaw(long angle)
 		{
 			angle = angle % FP.PiRaw; // Map to [-Pi, Pi)
@@ -84,9 +91,10 @@ namespace Mathematics.Fixed
 			return flipVertical ? FP.SafNegRaw(result) : result;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long AtanRaw(long a)
 		{
-			var x = 1L;
+			var x = FP.OneRaw;
 			var z = 0L;
 
 			CordicCircularVecmode(ref x, ref a, ref z, 0);
@@ -94,9 +102,44 @@ namespace Mathematics.Fixed
 			return z;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long Atan2Raw(long y, long x)
+		{
+			if (x > 0)
+			{
+				return AtanRaw(y / x);
+			}
+
+			if (x < 0)
+			{
+				if (y >= 0)
+				{
+					y = AtanRaw(y / x) + FP.HalfPiRaw;
+				}
+				else
+				{
+					y = AtanRaw(y / x) - FP.HalfPiRaw;
+				}
+				return y;
+			}
+
+			if (y > 0)
+			{
+				return FP.HalfPiRaw;
+			}
+
+			if (y == 0)
+			{
+				return 0;
+			}
+
+			return -FP.HalfPiRaw;
+		}
+
 		/// <summary>
 		/// See cordit1 from http://www.voidware.com/cordic.htm.
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void CordicCircular(ref long xRef, ref long yRef, ref long zRef)
 		{
 			var x = xRef;
@@ -129,6 +172,7 @@ namespace Mathematics.Fixed
 		/// <summary>
 		/// See cordit1 from http://www.voidware.com/cordic.htm.
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void CordicCircularVecmode(ref long xRef, ref long yRef, ref long zRef, long vecmode)
 		{
 			var x = xRef;
