@@ -1,6 +1,6 @@
 # Fixed Point
 
-A deterministic fixed-point math library designed for online multiplayer games and other use cases.  
+Deterministic fixed-point math library designed for online multiplayer games and other use cases.  
 Can be used as a pure C# library or as a Unity package.
 
 > [!WARNING]
