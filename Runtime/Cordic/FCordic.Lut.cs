@@ -1,11 +1,7 @@
 // ReSharper disable all ShiftExpressionResultEqualsZero
-
-using Unity.IL2CPP.CompilerServices;
-
 namespace Mathematics.Fixed
 {
-	[Il2CppEagerStaticClassConstruction]
-	public static class FCordicLut
+	public static partial class FCordic
 	{
 		/// <summary>
 		/// 64 iterations of Math.Atan(2^-i) where i = 0 .. 63.
