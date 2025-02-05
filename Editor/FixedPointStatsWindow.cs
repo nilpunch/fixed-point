@@ -68,7 +68,6 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("One Degrees In Rad", FP.Deg2Rad.ToString("F" + decimalDigitsOfAccuracy));
 
 			FMath.Init();
-			FCordic.Init();
 
 			EditorGUILayout.Space(10f);
 
