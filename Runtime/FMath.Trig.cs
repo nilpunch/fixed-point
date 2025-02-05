@@ -124,9 +124,9 @@ namespace Mathematics.Fixed
 
 			var lutIndex = (int)(rawValue >> AsinLutShift);
 
-			var AsinValue = s_asinLut[lutIndex];
+			var asinValue = s_asinLut[lutIndex];
 
-			return flipVertical ? -AsinValue : AsinValue;
+			return flipVertical ? -asinValue : asinValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

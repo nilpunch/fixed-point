@@ -85,7 +85,7 @@ namespace Mathematics.Fixed
 		[TestCaseSource(nameof(TestCases))]
 		public void Sqrt(FP value)
 		{
-			if (FMath.Sign(value) < 0.ToFP())
+			if (FMath.Sign(value) < 0)
 			{
 				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
 			}

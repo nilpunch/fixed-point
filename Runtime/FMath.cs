@@ -152,9 +152,9 @@ namespace Mathematics.Fixed
 		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Sign(FP value)
+		public static int Sign(FP value)
 		{
-			return FP.FromRaw(1 | (value.RawValue & FP.SignMask));
+			return (int)(1 | (value.RawValue & FP.SignMask));
 		}
 
 		/// <summary>
@@ -162,12 +162,11 @@ namespace Mathematics.Fixed
 		/// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SignWithZero(FP value)
+		public static int SignWithZero(FP value)
 		{
-			return FP.FromRaw(
-				value.RawValue < 0 ? -1 :
+			return value.RawValue < 0 ? -1 :
 				value.RawValue > 0 ? 1 :
-				0);
+				0;
 		}
 
 		/// <summary>

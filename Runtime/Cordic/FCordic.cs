@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 
@@ -9,7 +10,7 @@ namespace Mathematics.Fixed
 	[Il2CppEagerStaticClassConstruction]
 	public static partial class FCordic
 	{
-		public const int Precision = 16; // < FP.FractionalBits
+		public const int Precision = FP.FractionalBits;
 
 		// CORDIC cosine constant 0.60725...
 		public const long InvGainBase63 = 5600919740058907648;
@@ -18,7 +19,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void SinCosRaw(long angle, out long sin, out long cos)
 		{
-			angle = angle % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
+			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
 			if (angle < 0)
 			{
@@ -39,7 +40,6 @@ namespace Mathematics.Fixed
 
 			sin = 0L;
 			cos = InvGain;
-
 			CordicCircular(ref cos, ref sin, ref angle);
 
 			if (flipVertical)
@@ -51,6 +51,17 @@ namespace Mathematics.Fixed
 			{
 				cos = -cos;
 			}
+		}
+
+		/// <summary>
+		/// angle is [0, HalfPi].
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void SinCosZeroToHalfPiRaw(long angle, out long sin, out long cos)
+		{
+			sin = 0L;
+			cos = InvGain;
+			CordicCircular(ref cos, ref sin, ref angle);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,7 +82,6 @@ namespace Mathematics.Fixed
 
 			var sin = 0L;
 			var cos = InvGain;
-
 			CordicCircular(ref cos, ref sin, ref angle);
 
 			var result = FP.DivRaw(sin, cos);
@@ -84,8 +94,7 @@ namespace Mathematics.Fixed
 		{
 			var x = FP.OneRaw;
 			var z = 0L;
-
-			CordicCircularTargeted16(ref x, ref a, ref z, 0);
+			CordicVectoring(ref x, ref a, ref z, 0);
 
 			return z;
 		}
@@ -126,11 +135,41 @@ namespace Mathematics.Fixed
 			return -FP.HalfPiRaw;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long AsinRaw(long sin)
+		{
+			if (sin < -FP.OneRaw || sin > FP.OneRaw)
+			{
+				throw new ArgumentOutOfRangeException(nameof(sin));
+			}
+
+			var flipVertical = sin < 0;
+			if (flipVertical)
+			{
+				sin = -sin; // Map to [0, 1]
+			}
+
+			var result = AsinZeroToOneRaw(sin);
+
+			return flipVertical ? -result : result;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long AsinZeroToOneRaw(long sin)
+		{
+			var x = FP.OneRaw;
+			var y = 0L;
+			var z = 0L;
+			CordicVectoringDoubleIteration(ref x, ref y, ref z, sin);
+
+			return z;
+		}
+
 		/// <summary>
 		/// See cordit1 from http://www.voidware.com/cordic.htm.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void CordicCircular(ref long xRef, ref long yRef, ref long zRef)
+		public static void CordicCircular(ref long xRef, ref long yRef, ref long zRef)
 		{
 			var x = xRef;
 			var y = yRef;
@@ -163,7 +202,7 @@ namespace Mathematics.Fixed
 		/// See cordit1 from http://www.voidware.com/cordic.htm.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void CordicCircularTargeted(ref long xRef, ref long yRef, ref long zRef, long target)
+		public static void CordicVectoring(ref long xRef, ref long yRef, ref long zRef, long target)
 		{
 			var x = xRef;
 			var y = yRef;
@@ -185,6 +224,37 @@ namespace Mathematics.Fixed
 					x = xNext;
 					z += RawAtans[i];
 				}
+			}
+
+			xRef = x;
+			yRef = y;
+			zRef = z;
+		}
+
+		/// <summary>
+		/// See cordit1 from http://www.voidware.com/cordic.htm.<br/>
+		/// Double iteration method https://stackoverflow.com/questions/25976656/cordic-arcsine-implementation-fails.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void CordicVectoringDoubleIteration(ref long xRef, ref long yRef, ref long zRef, long target)
+		{
+			var x = xRef;
+			var y = yRef;
+			var z = zRef;
+
+			for (int i = 0; i < Precision; i++)
+			{
+				var signX = 1L | (x & FP.SignMask);
+				var sigma = y < target ? signX : -signX;
+
+				var xNext = x - sigma * (y >> i);
+				var yNext = y + sigma * (x >> i);
+				x = xNext - sigma * (yNext >> i);
+				y = yNext + sigma * (xNext >> i);
+
+				var atan = RawAtans[i];
+				z += (atan + atan) * sigma;
+				target += target >> (i + i);
 			}
 
 			xRef = x;

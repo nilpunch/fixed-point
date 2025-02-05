@@ -107,9 +107,10 @@ namespace Mathematics.Fixed.Editor
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
 
-			// EditorGUILayout.TextField("Arcsin", FMath.Asin(testValueFp).ToString("F" + decimalDigitsOfAccuracy));
-			// EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
-			// EditorGUILayout.TextField("Delta", Math.Abs(FMath.Asin(testValueFp).ToDouble() - Math.Asin(_testValue)).ToString("G5"));
+			var asinFP = FP.FromRaw(FCordic.AsinRaw(testValueFp.RawValue));
+			EditorGUILayout.TextField("Arcsin", asinFP.ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
+			EditorGUILayout.TextField("Delta", Math.Abs(asinFP.ToDouble() - Math.Asin(_testValue)).ToString("G5"));
 			var atanFP = FP.FromRaw(FCordic.AtanRaw(testValueFp.RawValue));
 			EditorGUILayout.TextField("Arctan", atanFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));

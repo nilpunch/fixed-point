@@ -50,7 +50,9 @@
 			{
 				var angle = i.ToFP() / (SinLutSize - 1) * FP.HalfPi;
 
-				lut[i] = SinSeries(angle);
+				FCordic.SinCosZeroToHalfPiRaw(angle.RawValue, out var sin, out var cos);
+
+				lut[i] = FP.FromRaw(sin);
 			}
 
 			return lut;
@@ -65,10 +67,9 @@
 			{
 				var angle = i.ToFP() / (TanLutSize - 1) * FP.HalfPi;
 
-				var sin = SinSeries(angle);
-				var cos = SinSeries(FP.HalfPi - angle);
+				FCordic.SinCosZeroToHalfPiRaw(angle.RawValue, out var sin, out var cos);
 
-				lut[i] = sin / cos;
+				lut[i] = FP.FromRaw(FP.DivRaw(sin, cos));
 			}
 
 			return lut;
@@ -81,11 +82,11 @@
 
 			for (var i = 0; i < AsinLutSize; i++)
 			{
-				var value = i.ToFP() / (AsinLutSize - 1);
+				var sin = i.ToFP() / (AsinLutSize - 1);
 
-				var angle = AtanSeries(value / Sqrt(FP.One - value * value));
+				var angle = FCordic.AsinZeroToOneRaw(sin.RawValue);
 
-				lut[i] = angle;
+				lut[i] = FP.FromRaw(angle);
 			}
 
 			return lut;

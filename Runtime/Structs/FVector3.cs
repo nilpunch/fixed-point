@@ -426,7 +426,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 SignComponents(FVector3 a)
 		{
-			return new FVector3(FMath.Sign(a.X), FMath.Sign(a.Y), FMath.Sign(a.Z));
+			return new FVector3(FMath.Sign(a.X).ToFP(), FMath.Sign(a.Y).ToFP(), FMath.Sign(a.Z).ToFP());
 		}
 
 		/// <summary>
