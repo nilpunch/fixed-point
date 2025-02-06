@@ -69,7 +69,7 @@
 
 				FCordic.SinCosZeroToHalfPiRaw(angle.RawValue, out var sin, out var cos);
 
-				lut[i] = FP.FromRaw(FP.DivRaw(sin, cos));
+				lut[i] = FP.FromRaw(FP.Div(sin, cos));
 			}
 
 			return lut;
@@ -115,7 +115,7 @@
 			var isNegative = value.RawValue < 0;
 			if (isNegative)
 			{
-				value = SafeNeg(value);
+				value = FP.SafeNeg(value);
 			}
 
 			const long eightTenth = FP.OneRaw * 7 / 10;

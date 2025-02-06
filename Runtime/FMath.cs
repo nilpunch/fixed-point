@@ -6,148 +6,6 @@ namespace Mathematics.Fixed
 	public static partial class FMath
 	{
 		/// <summary>
-		/// Adds x and y. Performs saturating addition, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeAdd(in FP x, in FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-			var sum = xl + yl;
-			// If signs of operands are equal and signs of sum and x are different
-			if ((~(xl ^ yl) & (xl ^ sum) & FP.MinValueRaw) != 0)
-			{
-				sum = xl > 0 ? FP.MaxValueRaw : FP.MinValueRaw;
-			}
-
-			return FP.FromRaw(sum);
-		}
-
-		/// <summary>
-		/// Subtracts y from x. Performs saturating substraction, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeSub(FP x, FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-			var diff = xl - yl;
-			// If signs of operands are different and signs of sum and x are different.
-			if (((xl ^ yl) & (xl ^ diff) & FP.MinValueRaw) != 0)
-			{
-				diff = xl < 0 ? FP.MinValueRaw : FP.MaxValueRaw;
-			}
-
-			return FP.FromRaw(diff);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeNeg(FP x)
-		{
-			return x.RawValue == FP.MinValueRaw ? FP.MaxValue : FP.FromRaw(-x.RawValue);
-		}
-
-		/// <summary>
-		/// Multiplies x by y. Performs saturating multiplaction, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeMul(FP x, FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-
-			var xlo = (ulong)(xl & FP.FractionalMask);
-			var xhi = xl >> FP.FractionalBits;
-			var ylo = (ulong)(yl & FP.FractionalMask);
-			var yhi = yl >> FP.FractionalBits;
-
-			var lolo = xlo * ylo;
-			var lohi = (long)xlo * yhi;
-			var hilo = xhi * (long)ylo;
-			var hihi = xhi * yhi;
-
-			var loResult = lolo >> FP.FractionalBits;
-			var midResult1 = lohi;
-			var midResult2 = hilo;
-			var hiResult = hihi << FP.FractionalBits;
-
-			var overflow = false;
-			var sum = AddOverflowHelper((long)loResult, midResult1, ref overflow);
-			sum = AddOverflowHelper(sum, midResult2, ref overflow);
-			sum = AddOverflowHelper(sum, hiResult, ref overflow);
-
-			var opSignsEqual = ((xl ^ yl) & FP.MinValueRaw) == 0;
-
-			// If signs of operands are equal and sign of result is negative,
-			// then multiplication overflowed positively
-			// the reverse is also true.
-			if (opSignsEqual)
-			{
-				if (sum < 0 || (overflow && xl > 0))
-				{
-					return FP.MaxValue;
-				}
-			}
-			else
-			{
-				if (sum > 0)
-				{
-					return FP.MinValue;
-				}
-			}
-
-			// If the integer sign part of hihi (unused in the result) are neither all 0s or 1s,
-			// then this means the result overflowed.
-			var topCarry = hihi >> FP.FractionalBits;
-			if (topCarry != 0 && topCarry != -1 /*&& xl != -17 && yl != -17*/)
-			{
-				return opSignsEqual ? FP.MaxValue : FP.MinValue;
-			}
-
-			// If signs differ, both operands' magnitudes are greater than 1,
-			// and the result is greater than the negative operand, then there was negative overflow.
-			if (!opSignsEqual)
-			{
-				long posOp, negOp;
-				if (xl > yl)
-				{
-					posOp = xl;
-					negOp = yl;
-				}
-				else
-				{
-					posOp = yl;
-					negOp = xl;
-				}
-
-				if (sum > negOp && negOp < -FP.OneRaw && posOp > FP.OneRaw)
-				{
-					return FP.MinValue;
-				}
-			}
-
-			return FP.FromRaw(sum);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static long AddOverflowHelper(long x, long y, ref bool overflow)
-		{
-			var sum = x + y;
-			// x + y overflows if sign(x) ^ sign(y) != sign(sum).
-			overflow |= ((x ^ y ^ sum) & FP.MinValueRaw) != 0;
-			return sum;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeMod(FP x, FP y)
-		{
-			return FP.FromRaw(x.RawValue == FP.MinValueRaw & y.RawValue == -1 ? 0 : x.RawValue % y.RawValue);
-		}
-
-		/// <summary>
 		/// Returns a number indicating the sign of a Fix64 number.
 		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
 		/// </summary>
@@ -169,14 +27,10 @@ namespace Mathematics.Fixed
 				0;
 		}
 
-		/// <summary>
-		/// Returns a number indicating the sign of a Fix64 number.
-		/// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
-		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP CopySign(FP to, FP from)
 		{
-			return FP.FromRaw(to.RawValue & FP.IntegerFractionalMask | from.RawValue & FP.SignMask);
+			return FP.FromRaw(CopySign(to.RawValue, from.RawValue));
 		}
 
 		/// <summary>

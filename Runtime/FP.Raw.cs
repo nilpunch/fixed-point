@@ -4,17 +4,11 @@ namespace Mathematics.Fixed
 {
 	public partial struct FP
 	{
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long SafNegRaw(long x)
-		{
-			return x == MinValueRaw ? MaxValueRaw : -x;
-		}
-
 		/// <summary>
 		/// Performs multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long MulRaw(long x, long y)
+		public static long Mul(long x, long y)
 		{
 			var xlo = (ulong)(x & FractionalMask);
 			var xhi = x >> FractionalBits;
@@ -38,7 +32,7 @@ namespace Mathematics.Fixed
 		/// Performs multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long DivRaw(long x, long y)
+		public static long Div(long x, long y)
 		{
 			if (y == 0)
 			{
@@ -105,6 +99,25 @@ namespace Mathematics.Fixed
 			if (((x ^ y) & MinValueRaw) != 0)
 			{
 				result = -result;
+			}
+
+			return result;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static int LeadingZeroCount(ulong x)
+		{
+			var result = 0;
+			while ((x & 0xF000000000000000) == 0)
+			{
+				result += 4;
+				x <<= 4;
+			}
+
+			while ((x & 0x8000000000000000) == 0)
+			{
+				result += 1;
+				x <<= 1;
 			}
 
 			return result;

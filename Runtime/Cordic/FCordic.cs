@@ -17,6 +17,47 @@ namespace Mathematics.Fixed
 		public const long InvGain = InvGainBase63 >> (63 - FP.FractionalBits);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long SinRaw(long angle)
+		{
+			angle = FastModTwoPi(angle);
+			//angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
+			
+			if (angle < 0)
+			{
+				angle += FP.TwoPiRaw; // Map to [0, 2*Pi)
+			}
+			
+			var flipVertical = angle >= FP.PiRaw;
+			if (flipVertical)
+			{
+				angle -= FP.PiRaw; // Map to [0, Pi)
+			}
+			
+			var flipHorizontal = angle >= FP.HalfPiRaw;
+			if (flipHorizontal)
+			{
+				angle = FP.PiRaw - angle; // Map to [0, Pi/2]
+			}
+			
+			var sin = 0L;
+			var cos = InvGain;
+			// Works only for angle range of [0, Pi/2]
+			CordicCircular16(ref cos, ref sin, ref angle);
+
+			return flipVertical ? -sin : sin;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long FastModTwoPi(long x)
+		{
+			var xShift = FP.FractionalBits / 2;
+			var twoPiShift = FP.FractionalBits - xShift;
+			
+			var xDivPi = (x << FP.FractionalBits) / (FP.TwoPiRaw >> 0);
+			return FP.TwoPiRaw * (FMath.Floor(xDivPi) >> FP.FractionalBits);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void SinCosRaw(long angle, out long sin, out long cos)
 		{
 			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
@@ -40,7 +81,8 @@ namespace Mathematics.Fixed
 
 			sin = 0L;
 			cos = InvGain;
-			CordicCircular(ref cos, ref sin, ref angle);
+			// Works only for angle range of [0, Pi/2]
+			CordicCircular16(ref cos, ref sin, ref angle);
 
 			if (flipVertical)
 			{
@@ -53,8 +95,43 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void SinCosRawBranchless(long angle, out long sin, out long cos)
+		{
+			// Reduce angle modulo [–TwoPiRaw, TwoPiRaw)
+			angle %= FP.TwoPiRaw;
+			// If negative, add TwoPiRaw: mask = 0 if angle>=0, -1 if angle<0.
+			var negMask = angle >> 63;
+			angle += FP.TwoPiRaw & negMask;
+
+			// Determine if we need to flip vertically (angle in [Pi, 2Pi))
+			// If angle >= PiRaw then (angle - PiRaw) is non-negative.
+			// (angle - PiRaw) >> 63 is 0 if angle>=PiRaw, -1 otherwise; invert it.
+			var flipVerticalMask = ~((angle - FP.PiRaw) >> 63);
+			// If flipVertical true, subtract PiRaw.
+			angle -= FP.PiRaw & flipVerticalMask;
+
+			// Determine if we need to flip horizontally (angle in [HalfPi, Pi))
+			var flipHorizontalMask = ~((angle - FP.HalfPiRaw) >> 63);
+			// If flipHorizontal true, set angle = PiRaw - angle.
+			// This is equivalent to: angle = (flipHorizontal ? FP.PiRaw - angle : angle)
+			angle = angle + ((FP.PiRaw - 2 * angle) & flipHorizontalMask);
+
+			// Now angle is in [0, HalfPiRaw] so we can compute sin & cos with CORDIC.
+			sin = 0L;
+			cos = InvGain;
+			CordicCircular16(ref cos, ref sin, ref angle);
+
+			// Branchless sign correction:
+			// Flip sin if we did a vertical flip.
+			sin = (sin ^ flipVerticalMask) - flipVerticalMask;
+			// For cos, flip sign if exactly one of the vertical or horizontal flips occurred.
+			var cosSignMask = flipVerticalMask ^ flipHorizontalMask;
+			cos = (cos ^ cosSignMask) - cosSignMask;
+		}
+		
 		/// <summary>
-		/// angle is [0, HalfPi].
+		/// Angle is [0, HalfPi].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void SinCosZeroToHalfPiRaw(long angle, out long sin, out long cos)
@@ -82,11 +159,11 @@ namespace Mathematics.Fixed
 
 			var sin = 0L;
 			var cos = InvGain;
-			CordicCircular(ref cos, ref sin, ref angle);
+			CordicCircular16(ref cos, ref sin, ref angle);
 
-			var result = FP.DivRaw(sin, cos);
+			var result = FP.Div(sin, cos);
 
-			return flipVertical ? FP.SafNegRaw(result) : result;
+			return flipVertical ? FMath.SafeNeg(result) : result;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,7 +171,7 @@ namespace Mathematics.Fixed
 		{
 			var x = FP.OneRaw;
 			var z = 0L;
-			CordicVectoring(ref x, ref a, ref z, 0);
+			CordicVectoring16(ref x, ref a, ref z, 0);
 
 			return z;
 		}
@@ -102,7 +179,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Atan2Raw(long y, long x)
 		{
-			var tan = FP.DivRaw(y, x);
+			var tan = FP.Div(y, x);
 
 			if (x > 0)
 			{
@@ -175,7 +252,7 @@ namespace Mathematics.Fixed
 			var y = yRef;
 			var z = zRef;
 
-			for (var i = 0; i < Precision; ++i)
+			for (var i = 0; i < 16; ++i)
 			{
 				if (z >= 0)
 				{
