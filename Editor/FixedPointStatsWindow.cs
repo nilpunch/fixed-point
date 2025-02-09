@@ -89,7 +89,7 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.TextField("Delta", Math.Abs(cosFP.ToDouble() - Math.Cos(testRadians)).ToString("G5"));
 			EditorGUILayout.Space(2f);
 			
-			var tanFP = FP.FromRaw(FCordic.TanRaw(testFp.RawValue));
+			var tanFP = FP.FromRaw(FCordic.Tan(testFp.RawValue));
 			EditorGUILayout.TextField("Tan", tanFP.ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Tan", Math.Tan(testRadians).ToString("G5"));
 			EditorGUILayout.TextField("Delta", Math.Abs(tanFP.ToDouble() - Math.Tan(testRadians)).ToString("G5"));
@@ -107,11 +107,11 @@ namespace Mathematics.Fixed.Editor
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
 
-			var asinFP = FP.FromRaw(FCordic.AsinRaw(testValueFp.RawValue));
+			var asinFP = FP.FromRaw(FCordic.Asin(testValueFp.RawValue));
 			EditorGUILayout.TextField("Arcsin", asinFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(asinFP.ToDouble() - Math.Asin(_testValue)).ToString("G5"));
-			var atanFP = FP.FromRaw(FCordic.AtanRaw(testValueFp.RawValue));
+			var atanFP = FP.FromRaw(FCordic.Atan(testValueFp.RawValue));
 			EditorGUILayout.TextField("Arctan", atanFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(atanFP.ToDouble() - Math.Atan(_testValue)).ToString("G5"));

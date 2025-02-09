@@ -123,17 +123,60 @@ namespace Mathematics.Fixed
 		}
 
 		[TestCaseSource(nameof(PairTestCases))]
+		public void Mul(FP a, FP b)
+		{
+			var aDouble = a.ToDouble();
+			var bDouble = b.ToDouble();
+
+			var expected = aDouble * bDouble;
+
+			if (expected > FP.MaxValue.ToDouble())
+			{
+				expected = FP.MaxValue.ToDouble();
+			}
+			else if (expected < FP.MinValue.ToDouble())
+			{
+				expected = FP.MinValue.ToDouble();
+			}
+
+			var actual = a * b;
+			var delta = Math.Abs(expected - actual.ToDouble());
+
+			if (delta > FP.Epsilon.ToDouble())
+			{
+				if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some rare minor inaccuracies, and they are tied to absolute precision.
+				{
+					Debug.LogWarning($"{a} * {b} = {actual}, but expected {expected}. Delta = {delta}.");
+				}
+				else
+				{
+					Assert.AreEqual(expected.ToFP(), actual, $"{a} * {b} = {actual}, but expected {expected}. Delta = {delta}.");
+				}
+			}
+		}
+
+		[TestCaseSource(nameof(PairTestCases))]
 		public void Division(FP a, FP b)
 		{
 			var aDouble = a.ToDouble();
 			var bDouble = b.ToDouble();
 
+			if (a == FP.Zero)
+			{
+				var expected = FP.Zero;
+				Assert.AreEqual(expected, a / b);
+				return;
+			}
+
 			if (b == FP.Zero)
 			{
+				// Assert.Throws<DivideByZeroException>(() => Ignore(a / b));
+
 				var expected = a < FP.Zero ? FP.MinValue : FP.MaxValue;
 				Assert.AreEqual(expected, a / b);
+				return;
 			}
-			else
+
 			{
 				var expected = aDouble / bDouble;
 

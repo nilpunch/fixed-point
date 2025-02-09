@@ -1,0 +1,15 @@
+﻿b - fractional bits
+
+z = x / y
+
+(x << b) / y
+
+xh = x << b;
+xl = x >> (64 - b);
+
+x = xh + xl
+
+        (A / Y)x3
+    + (((A % Y)x + B) / Y)x2
+  + (((((A % Y)x + B) % Y)x + C) / Y)x
+ + ((((((A % Y)x + B) % Y)x + C) / Y)x + D) / Y

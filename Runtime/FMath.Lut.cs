@@ -50,7 +50,7 @@
 			{
 				var angle = i.ToFP() / (SinLutSize - 1) * FP.HalfPi;
 
-				FCordic.SinCosZeroToHalfPiRaw(angle.RawValue, out var sin, out var cos);
+				FCordic.SinCosZeroToHalfPi(angle.RawValue, out var sin, out var cos);
 
 				lut[i] = FP.FromRaw(sin);
 			}
@@ -67,7 +67,7 @@
 			{
 				var angle = i.ToFP() / (TanLutSize - 1) * FP.HalfPi;
 
-				FCordic.SinCosZeroToHalfPiRaw(angle.RawValue, out var sin, out var cos);
+				FCordic.SinCosZeroToHalfPi(angle.RawValue, out var sin, out var cos);
 
 				lut[i] = FP.FromRaw(FP.Div(sin, cos));
 			}
@@ -84,7 +84,7 @@
 			{
 				var sin = i.ToFP() / (AsinLutSize - 1);
 
-				var angle = FCordic.AsinZeroToOneRaw(sin.RawValue);
+				var angle = FCordic.AsinZeroToOne(sin.RawValue);
 
 				lut[i] = FP.FromRaw(angle);
 			}
@@ -115,7 +115,7 @@
 			var isNegative = value.RawValue < 0;
 			if (isNegative)
 			{
-				value = FP.SafeNeg(value);
+				value = FP.Negate(value);
 			}
 
 			const long eightTenth = FP.OneRaw * 7 / 10;

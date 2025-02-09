@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
+	[Il2CppEagerStaticClassConstruction]
+	[Il2CppSetOption(Option.NullChecks, false)]
+	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public static partial class FMath
 	{
 		/// <summary>

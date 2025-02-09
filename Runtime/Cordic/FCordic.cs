@@ -134,7 +134,7 @@ namespace Mathematics.Fixed
 		/// Angle is [0, HalfPi].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SinCosZeroToHalfPiRaw(long angle, out long sin, out long cos)
+		public static void SinCosZeroToHalfPi(long angle, out long sin, out long cos)
 		{
 			sin = 0L;
 			cos = InvGain;
@@ -142,7 +142,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long TanRaw(long angle)
+		public static long Tan(long angle)
 		{
 			angle = angle % FP.PiRaw; // Map to [-Pi, Pi)
 
@@ -167,7 +167,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long AtanRaw(long a)
+		public static long Atan(long a)
 		{
 			var x = FP.OneRaw;
 			var z = 0L;
@@ -177,24 +177,24 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Atan2Raw(long y, long x)
+		public static long Atan2(long y, long x)
 		{
 			var tan = FP.Div(y, x);
 
 			if (x > 0)
 			{
-				return AtanRaw(tan);
+				return Atan(tan);
 			}
 
 			if (x < 0)
 			{
 				if (y >= 0)
 				{
-					y = AtanRaw(tan) + FP.HalfPiRaw;
+					y = Atan(tan) + FP.HalfPiRaw;
 				}
 				else
 				{
-					y = AtanRaw(tan) - FP.HalfPiRaw;
+					y = Atan(tan) - FP.HalfPiRaw;
 				}
 				return y;
 			}
@@ -213,7 +213,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long AsinRaw(long sin)
+		public static long Asin(long sin)
 		{
 			if (sin < -FP.OneRaw || sin > FP.OneRaw)
 			{
@@ -226,13 +226,13 @@ namespace Mathematics.Fixed
 				sin = -sin; // Map to [0, 1]
 			}
 
-			var result = AsinZeroToOneRaw(sin);
+			var result = AsinZeroToOne(sin);
 
 			return flipVertical ? -result : result;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long AsinZeroToOneRaw(long sin)
+		public static long AsinZeroToOne(long sin)
 		{
 			var x = FP.OneRaw;
 			var y = 0L;
@@ -252,7 +252,7 @@ namespace Mathematics.Fixed
 			var y = yRef;
 			var z = zRef;
 
-			for (var i = 0; i < 16; ++i)
+			for (var i = 0; i < Precision; ++i)
 			{
 				if (z >= 0)
 				{
@@ -321,17 +321,28 @@ namespace Mathematics.Fixed
 
 			for (int i = 0; i < Precision; i++)
 			{
-				var signX = 1L | (x & FP.SignMask);
-				var sigma = y < target ? signX : -signX;
+				if (y < target == x >= 0)
+				{
+					var xNext = x - (y >> i);
+					var yNext = y + (x >> i);
+					x = xNext - (yNext >> i);
+					y = yNext + (xNext >> i);
 
-				var xNext = x - sigma * (y >> i);
-				var yNext = y + sigma * (x >> i);
-				x = xNext - sigma * (yNext >> i);
-				y = yNext + sigma * (xNext >> i);
+					var atan = RawAtans[i];
+					z += atan + atan;
+					target += target >> (i + i);
+				}
+				else
+				{
+					var xNext = x + (y >> i);
+					var yNext = y - (x >> i);
+					x = xNext + (yNext >> i);
+					y = yNext - (xNext >> i);
 
-				var atan = RawAtans[i];
-				z += (atan + atan) * sigma;
-				target += target >> (i + i);
+					var atan = RawAtans[i];
+					z -= atan + atan;
+					target += target >> (i + i);
+				}
 			}
 
 			xRef = x;

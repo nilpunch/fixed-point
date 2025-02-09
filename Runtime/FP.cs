@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
+	[Il2CppEagerStaticClassConstruction]
+	[Il2CppSetOption(Option.NullChecks, false)]
+	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
@@ -43,7 +48,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Performs multiplication without checking for overflow.
+		/// Performs multiplication with checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, FP y)
@@ -182,7 +187,7 @@ namespace Mathematics.Fixed
 		/// rounds to MinValue or MaxValue depending on sign of operands.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeAdd(in FP x, in FP y)
+		public static FP Add(in FP x, in FP y)
 		{
 			var xl = x.RawValue;
 			var yl = y.RawValue;
@@ -201,7 +206,7 @@ namespace Mathematics.Fixed
 		/// rounds to MinValue or MaxValue depending on sign of operands.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeSub(FP x, FP y)
+		public static FP Sub(FP x, FP y)
 		{
 			var xl = x.RawValue;
 			var yl = y.RawValue;
@@ -216,101 +221,9 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeNeg(FP x)
+		public static FP Negate(FP x)
 		{
 			return x.RawValue == MinValueRaw ? MaxValue : FromRaw(-x.RawValue);
-		}
-
-		/// <summary>
-		/// Multiplies x by y. Performs saturating multiplaction, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeMul(FP x, FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-
-			var xlo = (ulong)(xl & FractionalMask);
-			var xhi = xl >> FractionalBits;
-			var ylo = (ulong)(yl & FractionalMask);
-			var yhi = yl >> FractionalBits;
-
-			var lolo = xlo * ylo;
-			var lohi = (long)xlo * yhi;
-			var hilo = xhi * (long)ylo;
-			var hihi = xhi * yhi;
-
-			var loResult = lolo >> FractionalBits;
-			var midResult1 = lohi;
-			var midResult2 = hilo;
-			var hiResult = hihi << FractionalBits;
-
-			var overflow = false;
-			var sum = AddOverflowHelper((long)loResult, midResult1, ref overflow);
-			sum = AddOverflowHelper(sum, midResult2, ref overflow);
-			sum = AddOverflowHelper(sum, hiResult, ref overflow);
-
-			var opSignsEqual = ((xl ^ yl) & MinValueRaw) == 0;
-
-			// If signs of operands are equal and sign of result is negative,
-			// then multiplication overflowed positively
-			// the reverse is also true.
-			if (opSignsEqual)
-			{
-				if (sum < 0 || (overflow && xl > 0))
-				{
-					return MaxValue;
-				}
-			}
-			else
-			{
-				if (sum > 0)
-				{
-					return MinValue;
-				}
-			}
-
-			// If the integer sign part of hihi (unused in the result) are neither all 0s or 1s,
-			// then this means the result overflowed.
-			var topCarry = hihi >> FractionalBits;
-			if (topCarry != 0 && topCarry != -1 /*&& xl != -17 && yl != -17*/)
-			{
-				return opSignsEqual ? MaxValue : MinValue;
-			}
-
-			// If signs differ, both operands' magnitudes are greater than 1,
-			// and the result is greater than the negative operand, then there was negative overflow.
-			if (!opSignsEqual)
-			{
-				long posOp, negOp;
-				if (xl > yl)
-				{
-					posOp = xl;
-					negOp = yl;
-				}
-				else
-				{
-					posOp = yl;
-					negOp = xl;
-				}
-
-				if (sum > negOp && negOp < -OneRaw && posOp > OneRaw)
-				{
-					return MinValue;
-				}
-			}
-
-			return FromRaw(sum);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static long AddOverflowHelper(long x, long y, ref bool overflow)
-		{
-			var sum = x + y;
-			// x + y overflows if sign(x) ^ sign(y) != sign(sum).
-			overflow |= ((x ^ y ^ sum) & MinValueRaw) != 0;
-			return sum;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -103,7 +103,7 @@ namespace Mathematics.Fixed
 
 			var tanValue = s_tanLut[lutIndex];
 
-			return flipVertical ? FP.SafeNeg(tanValue) : tanValue;
+			return flipVertical ? FP.Negate(tanValue) : tanValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -150,7 +150,7 @@ namespace Mathematics.Fixed
 			var neg = z.RawValue < 0;
 			if (neg)
 			{
-				z = FP.SafeNeg(z);
+				z = FP.Negate(z);
 			}
 
 			var invert = z > FP.One;
@@ -267,13 +267,13 @@ namespace Mathematics.Fixed
 
 			if (xRaw >= 0)
 			{
-				var r = FP.SafeSub(x, absY) / FP.SafeAdd(x, absY);
+				var r = FP.Sub(x, absY) / FP.Add(x, absY);
 				var r3 = r * r * r;
 				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a0);
 			}
 			else
 			{
-				var r = FP.SafeAdd(x, absY) / FP.SafeSub(absY, x);
+				var r = FP.Add(x, absY) / FP.Sub(absY, x);
 				var r3 = r * r * r;
 				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a30);
 			}
