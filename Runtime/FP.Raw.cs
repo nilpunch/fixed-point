@@ -126,19 +126,15 @@ namespace Mathematics.Fixed
 			var scaledX = absX << xShift;
 			var scaledY = absY >> yShift;
 
-			if (scaledY == 0)
-			{
-				return sign < 0 ? MinValueRaw : MaxValueRaw;
-			}
+			var nonZeroY = scaledY == 0 ? 1 : scaledY;
 
-			var quotient = scaledX / scaledY;
+			var quotient = scaledX / nonZeroY;
 
-			if (quotient > MaxValueRaw)
-			{
-				return sign < 0 ? MinValueRaw : MaxValueRaw;
-			}
+			var overflowValue = sign < 0 ? MinValueRaw : MaxValueRaw;
+			var signedQuotient = ((long)quotient ^ sign) - sign;
+			var result = quotient > MaxValueRaw ? overflowValue : signedQuotient;
 
-			return ((long)quotient ^ sign) - sign;
+			return scaledY == 0 ? overflowValue : result;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,96 +152,29 @@ namespace Mathematics.Fixed
 			var absY = (ulong)((y + maskY) ^ maskY);
 			var sign = maskX ^ maskY;
 
-			if (absY == 0)
+			var xLzc = LeadingZeroCount(absX);
+			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
+			var yShift = FractionalBits - xShift;
+
+			var scaledX = absX << xShift;
+			var scaledY = absY >> yShift;
+
+			if (scaledY == 0)
 			{
 				reminder = 0;
 				return sign < 0 ? MinValueRaw : MaxValueRaw;
 			}
 
-			var xHi = absX >> (AllBits - FractionalBits);
-			var xLo = absX << FractionalBits;
-
-			DivMod128By64(xHi, xLo, absY, out var quotient, out var reminderUnsigned);
-			reminder = (long)reminderUnsigned; // reminderUnsigned is never bigger then MaxValueRaw.
+			var quotient = scaledX / scaledY;
 
 			if (quotient > MaxValueRaw)
 			{
+				reminder = 0;
 				return sign < 0 ? MinValueRaw : MaxValueRaw;
 			}
 
+			reminder = ((long)(scaledX - quotient * scaledY) ^ sign) - sign;
 			return ((long)quotient ^ sign) - sign;
-		}
-
-		/// <summary>
-		/// All credits goes to this guy:
-		/// https://www.codeproject.com/Tips/785014/UInt-Division-Modulus
-		/// </summary>
-		public static void DivMod128By64(ulong u1, ulong u0, ulong v, out ulong q, out ulong r)
-		{
-			const ulong b = 1UL << 32;
-			ulong un1, un0, vn1, vn0, q1, q0, un32, un21, un10, rhat, left, right;
-
-			var s = LeadingZeroCount(v);
-			v <<= s;
-			vn1 = v >> 32;
-			vn0 = v & 0xFFFFFFFF;
-
-			if (s > 0)
-			{
-				un32 = (u1 << s) | (u0 >> (64 - s));
-				un10 = u0 << s;
-			}
-			else
-			{
-				un32 = u1;
-				un10 = u0;
-			}
-
-			un1 = un10 >> 32;
-			un0 = un10 & 0xFFFFFFFF;
-
-			q1 = un32 / vn1;
-			rhat = un32 % vn1;
-
-			left = q1 * vn0;
-			right = (rhat << 32) + un1;
-
-			again1:
-			if (q1 >= b || left > right)
-			{
-				--q1;
-				rhat += vn1;
-				if (rhat < b)
-				{
-					left -= vn0;
-					right = (rhat << 32) | un1;
-					goto again1;
-				}
-			}
-
-			un21 = (un32 << 32) + (un1 - (q1 * v));
-
-			q0 = un21 / vn1;
-			rhat = un21 % vn1;
-
-			left = q0 * vn0;
-			right = (rhat << 32) | un0;
-
-			again2:
-			if (q0 >= b || left > right)
-			{
-				--q0;
-				rhat += vn1;
-				if (rhat < b)
-				{
-					left -= vn0;
-					right = (rhat << 32) | un0;
-					goto again2;
-				}
-			}
-
-			r = ((un21 << 32) + (un0 - (q0 * v))) >> s;
-			q = (q1 << 32) | q0;
 		}
 
 		/// <summary>
@@ -262,15 +191,15 @@ namespace Mathematics.Fixed
 			var k = t >> 32;
 
 			op1 >>= 32;
-			t = (op1 * v1) + k;
+			t = op1 * v1 + k;
 			k = t & 0xFFFFFFFF;
 			var w1 = t >> 32;
 
 			op2 >>= 32;
-			t = (u1 * op2) + k;
+			t = u1 * op2 + k;
 			k = t >> 32;
 
-			hi = (op1 * op2) + w1 + k;
+			hi = op1 * op2 + w1 + k;
 			lo = (t << 32) | w3;
 		}
 
@@ -278,13 +207,10 @@ namespace Mathematics.Fixed
 		private static int LeadingZeroCount(ulong x)
 		{
 			var hi = (uint)(x >> 32);
+			var leadingPart = hi == 0 ? (uint)x : hi;
+			var hiZeroes = hi == 0 ? 32 : 0;
 
-			if (hi == 0)
-			{
-				return 32 + LeadingZeroCount((uint)x);
-			}
-
-			return LeadingZeroCount(hi);
+			return hiZeroes + LeadingZeroCount(leadingPart);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
