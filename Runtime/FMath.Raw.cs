@@ -32,7 +32,7 @@ namespace Mathematics.Fixed
 			var mask = value >> FP.AllBitsWithoutSign;
 			return (value + mask) ^ mask;
 		}
-		
+
 		/// <summary>
 		/// Calculates the square root of a fixed-point number.
 		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31. Otherwise

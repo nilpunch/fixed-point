@@ -21,24 +21,24 @@ namespace Mathematics.Fixed
 		{
 			angle = FastModTwoPi(angle);
 			//angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
-			
+
 			if (angle < 0)
 			{
 				angle += FP.TwoPiRaw; // Map to [0, 2*Pi)
 			}
-			
+
 			var flipVertical = angle >= FP.PiRaw;
 			if (flipVertical)
 			{
 				angle -= FP.PiRaw; // Map to [0, Pi)
 			}
-			
+
 			var flipHorizontal = angle >= FP.HalfPiRaw;
 			if (flipHorizontal)
 			{
 				angle = FP.PiRaw - angle; // Map to [0, Pi/2]
 			}
-			
+
 			var sin = 0L;
 			var cos = InvGain;
 			// Works only for angle range of [0, Pi/2]
@@ -52,7 +52,7 @@ namespace Mathematics.Fixed
 		{
 			var xShift = FP.FractionalBits / 2;
 			var twoPiShift = FP.FractionalBits - xShift;
-			
+
 			var xDivPi = (x << FP.FractionalBits) / (FP.TwoPiRaw >> 0);
 			return FP.TwoPiRaw * (FMath.Floor(xDivPi) >> FP.FractionalBits);
 		}
@@ -129,7 +129,7 @@ namespace Mathematics.Fixed
 			var cosSignMask = flipVerticalMask ^ flipHorizontalMask;
 			cos = (cos ^ cosSignMask) - cosSignMask;
 		}
-		
+
 		/// <summary>
 		/// Angle is [0, HalfPi].
 		/// </summary>

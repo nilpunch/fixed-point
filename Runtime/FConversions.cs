@@ -5,15 +5,15 @@ namespace Mathematics.Fixed
 	public static class FConversions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ToFP(this int value)
+		public static FP ToFP(this long value)
 		{
-			return FP.FromRaw(value * FP.OneRaw);
+			return FP.FromRaw(value << FP.FractionalBits);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ToFP(this long value)
+		public static FP ToFP(this int value)
 		{
-			return FP.FromRaw(value * FP.OneRaw);
+			return FP.FromRaw((long)value << FP.FractionalBits);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,12 +24,6 @@ namespace Mathematics.Fixed
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP ToFP(this double value)
-		{
-			return FP.FromRaw((long)(value * FP.OneRaw));
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ToFP(this decimal value)
 		{
 			return FP.FromRaw((long)(value * FP.OneRaw));
 		}
@@ -56,12 +50,6 @@ namespace Mathematics.Fixed
 		public static double ToDouble(this FP value)
 		{
 			return (double)value.RawValue / FP.OneRaw;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static decimal ToDecimal(this FP value)
-		{
-			return (decimal)value.RawValue / FP.OneRaw;
 		}
 	}
 }

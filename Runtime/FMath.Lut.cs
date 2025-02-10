@@ -128,7 +128,7 @@
 				iterations += 100;
 			}
 
-			var result = value > FP.One 
+			var result = value > FP.One
 				? FP.HalfPi - AtanSeries01(FP.One / value, iterations)
 				: AtanSeries01(value, iterations);
 

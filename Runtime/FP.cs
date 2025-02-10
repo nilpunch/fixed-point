@@ -4,7 +4,6 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppEagerStaticClassConstruction]
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
@@ -118,21 +117,21 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(FP x, FP y)
-		{
-			return x.RawValue == y.RawValue;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(FP x, FP y)
-		{
-			return x.RawValue != y.RawValue;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >(FP x, FP y)
 		{
 			return x.RawValue > y.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >(FP x, int y)
+		{
+			return x.RawValue > (long)y << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >(int y, FP x)
+		{
+			return (long)y << FractionalBits > x.RawValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -142,15 +141,87 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <(FP x, int y)
+		{
+			return x.RawValue < (long)y << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <(int y, FP x)
+		{
+			return (long)y << FractionalBits < x.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >=(FP x, FP y)
 		{
 			return x.RawValue >= y.RawValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >=(FP x, int y)
+		{
+			return x.RawValue >= (long)y << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator >=(int y, FP x)
+		{
+			return (long)y << FractionalBits >= x.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator <=(FP x, FP y)
 		{
 			return x.RawValue <= y.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <=(FP x, int y)
+		{
+			return x.RawValue <= (long)y << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator <=(int y, FP x)
+		{
+			return (long)y << FractionalBits <= x.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(FP x, FP y)
+		{
+			return x.RawValue == y.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(FP a, int b)
+		{
+			return a.RawValue == (long)b << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(int b, FP a)
+		{
+			return (long)b << FractionalBits == a.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(FP x, FP y)
+		{
+			return x.RawValue != y.RawValue;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(FP a, int b)
+		{
+			return a.RawValue != (long)b << FractionalBits;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(int b, FP a)
+		{
+			return (long)b << FractionalBits != a.RawValue;
 		}
 
 		public override bool Equals(object obj)

@@ -1,4 +1,5 @@
 // ReSharper disable all ShiftExpressionResultEqualsZero
+
 namespace Mathematics.Fixed
 {
 	public static partial class FCordic

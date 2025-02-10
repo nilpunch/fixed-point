@@ -194,7 +194,7 @@ namespace Mathematics.Fixed
 		{
 			return b * a;
 		}
-		
+
 		/// <summary>
 		/// Returns the componentwise multiplication.
 		/// </summary>

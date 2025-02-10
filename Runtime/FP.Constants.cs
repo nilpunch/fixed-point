@@ -33,12 +33,12 @@ namespace Mathematics.Fixed
 		public const long PiRaw = PiBase61 >> (61 - FractionalBits);
 		public const long HalfPiRaw = PiRaw / 2;
 		public const long TwoPiRaw = PiRaw * 2;
-		
+
 		public const long Deg2RadBase61 = 40244552544872904L; // (long)(0.017453292519943295 * (1L << 61));
 		public const long Rad2DegBase57 = 8257192040480628736L; // (long)(57.29577951308232 * (1L << 57));
 		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalBits);
 		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalBits);
-		
+
 		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
 		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalBits);
 		public const long Log2MaxRaw = IntegerBits * OneRaw;

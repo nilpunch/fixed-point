@@ -92,7 +92,7 @@ namespace Mathematics.Fixed
 				b = B;
 			}
 		}
-		
+
 		public struct ClosestFace
 		{
 			public FP Distance;

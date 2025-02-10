@@ -118,7 +118,7 @@ namespace Mathematics.Fixed
 			var absX = (ulong)((x + maskX) ^ maskX);
 			var absY = (ulong)((y + maskY) ^ maskY);
 			var sign = maskX ^ maskY;
-			
+
 			var xLzc = LeadingZeroCount(absX);
 			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
 			var yShift = FractionalBits - xShift;
@@ -247,7 +247,7 @@ namespace Mathematics.Fixed
 			r = ((un21 << 32) + (un0 - (q0 * v))) >> s;
 			q = (q1 << 32) | q0;
 		}
-		
+
 		/// <summary>
 		/// All credits goes to this guy:
 		/// https://www.codeproject.com/Tips/618570/UInt-Multiplication-Squaring
@@ -295,13 +295,13 @@ namespace Mathematics.Fixed
 			x |= x >> 4;
 			x |= x >> 8;
 			x |= x >> 16;
-		
+
 			x -= x >> 1 & 0x55555555;
 			x = (x >> 2 & 0x33333333) + (x & 0x33333333);
 			x = (x >> 4) + x & 0x0f0f0f0f;
 			x += x >> 8;
 			x += x >> 16;
-		
+
 			return 32 - (int)(x & 0x3F);
 		}
 	}

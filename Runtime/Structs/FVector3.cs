@@ -223,7 +223,7 @@ namespace Mathematics.Fixed
 		{
 			return new FVector3(a.X * b, a.Y * b, a.Z * b);
 		}
-		
+
 		/// <summary>
 		/// Returns the componentwise multiplication.
 		/// </summary>
@@ -292,16 +292,17 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FVector3 MoveTowards(FVector3 current, FVector3 target, FP maxDistanceDelta) {
+		public static FVector3 MoveTowards(FVector3 current, FVector3 target, FP maxDistanceDelta)
+		{
 			var direction = target - current;
- 
+
 			var sqrLength = LengthSqr(direction);
- 
+
 			if (sqrLength == FP.Zero || maxDistanceDelta >= FP.Zero && sqrLength <= maxDistanceDelta * maxDistanceDelta)
 				return target;
- 
+
 			var distance = FMath.Sqrt(sqrLength);
- 
+
 			return current + direction / distance * maxDistanceDelta;
 		}
 

@@ -450,7 +450,7 @@ namespace Mathematics.Fixed
 		{
 			return NormalizeSafe(a, Identity);
 		}
-		
+
 		/// <summary>
 		/// Returns a safe normalized version of a quaternion.
 		/// Returns the given default value when quaternion length close to zero.
