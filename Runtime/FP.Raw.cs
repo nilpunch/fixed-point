@@ -1,11 +1,7 @@
 using System.Runtime.CompilerServices;
-using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppSetOption(Option.NullChecks, false)]
-	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public partial struct FP
 	{
 		/// <summary>
@@ -93,12 +89,14 @@ namespace Mathematics.Fixed
 		public static long DivScalar(long x, int scalar)
 		{
 			// There is a single edge case.
-			if (x == MinValueRaw && scalar == -1)
-			{
-				return MaxValueRaw;
-			}
+			return x == MinValueRaw && scalar == -1 ? MaxValueRaw : x / scalar;
+		}
 
-			return x / scalar;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long Mod(long x, long y)
+		{
+			// There is a single edge case.
+			return x == MinValueRaw & y == -1 ? 0 : x % y;
 		}
 
 		/// <summary>
@@ -134,7 +132,9 @@ namespace Mathematics.Fixed
 			var signedQuotient = ((long)quotient ^ sign) - sign;
 			var result = quotient > MaxValueRaw ? overflowValue : signedQuotient;
 
-			return scaledY == 0 ? overflowValue : result;
+			var finalResult = scaledY == 0 ? overflowValue : result;
+
+			return finalResult;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -209,7 +209,6 @@ namespace Mathematics.Fixed
 			var hi = (uint)(x >> 32);
 			var leadingPart = hi == 0 ? (uint)x : hi;
 			var hiZeroes = hi == 0 ? 32 : 0;
-
 			return hiZeroes + LeadingZeroCount(leadingPart);
 		}
 

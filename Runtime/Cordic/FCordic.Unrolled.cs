@@ -9,6 +9,9 @@ namespace Mathematics.Fixed
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public static partial class FCordic
 	{
+		/// <summary>
+		/// z = [0, Pi/2]
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void CordicCircular16(ref long xRef, ref long yRef, ref long zRef)
 		{
@@ -246,6 +249,9 @@ namespace Mathematics.Fixed
 			zRef = z;
 		}
 
+		/// <summary>
+		/// z = [0, Pi/2]
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void CordicVectoring16(ref long xRef, ref long yRef, ref long zRef, long target)
 		{

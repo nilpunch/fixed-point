@@ -113,7 +113,7 @@ namespace Mathematics.Fixed
 		public void Atan(FP value)
 		{
 			var expected = Math.Atan(value.ToDouble());
-			var actual = FMath.AtanSeries(value);
+			var actual = FMath.Atan(value);
 			var delta = Math.Abs(expected - actual.ToDouble());
 
 			if (delta > 0.00000001)

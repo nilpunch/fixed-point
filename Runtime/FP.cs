@@ -98,22 +98,23 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Performs modulo as fast as possible. Throws if x == MinValue and y == -1.
-		/// Use the <see cref="FMath.SafeMod"/> for a more reliable but slower modulo.
+		/// Performs modulo with checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator %(FP x, FP y)
 		{
-			return FromRaw(x.RawValue % y.RawValue);
+			var result = Mod(x.RawValue, y.RawValue);
+			return FromRaw(result);
 		}
 
 		/// <summary>
-		/// Negate x without performing overflow checking.
+		/// Negate x with overflow checking.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
 		{
-			return FromRaw(-x.RawValue);
+			var result = Negate(x.RawValue);
+			return FromRaw(result);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -254,55 +255,5 @@ namespace Mathematics.Fixed
 		public string ToString(IFormatProvider provider) => this.ToDouble().ToString(provider);
 
 		public override string ToString() => this.ToDouble().ToString("G", System.Globalization.CultureInfo.InvariantCulture);
-
-		/// <summary>
-		/// Adds x and y. Performs saturating addition, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Add(in FP x, in FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-			var sum = xl + yl;
-			// If signs of operands are equal and signs of sum and x are different
-			if ((~(xl ^ yl) & (xl ^ sum) & MinValueRaw) != 0)
-			{
-				sum = xl > 0 ? MaxValueRaw : MinValueRaw;
-			}
-
-			return FromRaw(sum);
-		}
-
-		/// <summary>
-		/// Subtracts y from x. Performs saturating substraction, i.e. in case of overflow, 
-		/// rounds to MinValue or MaxValue depending on sign of operands.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Sub(FP x, FP y)
-		{
-			var xl = x.RawValue;
-			var yl = y.RawValue;
-			var diff = xl - yl;
-			// If signs of operands are different and signs of sum and x are different.
-			if (((xl ^ yl) & (xl ^ diff) & MinValueRaw) != 0)
-			{
-				diff = xl < 0 ? MinValueRaw : MaxValueRaw;
-			}
-
-			return FromRaw(diff);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Negate(FP x)
-		{
-			return x.RawValue == MinValueRaw ? MaxValue : FromRaw(-x.RawValue);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeMod(FP x, FP y)
-		{
-			return FromRaw(x.RawValue == MinValueRaw & y.RawValue == -1 ? 0 : x.RawValue % y.RawValue);
-		}
 	}
 }

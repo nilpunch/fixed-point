@@ -76,7 +76,7 @@ namespace Mathematics.Fixed.Editor
 			var testFp = FP.Deg2Rad * _testAngle.ToFP();
 			var testRadians = 0.017453292519943295 * _testAngle;
 
-			FCordic.SinCosRaw(testFp.RawValue, out var sinRaw, out var cosRaw);
+			FCordic.SinCos(testFp.RawValue, out var sinRaw, out var cosRaw);
 			var sinFP = FP.FromRaw(sinRaw);
 			var cosFP = FP.FromRaw(cosRaw);
 			

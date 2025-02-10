@@ -43,7 +43,7 @@ namespace Mathematics.Fixed
 		/// Thrown if the input is negative.
 		/// </exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Sqrt(long x)
+		public static long SqrtPrecise(long x)
 		{
 			if (x < 0)
 			{

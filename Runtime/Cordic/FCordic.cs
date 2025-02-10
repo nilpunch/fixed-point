@@ -4,10 +4,10 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
+	[Il2CppEagerStaticClassConstruction]
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
-	[Il2CppEagerStaticClassConstruction]
 	public static partial class FCordic
 	{
 		public const int Precision = FP.FractionalBits;
@@ -17,10 +17,9 @@ namespace Mathematics.Fixed
 		public const long InvGain = InvGainBase63 >> (63 - FP.FractionalBits);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long SinRaw(long angle)
+		public static long Sin(long angle)
 		{
-			angle = FastModTwoPi(angle);
-			//angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
+			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
 			if (angle < 0)
 			{
@@ -41,24 +40,13 @@ namespace Mathematics.Fixed
 
 			var sin = 0L;
 			var cos = InvGain;
-			// Works only for angle range of [0, Pi/2]
 			CordicCircular16(ref cos, ref sin, ref angle);
 
 			return flipVertical ? -sin : sin;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long FastModTwoPi(long x)
-		{
-			var xShift = FP.FractionalBits / 2;
-			var twoPiShift = FP.FractionalBits - xShift;
-
-			var xDivPi = (x << FP.FractionalBits) / (FP.TwoPiRaw >> 0);
-			return FP.TwoPiRaw * (FMath.Floor(xDivPi) >> FP.FractionalBits);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SinCosRaw(long angle, out long sin, out long cos)
+		public static void SinCos(long angle, out long sin, out long cos)
 		{
 			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
@@ -81,7 +69,6 @@ namespace Mathematics.Fixed
 
 			sin = 0L;
 			cos = InvGain;
-			// Works only for angle range of [0, Pi/2]
 			CordicCircular16(ref cos, ref sin, ref angle);
 
 			if (flipVertical)
@@ -95,42 +82,8 @@ namespace Mathematics.Fixed
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SinCosRawBranchless(long angle, out long sin, out long cos)
-		{
-			// Reduce angle modulo [–TwoPiRaw, TwoPiRaw)
-			angle %= FP.TwoPiRaw;
-			// If negative, add TwoPiRaw: mask = 0 if angle>=0, -1 if angle<0.
-			var negMask = angle >> 63;
-			angle += FP.TwoPiRaw & negMask;
-
-			// Determine if we need to flip vertically (angle in [Pi, 2Pi))
-			// If angle >= PiRaw then (angle - PiRaw) is non-negative.
-			// (angle - PiRaw) >> 63 is 0 if angle>=PiRaw, -1 otherwise; invert it.
-			var flipVerticalMask = ~((angle - FP.PiRaw) >> 63);
-			// If flipVertical true, subtract PiRaw.
-			angle -= FP.PiRaw & flipVerticalMask;
-
-			// Determine if we need to flip horizontally (angle in [HalfPi, Pi))
-			var flipHorizontalMask = ~((angle - FP.HalfPiRaw) >> 63);
-			// If flipHorizontal true, set angle = PiRaw - angle.
-			// This is equivalent to: angle = (flipHorizontal ? FP.PiRaw - angle : angle)
-			angle = angle + ((FP.PiRaw - 2 * angle) & flipHorizontalMask);
-
-			// Now angle is in [0, HalfPiRaw] so we can compute sin & cos with CORDIC.
-			sin = 0L;
-			cos = InvGain;
-			CordicCircular16(ref cos, ref sin, ref angle);
-
-			// Branchless sign correction:
-			// Flip sin if we did a vertical flip.
-			sin = (sin ^ flipVerticalMask) - flipVerticalMask;
-			// For cos, flip sign if exactly one of the vertical or horizontal flips occurred.
-			var cosSignMask = flipVerticalMask ^ flipHorizontalMask;
-			cos = (cos ^ cosSignMask) - cosSignMask;
-		}
-
 		/// <summary>
+		/// Precise cordic.
 		/// Angle is [0, HalfPi].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -243,7 +196,8 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// See cordit1 from http://www.voidware.com/cordic.htm.
+		/// See cordit1 from http://www.voidware.com/cordic.htm.<br/>
+		/// z is [0, Pi/2].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void CordicCircular(ref long xRef, ref long yRef, ref long zRef)
@@ -276,7 +230,8 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// See cordit1 from http://www.voidware.com/cordic.htm.
+		/// See cordit1 from http://www.voidware.com/cordic.htm.<br/>
+		/// z is [0, Pi/2].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void CordicVectoring(ref long xRef, ref long yRef, ref long zRef, long target)

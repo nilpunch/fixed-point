@@ -103,7 +103,7 @@ namespace Mathematics.Fixed
 
 			var tanValue = s_tanLut[lutIndex];
 
-			return flipVertical ? FP.Negate(tanValue) : tanValue;
+			return flipVertical ? -tanValue : tanValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,158 +132,20 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Acos(FP value)
 		{
-			throw new NotImplementedException();
+			var asin = Asin(value).RawValue;
+			return FP.FromRaw(FP.HalfPiRaw - asin);
 		}
 
-		/// <summary>
-		/// Returns the arctan of of the specified number, calculated using Euler series
-		/// This function has at least 7 decimals of accuracy.
-		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan(FP z)
 		{
-			if (z.RawValue == 0)
-				return FP.Zero;
-
-			// Force positive values for argument
-			// Atan(-z) = -Atan(z).
-			var neg = z.RawValue < 0;
-			if (neg)
-			{
-				z = FP.Negate(z);
-			}
-
-			var invert = z > FP.One;
-			if (invert) z = FP.One / z;
-
-			var result = FP.One;
-			var term = FP.One;
-
-			var zSq = z * z;
-			var zSq2 = zSq * FP.Two;
-			var zSqPlusOne = zSq + FP.One;
-			var zSq12 = zSqPlusOne * FP.Two;
-			var dividend = zSq2;
-			var divisor = zSqPlusOne * FP.Three;
-
-			for (var i = 2; i < 30; ++i)
-			{
-				term *= dividend / divisor;
-				result += term;
-
-				dividend += zSq2;
-				divisor += zSq12;
-
-				if (term.RawValue == 0)
-				{
-					break;
-				}
-			}
-
-			result = result * z / zSqPlusOne;
-
-			if (invert)
-			{
-				result = FP.HalfPi - result;
-			}
-
-			if (neg)
-			{
-				result = -result;
-			}
-
-			return result;
+			return FP.FromRaw(FCordic.Atan(z.RawValue));
 		}
 
-		/// <summary>
-		/// Atan2 aproximation.<br/>
-		/// Has fixed precision below 0.005 rad (0.2864789 deg).
-		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan2(FP y, FP x)
 		{
-			if (x.RawValue > 0)
-			{
-				return Atan(y / x);
-			}
-
-			if (x.RawValue < 0)
-			{
-				if (y.RawValue >= 0)
-				{
-					y.RawValue = Atan(y / x).RawValue + FP.HalfPiRaw;
-				}
-				else
-				{
-					y.RawValue = Atan(y / x).RawValue - FP.HalfPiRaw;
-				}
-				return y;
-			}
-
-			if (y.RawValue > 0)
-			{
-				return FP.HalfPi;
-			}
-
-			if (y.RawValue == 0)
-			{
-				return FP.Zero;
-			}
-
-			return -FP.HalfPi;
-		}
-
-		/// <summary>
-		/// The accuracy of this is 0.01 rad in general. Ups to 0.2 with a huge numbers.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Atan2Fast(FP y, FP x)
-		{
-			const long a3 = FP.PiRaw / 16;
-			const long a1 = 5 * FP.PiRaw / 16;
-			const long a0 = FP.PiRaw / 4;
-			const long a30 = 3 * FP.PiRaw / 4;
-
-			var yRaw = y.RawValue;
-			var xRaw = x.RawValue;
-
-			if (xRaw == 0)
-			{
-				if (yRaw > 0)
-				{
-					return FP.HalfPi;
-				}
-				if (yRaw == 0)
-				{
-					return FP.Zero;
-				}
-				return -FP.HalfPi;
-			}
-
-			FP angle;
-
-			// Absolute value of y
-			var absY = SafeAbs(y);
-
-			if (xRaw >= 0)
-			{
-				var r = FP.Sub(x, absY) / FP.Add(x, absY);
-				var r3 = r * r * r;
-				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a0);
-			}
-			else
-			{
-				var r = FP.Add(x, absY) / FP.Sub(absY, x);
-				var r3 = r * r * r;
-				angle = FP.FromRaw(a3) * r3 - FP.FromRaw(a1) * r + FP.FromRaw(a30);
-			}
-
-			if (yRaw < 0)
-			{
-				angle = -angle;
-			}
-
-			return angle;
+			return FP.FromRaw(FCordic.Atan2(y.RawValue, x.RawValue));
 		}
 	}
 }
