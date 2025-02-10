@@ -80,6 +80,16 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
+		/// Tan of the angle.
+		/// Accuracy degrades when operating with huge values, and when the result is big itself.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Tan(FAngle angle)
+		{
+			return Tan(angle.Radians);
+		}
+
+		/// <summary>
 		/// Tan of the angle in radians.
 		/// Accuracy degrades when operating with huge values, and when the result is big itself.
 		/// </summary>
@@ -107,13 +117,13 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Asin(FP value)
+		public static FP Asin(FP sin)
 		{
-			var rawValue = value.RawValue;
+			var rawValue = sin.RawValue;
 
 			if (rawValue < -FP.OneRaw || rawValue > FP.OneRaw)
 			{
-				throw new ArgumentOutOfRangeException(nameof(value));
+				throw new ArgumentOutOfRangeException(nameof(sin));
 			}
 
 			var flipVertical = rawValue < 0;
@@ -130,16 +140,16 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Acos(FP value)
+		public static FP Acos(FP cos)
 		{
-			var asin = Asin(value).RawValue;
+			var asin = Asin(cos).RawValue;
 			return FP.FromRaw(FP.HalfPiRaw - asin);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Atan(FP z)
+		public static FP Atan(FP tan)
 		{
-			return FP.FromRaw(FCordic.Atan(z.RawValue));
+			return FP.FromRaw(FCordic.Atan(tan.RawValue));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
