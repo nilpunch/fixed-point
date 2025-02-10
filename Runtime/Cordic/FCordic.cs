@@ -165,6 +165,9 @@ namespace Mathematics.Fixed
 			return -FP.HalfPiRaw;
 		}
 
+		/// <summary>
+		/// Precise cordic [-1, 1].
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Asin(long sin)
 		{
@@ -184,6 +187,9 @@ namespace Mathematics.Fixed
 			return flipVertical ? -result : result;
 		}
 
+		/// <summary>
+		/// Precise cordic [-1, 1].
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long AsinZeroToOne(long sin)
 		{

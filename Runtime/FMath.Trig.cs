@@ -43,7 +43,7 @@ namespace Mathematics.Fixed
 
 			var lutIndex = (int)(rawRadians >> SinLutShift);
 
-			var sinValue = s_sinLut[lutIndex];
+			var sinValue = SinLut[lutIndex];
 
 			return flipVertical ? -sinValue : sinValue;
 		}
@@ -101,7 +101,7 @@ namespace Mathematics.Fixed
 
 			var lutIndex = (int)(rawRadians >> TanLutShift);
 
-			var tanValue = s_tanLut[lutIndex];
+			var tanValue = TanLut[lutIndex];
 
 			return flipVertical ? -tanValue : tanValue;
 		}
@@ -124,7 +124,7 @@ namespace Mathematics.Fixed
 
 			var lutIndex = (int)(rawValue >> AsinLutShift);
 
-			var asinValue = s_asinLut[lutIndex];
+			var asinValue = AsinLut[lutIndex];
 
 			return flipVertical ? -asinValue : asinValue;
 		}

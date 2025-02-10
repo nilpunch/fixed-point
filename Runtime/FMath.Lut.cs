@@ -3,42 +3,26 @@
 	public static partial class FMath
 	{
 		public const int SinPrecision = 16; // Corelate with lut size. Must be <= FP.FractionalBits.
-		public const int SinIterations = 6; // Taylor series iterations.
-		private const int SinLutShift = FP.FractionalBits - SinPrecision;
+		public const int SinLutShift = FP.FractionalBits - SinPrecision;
 		private const int SinLutSize = (int)(FP.HalfPiRaw >> SinLutShift); // [0, HalfPi)
 
 		public const int TanPrecision = 18; // Corelate with lut size. Must be <= FP.FractionalBits.
-		private const int TanLutShift = FP.FractionalBits - TanPrecision;
+		public const int TanLutShift = FP.FractionalBits - TanPrecision;
 		private const int TanLutSize = (int)(FP.HalfPiRaw >> TanLutShift); // [0, HalfPi)
 
 		public const int AsinPrecision = 16; // Corelate with lut size. Must be <= FP.FractionalPlaces.
-		private const int AsinLutShift = FP.FractionalBits - AsinPrecision;
+		public const int AsinLutShift = FP.FractionalBits - AsinPrecision;
 		private const int AsinLutSize = (int)(FP.OneRaw >> AsinLutShift); // [0, 1)
 
-		public const int AtanPrecision = 20; // Corelate with lut size. Must be <= FP.AllBits.
-		public const int AtanIterations = 20; // Taylor series iterations.
-		private const int AtanLutShift = FP.AllBits - AtanPrecision;
-		private const int AtanLutSize = (int)(FP.MaxValueRaw >> AtanLutShift); // [0, MaxValue)
+		public readonly static FP[] SinLut;
+		public readonly static FP[] TanLut;
+		public readonly static FP[] AsinLut;
 
-		private static FP[] s_sinLut;
-		private static FP[] s_tanLut;
-		private static FP[] s_asinLut;
-		private static FP[] s_atanLut;
-
-		/// <summary>
-		/// Must be called once to use all the trig function.
-		/// Initializes lut tables.
-		/// </summary>
-		public static void Init()
+		static FMath()
 		{
-			if (s_sinLut != null && s_tanLut != null && s_asinLut != null)
-			{
-				return;
-			}
-
-			s_sinLut = GenerateSinLut();
-			s_tanLut = GenerateTanLut();
-			s_asinLut = GenerateAsinLut();
+			SinLut = GenerateSinLut();
+			TanLut = GenerateTanLut();
+			AsinLut = GenerateAsinLut();
 		}
 
 		private static FP[] GenerateSinLut()

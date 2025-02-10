@@ -10,6 +10,7 @@ namespace Mathematics.Fixed.Editor
 		[SerializeField, Range(-1, 1)] private float _testValue = 0;
 
 		private SerializedObject _serializedObject;
+		private Vector2 _scroll;
 		
 		[MenuItem("Window/Fixed Point/Stats")]
 		public static void ShowWindow()
@@ -25,7 +26,10 @@ namespace Mathematics.Fixed.Editor
 
 		private void OnGUI()
 		{
-			if (GUILayout.Button("Calculate"))
+			using var scrollscope = new EditorGUILayout.ScrollViewScope(_scroll, false, true);
+			_scroll = scrollscope.scrollPosition;
+
+			if (GUILayout.Button("Log CORDIC constants"))
 			{
 				string sum = string.Empty;
 				for (int i = 0; i < 64; ++i)
@@ -48,7 +52,7 @@ namespace Mathematics.Fixed.Editor
 			int decimalDigitsOfAccuracy = Mathf.CeilToInt(log10Of2 * FP.FractionalBits);
 
 			_serializedObject.Update();
-
+			
 			EditorGUILayout.Space(5f);
 
 			EditorGUILayout.TextField("Fractional Places", FP.FractionalBits.ToString());
@@ -66,8 +70,6 @@ namespace Mathematics.Fixed.Editor
 			EditorGUILayout.Space(10f);
 			EditorGUILayout.TextField("Pi", FP.Pi.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("One Degrees In Rad", FP.Deg2Rad.ToString("F" + decimalDigitsOfAccuracy));
-
-			FMath.Init();
 
 			EditorGUILayout.Space(10f);
 
@@ -107,11 +109,11 @@ namespace Mathematics.Fixed.Editor
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
 
-			var asinFP = FP.FromRaw(FCordic.Asin(testValueFp.RawValue));
+			var asinFP = FMath.Asin(testValueFp);
 			EditorGUILayout.TextField("Arcsin", asinFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(asinFP.ToDouble() - Math.Asin(_testValue)).ToString("G5"));
-			var atanFP = FP.FromRaw(FCordic.Atan(testValueFp.RawValue));
+			var atanFP = FMath.Atan(testValueFp);
 			EditorGUILayout.TextField("Arctan", atanFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(atanFP.ToDouble() - Math.Atan(_testValue)).ToString("G5"));

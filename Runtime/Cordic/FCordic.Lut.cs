@@ -1,5 +1,7 @@
 // ReSharper disable all ShiftExpressionResultEqualsZero
 
+using Unity.IL2CPP.CompilerServices;
+
 namespace Mathematics.Fixed
 {
 	public static partial class FCordic
