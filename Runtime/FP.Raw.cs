@@ -13,7 +13,7 @@ namespace Mathematics.Fixed
 		/// rounds to MinValue or MaxValue depending on sign of operands.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Add(in long x, in long y)
+		public static long Add(long x, long y)
 		{
 			var sum = x + y;
 			// Overflow occurs if x and y have the same sign and sum has a different sign.
@@ -48,6 +48,9 @@ namespace Mathematics.Fixed
 			return x == MinValueRaw ? MaxValueRaw : -x;
 		}
 
+		/// <summary>
+		/// Performs multiplication with overflow checking.<br/>
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Mul(long x, long y)
 		{
@@ -58,7 +61,7 @@ namespace Mathematics.Fixed
 
 			var sign = maskX ^ maskY;
 
-			Mult64To128(absX, absY, out ulong hi, out ulong lo);
+			Mul64To128(absX, absY, out ulong hi, out ulong lo);
 
 			var shiftedHi = hi >> FractionalBits;
 			var shiftedLo = hi << (AllBits - FractionalBits) | lo >> FractionalBits;
@@ -69,6 +72,33 @@ namespace Mathematics.Fixed
 			}
 
 			return ((long)shiftedLo ^ sign) - sign;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long MulScalar(long x, int scalar)
+		{
+			var result = x * scalar;
+			var expectedSign = x ^ scalar;
+
+			// Overflow occurs if expected and result sign are different.
+			if (result != 0 && (expectedSign ^ result) < 0)
+			{
+				return expectedSign > 0 ? MaxValueRaw : MinValueRaw;
+			}
+
+			return result;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long DivScalar(long x, int scalar)
+		{
+			// There is a single edge case.
+			if (x == MinValueRaw && scalar == -1)
+			{
+				return MaxValueRaw;
+			}
+
+			return x / scalar;
 		}
 
 		/// <summary>
@@ -223,7 +253,7 @@ namespace Mathematics.Fixed
 		/// https://www.codeproject.com/Tips/618570/UInt-Multiplication-Squaring
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void Mult64To128(ulong op1, ulong op2, out ulong hi, out ulong lo)
+		private static void Mul64To128(ulong op1, ulong op2, out ulong hi, out ulong lo)
 		{
 			var u1 = op1 & 0xFFFFFFFF;
 			var v1 = op2 & 0xFFFFFFFF;

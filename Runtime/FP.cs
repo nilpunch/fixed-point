@@ -33,7 +33,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
 		{
-			var result = x.RawValue + y.RawValue;
+			var result = Add(x.RawValue, y.RawValue);
 			return FromRaw(result);
 		}
 
@@ -43,7 +43,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x, FP y)
 		{
-			var result = x.RawValue - y.RawValue;
+			var result = Sub(x.RawValue, y.RawValue);
 			return FromRaw(result);
 		}
 
@@ -58,6 +58,25 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
+		/// Performs fast multiplication with checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator *(FP x, int scalar)
+		{
+			var result = MulScalar(x.RawValue, scalar);
+			return FromRaw(result);
+		}
+
+		/// <summary>
+		/// Performs fast multiplication with checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator *(int scalar, FP x)
+		{
+			return x * scalar;
+		}
+
+		/// <summary>
 		/// Division by 0 returns min or max value, depending on the sign of the numerator.
 		/// It has some rare minor inaccuracies, and they are tied to absolute precision.<br/>
 		/// Inaccuracies are in range [0, Epsilon * 2000).
@@ -66,6 +85,16 @@ namespace Mathematics.Fixed
 		public static FP operator /(FP x, FP y)
 		{
 			var result = Div(x.RawValue, y.RawValue);
+			return FromRaw(result);
+		}
+
+		/// <summary>
+		/// Performs fast division with checking for overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP operator /(FP x, int scalar)
+		{
+			var result = DivScalar(x.RawValue, scalar);
 			return FromRaw(result);
 		}
 
@@ -86,33 +115,6 @@ namespace Mathematics.Fixed
 		public static FP operator -(FP x)
 		{
 			return FromRaw(-x.RawValue);
-		}
-
-		/// <summary>
-		/// Performs fast multiplication without checking for overflow.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP operator *(FP x, int scalar)
-		{
-			return FromRaw(x.RawValue * scalar);
-		}
-
-		/// <summary>
-		/// Performs fast multiplication without checking for overflow.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP operator *(int scalar, FP x)
-		{
-			return FromRaw(x.RawValue * scalar);
-		}
-
-		/// <summary>
-		/// Performs fast division without checking for overflow.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP operator /(FP x, int scalar)
-		{
-			return FromRaw(x.RawValue / scalar);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
