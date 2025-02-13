@@ -14,21 +14,21 @@
 		public const int AsinLutShift = FP.FractionalBits - AsinPrecision;
 		private const int AsinLutSize = (int)(FP.OneRaw >> AsinLutShift); // [0, 1)
 
-		public const int SqrtPrecision01 = 16;
+		public const int SqrtPrecision01 = 16; // Corelate with lut size. Must be <= FP.FractionalPlaces.
 		public const int SqrtLutShift01 = FP.FractionalBits - SqrtPrecision01;
 		private const int SqrtLutSize01 = (int)(FP.OneRaw >> SqrtLutShift01); // [0, 1)
 
 		public readonly static FP[] SinLut;
 		public readonly static FP[] TanLut;
 		public readonly static FP[] AsinLut;
-		public readonly static FP[] SqrtLut;
+		public readonly static long[] SqrtLutRaw;
 
 		static FMath()
 		{
 			SinLut = GenerateSinLut();
 			TanLut = GenerateTanLut();
 			AsinLut = GenerateAsinLut();
-			SqrtLut = GenerateSqrtLut();
+			SqrtLutRaw = GenerateSqrtLut();
 		}
 
 		private static FP[] GenerateSinLut()
@@ -82,16 +82,16 @@
 			return lut;
 		}
 
-		private static FP[] GenerateSqrtLut()
+		private static long[] GenerateSqrtLut()
 		{
-			var lut = new FP[SqrtLutSize01 + 1];
-			lut[^1] = FP.One;
+			var lut = new long[SqrtLutSize01 + 1];
+			lut[^1] = FP.OneRaw;
 
 			for (var i = 0; i < SqrtLutSize01; i++)
 			{
 				var value = i.ToFP() / (SqrtLutSize01 - 1);
 
-				lut[i] = SqrtPrecise(value);
+				lut[i] = SqrtPrecise(value.RawValue);
 			}
 
 			return lut;
