@@ -33,6 +33,32 @@ namespace Mathematics.Fixed
 			return (value + mask) ^ mask;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static long Sqrt(long x)
+		{
+			if (x <= FP.OneRaw)
+			{
+				// if (x < 0)
+				// {
+				// 	throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
+				// }
+				return SqrtLut[x >> SqrtLutShift01].RawValue;
+			}
+
+			unchecked
+			{
+				var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
+
+				// By making log even we avoid issues with 1/sqrt(2).
+				log2 += log2 & 1;
+
+				var shift = log2 + SqrtLutShift01;
+				var exponent = log2 >> 1;
+
+				return SqrtLut[x >> shift].RawValue << exponent;
+			}
+		}
+
 		/// <summary>
 		/// Calculates the square root of a fixed-point number.
 		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31. Otherwise

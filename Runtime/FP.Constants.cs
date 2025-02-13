@@ -44,6 +44,9 @@ namespace Mathematics.Fixed
 		public const long Log2MaxRaw = IntegerBits * OneRaw;
 		public const long Log2MinRaw = -(IntegerBits + 1) * OneRaw;
 
+		public const long Sqrt2Base61 = 3260954456333195264L; // (long)(1.414213562373095 * (1L << 61));
+		public const long Sqrt2Raw = Sqrt2Base61 >> (61 - FractionalBits);
+
 		public static FP Epsilon
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -14,15 +14,21 @@
 		public const int AsinLutShift = FP.FractionalBits - AsinPrecision;
 		private const int AsinLutSize = (int)(FP.OneRaw >> AsinLutShift); // [0, 1)
 
+		public const int SqrtPrecision01 = 16;
+		public const int SqrtLutShift01 = FP.FractionalBits - SqrtPrecision01;
+		private const int SqrtLutSize01 = (int)(FP.OneRaw >> SqrtLutShift01); // [0, 1)
+		
 		public readonly static FP[] SinLut;
 		public readonly static FP[] TanLut;
 		public readonly static FP[] AsinLut;
+		public readonly static FP[] SqrtLut;
 
 		static FMath()
 		{
 			SinLut = GenerateSinLut();
 			TanLut = GenerateTanLut();
 			AsinLut = GenerateAsinLut();
+			SqrtLut = GenerateSqrtLut();
 		}
 
 		private static FP[] GenerateSinLut()
@@ -71,6 +77,23 @@
 				var angle = FCordic.AsinZeroToOne(sin.RawValue);
 
 				lut[i] = FP.FromRaw(angle);
+			}
+
+			return lut;
+		}
+
+		private static FP[] GenerateSqrtLut()
+		{
+			var lut = new FP[SqrtLutSize01 + 1];
+			lut[^1] = FP.One;
+
+			for (var i = 0; i < SqrtLutSize01; i++)
+			{
+				var value = i.ToFP() / (SqrtLutSize01 - 1);
+
+				var sqrt = SqrtPrecise(value.RawValue);
+
+				lut[i] = FP.FromRaw(sqrt);
 			}
 
 			return lut;

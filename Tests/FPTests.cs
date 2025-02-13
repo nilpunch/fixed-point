@@ -85,7 +85,7 @@ namespace Mathematics.Fixed
 		[TestCaseSource(nameof(TestCases))]
 		public void Sqrt(FP value)
 		{
-			if (FMath.Sign(value) < 0)
+			if (FMath.SignInt(value) < 0)
 			{
 				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
 			}
@@ -105,6 +105,26 @@ namespace Mathematics.Fixed
 					{
 						Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
 					}
+				}
+			}
+		}
+		
+		[TestCaseSource(nameof(TestCases))]
+		public void SqrtApprox(FP value)
+		{
+			if (FMath.SignInt(value) < 0)
+			{
+				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
+			}
+			else
+			{
+				var expected = Math.Sqrt(value.ToDouble());
+				var actual = FP.FromRaw(FMath.Sqrt(value.RawValue)).ToDouble();
+				var delta = Math.Abs(expected - actual);
+
+				if (delta > FP.FromRaw(1 << (FMath.SqrtLutShift01 + 1)).ToDouble())
+				{
+					Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
 				}
 			}
 		}

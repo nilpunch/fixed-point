@@ -15,9 +15,9 @@ namespace Mathematics.Fixed
 		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Sign(FP value)
+		public static FP Sign(FP value)
 		{
-			return (int)(1 | (value.RawValue & FP.SignMask));
+			return value.RawValue < 0 ? FP.MinusOne : FP.One;
 		}
 
 		/// <summary>
@@ -25,11 +25,45 @@ namespace Mathematics.Fixed
 		/// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int SignWithZero(FP value)
+		public static FP SignZero(FP value)
 		{
-			return value.RawValue < 0 ? -1 :
-				value.RawValue > 0 ? 1 :
-				0;
+			if (value.RawValue < 0)
+			{
+				return FP.MinusOne;
+			}
+			if (value.RawValue > 0)
+			{
+				return FP.One;
+			}
+			return FP.Zero;
+		}
+
+		/// <summary>
+		/// Returns a number indicating the sign of a Fix64 number.
+		/// Returns 1 if the value is positive or 0, and -1 if it is negative.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int SignInt(FP value)
+		{
+			return value.RawValue < 0 ? -1 : 1;
+		}
+
+		/// <summary>
+		/// Returns a number indicating the sign of a Fix64 number.
+		/// Returns 1 if the value is positive, 0 if is 0, and -1 if it is negative.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int SignZeroInt(FP value)
+		{
+			if (value.RawValue < 0)
+			{
+				return -1;
+			}
+			if (value.RawValue > 0)
+			{
+				return 1;
+			}
+			return 0;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,6 +122,34 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Clamp(FP value, FP min, FP max)
+		{
+			if (value.RawValue < min.RawValue)
+			{
+				return min;
+			}
+			if (value.RawValue > max.RawValue)
+			{
+				return max;
+			}
+			return value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Clamp01(FP value)
+		{
+			if (value.RawValue < 0)
+			{
+				return FP.Zero;
+			}
+			if (value.RawValue > FP.OneRaw)
+			{
+				return FP.One;
+			}
+			return value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Lerp(FP start, FP end, FP t)
 		{
 			if (t.RawValue < 0)
@@ -110,21 +172,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP MoveTowards(FP current, FP target, FP maxDelta)
 		{
-			return Abs(target - current) <= maxDelta ? target : current + Sign(target - current) * maxDelta;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Clamp01(FP value)
-		{
-			if (value.RawValue < 0)
-			{
-				return FP.Zero;
-			}
-			if (value.RawValue > FP.OneRaw)
-			{
-				return FP.One;
-			}
-			return value;
+			return Abs(target - current) <= maxDelta ? target : current + SignInt(target - current) * maxDelta;
 		}
 
 		/// <summary>

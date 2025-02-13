@@ -204,7 +204,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static int LeadingZeroCount(ulong x)
+		public static int LeadingZeroCount(ulong x)
 		{
 			var hi = (uint)(x >> 32);
 			var leadingPart = hi == 0 ? (uint)x : hi;
@@ -213,7 +213,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static int LeadingZeroCount(uint x)
+		public static int LeadingZeroCount(uint x)
 		{
 			x |= x >> 1;
 			x |= x >> 2;
