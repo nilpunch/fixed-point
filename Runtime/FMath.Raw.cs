@@ -42,21 +42,18 @@ namespace Mathematics.Fixed
 				// {
 				// 	throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
 				// }
-				return SqrtLut[x >> SqrtLutShift01].RawValue;
+				return SqrtLut[(int)(x >> SqrtLutShift01)].RawValue;
 			}
 
-			unchecked
-			{
-				var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
+			var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
 
-				// By making log even we avoid issues with 1/sqrt(2).
-				log2 += log2 & 1;
+			// By making log even we avoid issues with 1/sqrt(2).
+			log2 += log2 & 1;
 
-				var shift = log2 + SqrtLutShift01;
-				var exponent = log2 >> 1;
+			var shift = log2 + SqrtLutShift01;
+			var exponent = log2 >> 1;
 
-				return SqrtLut[(int)(x >> shift)].RawValue << exponent;
-			}
+			return SqrtLut[(int)(x >> shift)].RawValue << exponent;
 		}
 
 		/// <summary>
