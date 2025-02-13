@@ -207,9 +207,15 @@ namespace Mathematics.Fixed
 		public static int LeadingZeroCount(ulong x)
 		{
 			var hi = (uint)(x >> 32);
-			var leadingPart = hi == 0 ? (uint)x : hi;
-			var hiZeroes = hi == 0 ? 32 : 0;
-			return hiZeroes + LeadingZeroCount(leadingPart);
+
+			if (hi == 0)
+			{
+				return 32 + LeadingZeroCount((uint)x);
+			}
+			else
+			{
+				return LeadingZeroCount(hi);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

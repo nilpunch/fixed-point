@@ -55,7 +55,7 @@ namespace Mathematics.Fixed
 				var shift = log2 + SqrtLutShift01;
 				var exponent = log2 >> 1;
 
-				return SqrtLut[x >> shift].RawValue << exponent;
+				return SqrtLut[(int)(x >> shift)].RawValue << exponent;
 			}
 		}
 
