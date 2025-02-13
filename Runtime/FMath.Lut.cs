@@ -17,7 +17,7 @@
 		public const int SqrtPrecision01 = 16;
 		public const int SqrtLutShift01 = FP.FractionalBits - SqrtPrecision01;
 		private const int SqrtLutSize01 = (int)(FP.OneRaw >> SqrtLutShift01); // [0, 1)
-		
+
 		public readonly static FP[] SinLut;
 		public readonly static FP[] TanLut;
 		public readonly static FP[] AsinLut;
@@ -91,9 +91,7 @@
 			{
 				var value = i.ToFP() / (SqrtLutSize01 - 1);
 
-				var sqrt = SqrtPrecise(value.RawValue);
-
-				lut[i] = FP.FromRaw(sqrt);
+				lut[i] = SqrtPrecise(value);
 			}
 
 			return lut;

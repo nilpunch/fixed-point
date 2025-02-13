@@ -269,6 +269,16 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
+		/// Calculates the square root of a fixed-point number, using LUT.
+		/// Accuracy degrade when operating with huge values.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Sqrt(FP x)
+		{
+			return FP.FromRaw(Sqrt(x.RawValue));
+		}
+
+		/// <summary>
 		/// Calculates the square root of a fixed-point number.
 		/// Has absolute precision when <see cref="FP.FractionalBits"/> &lt;= 31. Otherwise
 		/// may have some rare minor inaccuracies, that are tied to absolute precision.<br/>
@@ -278,7 +288,7 @@ namespace Mathematics.Fixed
 		/// Thrown if the input is negative.
 		/// </exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Sqrt(FP x)
+		public static FP SqrtPrecise(FP x)
 		{
 			return FP.FromRaw(SqrtPrecise(x.RawValue));
 		}
