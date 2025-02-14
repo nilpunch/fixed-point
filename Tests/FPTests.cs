@@ -83,16 +83,16 @@ namespace Mathematics.Fixed
 		}
 
 		[TestCaseSource(nameof(TestCases))]
-		public void Sqrt(FP value)
+		public void SqrtPrecise(FP value)
 		{
 			if (FMath.SignInt(value) < 0)
 			{
-				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
+				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.SqrtPrecise(value));
 			}
 			else
 			{
 				var expected = Math.Sqrt(value.ToDouble());
-				var actual = FMath.Sqrt(value).ToDouble();
+				var actual = FMath.SqrtPrecise(value).ToDouble();
 				var delta = Math.Abs(expected - actual);
 
 				if (delta > FP.Epsilon.ToDouble())
@@ -108,7 +108,7 @@ namespace Mathematics.Fixed
 				}
 			}
 		}
-		
+
 		[TestCaseSource(nameof(TestCases))]
 		public void SqrtApprox(FP value)
 		{
@@ -122,7 +122,8 @@ namespace Mathematics.Fixed
 				var actual = FP.FromRaw(FMath.Sqrt(value.RawValue)).ToDouble();
 				var delta = Math.Abs(expected - actual);
 
-				if (delta > FP.FromRaw(1 << (FMath.SqrtLutShift01 + 1)).ToDouble())
+				var expectedEpsilon = FP.FromRaw(1 << (FMath.SqrtLutShift01 + 1));
+				if (delta > expectedEpsilon.ToDouble())
 				{
 					Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
 				}
@@ -279,9 +280,14 @@ namespace Mathematics.Fixed
 			FP.FromRaw(FP.OneRaw - 1), -FP.FromRaw(FP.OneRaw - 1),
 			FP.FromRaw(FP.OneRaw + 1), -FP.FromRaw(FP.OneRaw + 1),
 
+			// Problematic log2
+			FP.FromRaw(1L << (FP.FractionalBits + FP.IntegerBits / 2)),
+			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) - 1),
+			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) + 1),
+
 			// PIs
 			FP.Pi, FP.HalfPi, -FP.HalfPi,
-			
+
 			// Smallest and largest values
 			FP.MaxValue, FP.MinValue,
 

@@ -45,15 +45,25 @@ namespace Mathematics.Fixed
 				return SqrtLutRaw[(int)(x >> SqrtLutShift01)];
 			}
 
+			// Math behind the algorithm:
+			// x = m x 2^n, where m is in the LUT range [0,1]
+			// sqrt(x) = sqrt(m) x 2^(n/2)
+			// n = log2(x)
+			// m = x / 2^n
+			// sqrt(m) ≈ LUT(m)
+
+			// Approximate upper bound of log2(x) using bit length. Essentially ceil(log2(x)).
+			// We just want proper scaling to the LUT range, not a precise log2(x).
 			var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
 
-			// Make log even to avoid issues with 1/sqrt(2) in exponent.
-			log2 += log2 & 1;
+			// Ensure n is even so that no fraction is lost when dividing n by 2.
+			var n = log2 + (log2 & 1);
+			var halfN = n >> 1;
 
-			var shift = log2 + SqrtLutShift01;
-			var exponent = log2 >> 1;
+			var m = x >> n;
+			var sqrtM = SqrtLutRaw[(int)(m >> SqrtLutShift01)];
 
-			return SqrtLutRaw[(int)(x >> shift)] << exponent;
+			return sqrtM << halfN;
 		}
 
 		/// <summary>
