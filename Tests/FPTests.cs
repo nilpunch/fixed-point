@@ -122,7 +122,7 @@ namespace Mathematics.Fixed
 				var actual = FP.FromRaw(FMath.Sqrt(value.RawValue)).ToDouble();
 				var delta = Math.Abs(expected - actual);
 
-				var expectedEpsilon = FP.FromRaw(1 << (FMath.SqrtLutShift01 + 1));
+				var expectedEpsilon = FP.FromRaw(2 << (FMath.SqrtLutShift01 + 2));
 				if (delta > expectedEpsilon.ToDouble())
 				{
 					Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");

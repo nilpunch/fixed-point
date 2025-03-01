@@ -98,11 +98,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator *(FQuaternion a, FQuaternion b)
 		{
-			return EnsureNormalization(new FQuaternion(
+			return new FQuaternion(
 				a.W * b.X + a.X * b.W + a.Y * b.Z - a.Z * b.Y,
 				a.W * b.Y + a.Y * b.W + a.Z * b.X - a.X * b.Z,
 				a.W * b.Z + a.Z * b.W + a.X * b.Y - a.Y * b.X,
-				a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z));
+				a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z);
 		}
 
 		/// <summary>
@@ -110,6 +110,15 @@ namespace Mathematics.Fixed
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator *(FQuaternion a, FP b)
+		{
+			return new FQuaternion(a.X * b, a.Y * b, a.Z * b, a.W * b);
+		}
+
+		/// <summary>
+		/// The componentwise multiplication.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FQuaternion operator *(FP b, FQuaternion a)
 		{
 			return new FQuaternion(a.X * b, a.Y * b, a.Z * b, a.W * b);
 		}
