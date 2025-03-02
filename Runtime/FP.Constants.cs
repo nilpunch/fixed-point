@@ -21,6 +21,9 @@ namespace Mathematics.Fixed
 		public const long MaxValueRaw = long.MaxValue;
 		public const long MinValueRaw = long.MinValue;
 
+		public const long UsableMaxValueRaw = int.MaxValue;
+		public const long UsableMinValueRaw = int.MinValue;
+
 		public const long OneRaw = 1L << FractionalBits;
 		public const long MinusOneRaw = IntegerSignMask;
 		public const long TwoRaw = OneRaw * 2;

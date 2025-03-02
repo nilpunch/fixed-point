@@ -10,7 +10,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalBits = 31;
+		public const int FractionalBits = 16; // Fixed for max performance.
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
@@ -32,8 +32,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
 		{
-			var result = Add(x.RawValue, y.RawValue);
-			return FromRaw(result);
+			x.RawValue += y.RawValue;
+			return x;
 		}
 
 		/// <summary>
@@ -42,8 +42,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x, FP y)
 		{
-			var result = Sub(x.RawValue, y.RawValue);
-			return FromRaw(result);
+			x.RawValue -= y.RawValue;
+			return x;
 		}
 
 		/// <summary>
@@ -52,8 +52,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, FP y)
 		{
-			var result = Mul(x.RawValue, y.RawValue);
-			return FromRaw(result);
+			x.RawValue = x.RawValue * y.RawValue >> FractionalBits;
+			return x;
 		}
 
 		/// <summary>
@@ -62,8 +62,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, int scalar)
 		{
-			var result = MulScalar(x.RawValue, scalar);
-			return FromRaw(result);
+			x.RawValue *= scalar;
+			return x;
 		}
 
 		/// <summary>
@@ -83,8 +83,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
-			var result = Div(x.RawValue, y.RawValue);
-			return FromRaw(result);
+			x.RawValue = (x.RawValue << FractionalBits) / y.RawValue;
+			return x;
 		}
 
 		/// <summary>
@@ -93,8 +93,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, int scalar)
 		{
-			var result = DivScalar(x.RawValue, scalar);
-			return FromRaw(result);
+			x.RawValue /= scalar;
+			return x;
 		}
 
 		/// <summary>
@@ -103,8 +103,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator %(FP x, FP y)
 		{
-			var result = Mod(x.RawValue, y.RawValue);
-			return FromRaw(result);
+			x.RawValue %= y.RawValue;
+			return x;
 		}
 
 		/// <summary>
@@ -113,8 +113,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
 		{
-			var result = Negate(x.RawValue);
-			return FromRaw(result);
+			x.RawValue = -x.RawValue;
+			return x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

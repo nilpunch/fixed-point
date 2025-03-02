@@ -80,7 +80,8 @@ namespace Mathematics.Fixed
 		public static FP Abs(FP value)
 		{
 			var mask = value.RawValue >> FP.AllBitsWithoutSign;
-			return FP.FromRaw((value.RawValue + mask) ^ mask);
+			value.RawValue = (value.RawValue + mask) ^ mask;
+			return value;
 		}
 
 		/// <summary>
@@ -96,29 +97,20 @@ namespace Mathematics.Fixed
 			}
 
 			var mask = value.RawValue >> FP.AllBitsWithoutSign;
-			return FP.FromRaw((value.RawValue + mask) ^ mask);
+			value.RawValue = (value.RawValue + mask) ^ mask;
+			return value;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Max(FP x, FP y)
 		{
-			var rawResult = x.RawValue;
-			if (y.RawValue > x.RawValue)
-			{
-				rawResult = y.RawValue;
-			}
-			return FP.FromRaw(rawResult);
+			return x.RawValue > y.RawValue ? x : y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Min(FP x, FP y)
 		{
-			var rawResult = x.RawValue;
-			if (y.RawValue < x.RawValue)
-			{
-				rawResult = y.RawValue;
-			}
-			return FP.FromRaw(rawResult);
+			return x.RawValue < y.RawValue ? x : y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,6 +140,20 @@ namespace Mathematics.Fixed
 			}
 			return value;
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP ClampUsable(FP value)
+		{
+			if (value.RawValue < FP.UsableMinValueRaw)
+			{
+				return FP.FromRaw(FP.UsableMinValueRaw);
+			}
+			if (value.RawValue > FP.UsableMaxValueRaw)
+			{
+				return FP.FromRaw(FP.UsableMaxValueRaw);
+			}
+			return value;
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Lerp(FP start, FP end, FP t)
@@ -160,7 +166,8 @@ namespace Mathematics.Fixed
 			{
 				t.RawValue = FP.OneRaw;
 			}
-			return start + t * (end - start);
+			start.RawValue += (end.RawValue - start.RawValue) * t.RawValue >> 16;
+			return start;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,7 +207,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Floor(FP value)
 		{
-			return FP.FromRaw(value.RawValue & FP.IntegerSignMask);
+			value.RawValue &= FP.IntegerSignMask;
+			return value;
 		}
 
 		/// <summary>
@@ -218,8 +226,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Ceil(FP value)
 		{
-			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
-			return hasFractionalPart ? Floor(value) + FP.One : value;
+			if ((value.RawValue & FP.FractionalMask) != 0)
+			{
+				value.RawValue = (value.RawValue & FP.MinusOneRaw) + FP.OneRaw;
+			}
+			return value;
 		}
 
 		/// <summary>
@@ -228,8 +239,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int CeilToInt(FP value)
 		{
-			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
-			return hasFractionalPart ? value.ToInt() + 1 : value.ToInt();
+			if ((value.RawValue & FP.FractionalMask) >= FP.OneRaw)
+			{
+				return (int)((value.RawValue >> FP.FractionalBits) + 1);
+			}
+			return value.ToInt();
 		}
 
 		/// <summary>
@@ -265,7 +279,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int RoundToInt(FP value)
 		{
-			return Round(value).ToInt();
+			if ((value.RawValue & FP.FractionalMask) >= FP.HalfRaw)
+			{
+				return (int)((value.RawValue >> FP.FractionalBits) + 1);
+			}
+			return value.ToInt();
 		}
 
 		/// <summary>
