@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
+	[Il2CppSetOption(Option.NullChecks, false)]
+	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public struct FQuaternion : IEquatable<FQuaternion>, IFormattable
 	{
+		private const int Shift = FP.FractionalBits;
+
 		public FP X;
 		public FP Y;
 		public FP Z;
@@ -71,7 +76,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator +(FQuaternion a, FQuaternion b)
 		{
-			return new FQuaternion(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
+			a.X.RawValue += b.X.RawValue;
+			a.Y.RawValue += b.Y.RawValue;
+			a.Z.RawValue += b.Z.RawValue;
+			a.W.RawValue += b.W.RawValue;
+			return a;
 		}
 
 		/// <summary>
@@ -80,7 +89,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator -(FQuaternion a)
 		{
-			return new FQuaternion(-a.X, -a.Y, -a.Z, -a.W);
+			a.X.RawValue = -a.X.RawValue;
+			a.Y.RawValue = -a.Y.RawValue;
+			a.Z.RawValue = -a.Z.RawValue;
+			a.W.RawValue = -a.W.RawValue;
+			return a;
 		}
 
 		/// <summary>
@@ -89,7 +102,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator -(FQuaternion a, FQuaternion b)
 		{
-			return -b + a;
+			a.X.RawValue -= b.X.RawValue;
+			a.Y.RawValue -= b.Y.RawValue;
+			a.Z.RawValue -= b.Z.RawValue;
+			a.W.RawValue -= b.W.RawValue;
+			return a;
 		}
 
 		/// <summary>
@@ -98,11 +115,21 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator *(FQuaternion a, FQuaternion b)
 		{
-			return new FQuaternion(
-				a.W * b.X + a.X * b.W + a.Y * b.Z - a.Z * b.Y,
-				a.W * b.Y + a.Y * b.W + a.Z * b.X - a.X * b.Z,
-				a.W * b.Z + a.Z * b.W + a.X * b.Y - a.Y * b.X,
-				a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z);
+			var aX = a.X.RawValue;
+			var aY = a.Y.RawValue;
+			var aZ = a.Z.RawValue;
+			var aW = a.W.RawValue;
+			var bX = b.X.RawValue;
+			var bY = b.Y.RawValue;
+			var bZ = b.Z.RawValue;
+			var bW = b.W.RawValue;
+
+			var result = default(FQuaternion);
+			result.X.RawValue = (aW * bX >> Shift) + (aX * bW >> Shift) + (aY * bZ >> Shift) - (aZ * bY >> Shift);
+			result.Y.RawValue = (aW * bY >> Shift) + (aY * bW >> Shift) + (aZ * bX >> Shift) - (aX * bZ >> Shift);
+			result.Z.RawValue = (aW * bZ >> Shift) + (aZ * bW >> Shift) + (aX * bY >> Shift) - (aY * bX >> Shift);
+			result.W.RawValue = (aW * bW >> Shift) - (aX * bX >> Shift) - (aY * bY >> Shift) - (aZ * bZ >> Shift);
+			return result;
 		}
 
 		/// <summary>
@@ -111,7 +138,11 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator *(FQuaternion a, FP b)
 		{
-			return new FQuaternion(a.X * b, a.Y * b, a.Z * b, a.W * b);
+			a.X.RawValue = a.X.RawValue * b.RawValue >> Shift;
+			a.Y.RawValue = a.Y.RawValue * b.RawValue >> Shift;
+			a.Z.RawValue = a.Z.RawValue * b.RawValue >> Shift;
+			a.W.RawValue = a.W.RawValue * b.RawValue >> Shift;
+			return a;
 		}
 
 		/// <summary>
@@ -120,7 +151,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion operator *(FP b, FQuaternion a)
 		{
-			return new FQuaternion(a.X * b, a.Y * b, a.Z * b, a.W * b);
+			return a * b;
 		}
 
 		/// <summary>
@@ -128,22 +159,31 @@ namespace Mathematics.Fixed
 		/// </summary>
 		public static FVector3 operator *(FQuaternion unitQuaternion, FVector3 vector)
 		{
-			var twoX = unitQuaternion.X * 2;
-			var twoY = unitQuaternion.Y * 2;
-			var twoZ = unitQuaternion.Z * 2;
-			var xx2 = unitQuaternion.X * twoX;
-			var yy2 = unitQuaternion.Y * twoY;
-			var zz2 = unitQuaternion.Z * twoZ;
-			var xy2 = unitQuaternion.X * twoY;
-			var xz2 = unitQuaternion.X * twoZ;
-			var yz2 = unitQuaternion.Y * twoZ;
-			var wx2 = unitQuaternion.W * twoX;
-			var wy2 = unitQuaternion.W * twoY;
-			var wz2 = unitQuaternion.W * twoZ;
-			var result = new FVector3(
-				(FP.One - (yy2 + zz2)) * vector.X + (xy2 - wz2) * vector.Y + (xz2 + wy2) * vector.Z,
-				(xy2 + wz2) * vector.X + (FP.One - (xx2 + zz2)) * vector.Y + (yz2 - wx2) * vector.Z,
-				(xz2 - wy2) * vector.X + (yz2 + wx2) * vector.Y + (FP.One - (xx2 + yy2)) * vector.Z);
+			var qX = unitQuaternion.X.RawValue;
+			var qY = unitQuaternion.Y.RawValue;
+			var qZ = unitQuaternion.Z.RawValue;
+			var qW = unitQuaternion.W.RawValue;
+			var vX = vector.X.RawValue;
+			var vY = vector.Y.RawValue;
+			var vZ = vector.Z.RawValue;
+
+			var twoX = qX << 1;
+			var twoY = qY << 1;
+			var twoZ = qZ << 1;
+			var xx2 = qX * twoX >> Shift;
+			var yy2 = qY * twoY >> Shift;
+			var zz2 = qZ * twoZ >> Shift;
+			var xy2 = qX * twoY >> Shift;
+			var xz2 = qX * twoZ >> Shift;
+			var yz2 = qY * twoZ >> Shift;
+			var wx2 = qW * twoX >> Shift;
+			var wy2 = qW * twoY >> Shift;
+			var wz2 = qW * twoZ >> Shift;
+
+			var result = default(FVector3);
+			result.X.RawValue = ((FP.OneRaw - (yy2 + zz2)) * vX >> Shift) + ((xy2 - wz2) * vY >> Shift) + ((xz2 + wy2) * vZ >> Shift);
+			result.Y.RawValue = ((xy2 + wz2) * vX >> Shift) + ((FP.OneRaw - (xx2 + zz2)) * vY >> Shift) + ((yz2 - wx2) * vZ >> Shift);
+			result.Z.RawValue = ((xz2 - wy2) * vX >> Shift) + ((yz2 + wx2) * vY >> Shift) + ((FP.OneRaw - (xx2 + yy2)) * vZ >> Shift);
 			return result;
 		}
 
@@ -210,7 +250,12 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Dot(FQuaternion a, FQuaternion b)
 		{
-			return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+			var rawResult =
+				(a.W.RawValue * b.W.RawValue >> Shift) +
+				(a.X.RawValue * b.X.RawValue >> Shift) +
+				(a.Y.RawValue * b.Y.RawValue >> Shift) +
+				(a.Z.RawValue * b.Z.RawValue >> Shift);
+			return FP.FromRaw(rawResult);
 		}
 
 		/// <summary>
@@ -228,7 +273,12 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP LengthSqr(FQuaternion a)
 		{
-			return Dot(a, a);
+			a.X.RawValue =
+				(a.X.RawValue * a.X.RawValue >> Shift) +
+				(a.Y.RawValue * a.Y.RawValue >> Shift) +
+				(a.Z.RawValue * a.Z.RawValue >> Shift) +
+				(a.W.RawValue * a.W.RawValue >> Shift);
+			return a.X;
 		}
 
 		/// <summary>
@@ -237,7 +287,10 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion Inverse(FQuaternion a)
 		{
-			return new FQuaternion(-a.X, -a.Y, -a.Z, a.W);
+			a.X.RawValue = -a.X.RawValue;
+			a.Y.RawValue = -a.Y.RawValue;
+			a.Z.RawValue = -a.Z.RawValue;
+			return a;
 		}
 
 		/// <summary>

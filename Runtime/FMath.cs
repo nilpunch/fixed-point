@@ -166,14 +166,44 @@ namespace Mathematics.Fixed
 			{
 				t.RawValue = FP.OneRaw;
 			}
-			start.RawValue += (end.RawValue - start.RawValue) * t.RawValue >> 16;
+			start.RawValue += (end.RawValue - start.RawValue) * t.RawValue >> FP.FractionalBits;
 			return start;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP LerpUnclamped(FP start, FP end, FP t)
 		{
-			return start + t * (end - start);
+			start.RawValue += (end.RawValue - start.RawValue) * t.RawValue >> FP.FractionalBits;
+			return start;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP InverseLerp(FP start, FP end, FP value)
+		{
+			if (start.RawValue == end.RawValue)
+			{
+				return FP.Zero;
+			}
+			value.RawValue = (value.RawValue - start.RawValue << FP.FractionalBits) / (end.RawValue - start.RawValue);
+			if (value.RawValue < 0)
+			{
+				value.RawValue = 0L;
+			}
+			if (value.RawValue > FP.OneRaw)
+			{
+				value.RawValue = FP.OneRaw;
+			}
+			return value;
+		}
+
+		public static FP InverseLerpUnclamped(FP start, FP end, FP value)
+		{
+			if (start.RawValue == end.RawValue)
+			{
+				return FP.Zero;
+			}
+			value.RawValue = (value.RawValue - start.RawValue << FP.FractionalBits) / (end.RawValue - start.RawValue);
+			return value;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
