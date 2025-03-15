@@ -111,7 +111,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator +(FVector2 a, FVector2 b)
 		{
-			return new FVector2(a.X + b.X, a.Y + b.Y);
+			a.X += b.X;
+			a.Y += b.Y;
+			return a;
 		}
 
 		/// <summary>
@@ -120,7 +122,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator +(FVector2 a, FP b)
 		{
-			return new FVector2(a.X + b, a.Y + b);
+			a.X += b;
+			a.Y += b;
+			return a;
 		}
 
 		/// <summary>
@@ -138,7 +142,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator -(FVector2 a)
 		{
-			return new FVector2(-a.X, -a.Y);
+			a.X = -a.X;
+			a.Y = -a.Y;
+			return a;
 		}
 
 		/// <summary>
@@ -147,7 +153,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator -(FVector2 a, FVector2 b)
 		{
-			return -b + a;
+			a.X -= b.X;
+			a.Y -= b.Y;
+			return a;
 		}
 
 		/// <summary>
@@ -156,7 +164,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator -(FVector2 a, FP b)
 		{
-			return -b + a;
+			a.X -= b;
+			a.Y -= b;
+			return a;
 		}
 
 		/// <summary>
@@ -174,7 +184,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator *(FVector2 a, FVector2 b)
 		{
-			return new FVector2(a.X * b.X, a.Y * b.Y);
+			a.X *= b.X;
+			a.Y *= b.Y;
+			return a;
 		}
 
 		/// <summary>
@@ -183,7 +195,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator *(FVector2 a, FP b)
 		{
-			return new FVector2(a.X * b, a.Y * b);
+			a.X *= b;
+			a.Y *= b;
+			return a;
 		}
 
 		/// <summary>
@@ -201,7 +215,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator *(FVector2 a, int b)
 		{
-			return new FVector2(a.X * b, a.Y * b);
+			a.X *= b;
+			a.Y *= b;
+			return a;
 		}
 
 		/// <summary>
@@ -219,7 +235,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator /(FVector2 a, FVector2 b)
 		{
-			return new FVector2(a.X / b.X, a.Y / b.Y);
+			a.X /= b.X;
+			a.Y /= b.Y;
+			return a;
 		}
 
 		/// <summary>
@@ -228,8 +246,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator /(FVector2 a, FP b)
 		{
-			var invB = FP.One / b;
-			return new FVector2(a.X * invB, a.Y * invB);
+			a.X /= b;
+			a.Y /= b;
+			return a;
 		}
 
 		/// <summary>
@@ -238,7 +257,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 operator /(FVector2 a, int b)
 		{
-			return new FVector2(a.X / b, a.Y / b);
+			a.X /= b;
+			a.Y /= b;
+			return a;
 		}
 
 		/// <summary>

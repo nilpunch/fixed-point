@@ -144,13 +144,13 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP ClampUsable(FP value)
 		{
-			if (value.RawValue < FP.UsableMinValueRaw)
+			if (value.RawValue < FP.UseableMinValueRaw)
 			{
-				return FP.FromRaw(FP.UsableMinValueRaw);
+				return FP.FromRaw(FP.UseableMinValueRaw);
 			}
-			if (value.RawValue > FP.UsableMaxValueRaw)
+			if (value.RawValue > FP.UseableMaxValueRaw)
 			{
-				return FP.FromRaw(FP.UsableMaxValueRaw);
+				return FP.FromRaw(FP.UseableMaxValueRaw);
 			}
 			return value;
 		}

@@ -134,9 +134,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator +(FVector3 a, FVector3 b)
 		{
-			a.X.RawValue += b.X.RawValue;
-			a.Y.RawValue += b.Y.RawValue;
-			a.Z.RawValue += b.Z.RawValue;
+			a.X += b.X;
+			a.Y += b.Y;
+			a.Z += b.Z;
 			return a;
 		}
 
@@ -146,9 +146,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator +(FVector3 a, FP b)
 		{
-			a.X.RawValue += b.RawValue;
-			a.Y.RawValue += b.RawValue;
-			a.Z.RawValue += b.RawValue;
+			a.X += b;
+			a.Y += b;
+			a.Z += b;
 			return a;
 		}
 
@@ -167,9 +167,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator -(FVector3 a)
 		{
-			a.X.RawValue = -a.X.RawValue;
-			a.Y.RawValue = -a.Y.RawValue;
-			a.Z.RawValue = -a.Z.RawValue;
+			a.X = -a.X;
+			a.Y = -a.Y;
+			a.Z = -a.Z;
 			return a;
 		}
 
@@ -179,9 +179,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator -(FVector3 a, FVector3 b)
 		{
-			a.X.RawValue -= b.X.RawValue;
-			a.Y.RawValue -= b.Y.RawValue;
-			a.Z.RawValue -= b.Z.RawValue;
+			a.X -= b.X;
+			a.Y -= b.Y;
+			a.Z -= b.Z;
 			return a;
 		}
 
@@ -191,9 +191,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator -(FVector3 a, FP b)
 		{
-			a.X.RawValue -= b.RawValue;
-			a.Y.RawValue -= b.RawValue;
-			a.Z.RawValue -= b.RawValue;
+			a.X -= b;
+			a.Y -= b;
+			a.Z -= b;
 			return a;
 		}
 
@@ -212,9 +212,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator *(FVector3 a, FVector3 b)
 		{
-			a.X.RawValue = a.X.RawValue * b.X.RawValue >> FP.FractionalBits;
-			a.Y.RawValue = a.Y.RawValue * b.Y.RawValue >> FP.FractionalBits;
-			a.Z.RawValue = a.Z.RawValue * b.Z.RawValue >> FP.FractionalBits;
+			a.X *= b.X;
+			a.Y *= b.Y;
+			a.Z *= b.Z;
 			return a;
 		}
 
@@ -224,9 +224,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator *(FVector3 a, FP b)
 		{
-			a.X.RawValue = a.X.RawValue * b.RawValue >> FP.FractionalBits;
-			a.Y.RawValue = a.Y.RawValue * b.RawValue >> FP.FractionalBits;
-			a.Z.RawValue = a.Z.RawValue * b.RawValue >> FP.FractionalBits;
+			a.X *= b;
+			a.Y *= b;
+			a.Z *= b;
 			return a;
 		}
 
@@ -245,9 +245,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator *(FVector3 a, int b)
 		{
-			a.X.RawValue *= b;
-			a.Y.RawValue *= b;
-			a.Z.RawValue *= b;
+			a.X *= b;
+			a.Y *= b;
+			a.Z *= b;
 			return a;
 		}
 
@@ -266,9 +266,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator /(FVector3 a, FVector3 b)
 		{
-			a.X.RawValue = (a.X.RawValue << FP.FractionalBits) / b.X.RawValue;
-			a.Y.RawValue = (a.Y.RawValue << FP.FractionalBits) / b.Y.RawValue;
-			a.Z.RawValue = (a.Z.RawValue << FP.FractionalBits) / b.Z.RawValue;
+			a.X /= b.X;
+			a.Y /= b.Y;
+			a.Z /= b.Z;
 			return a;
 		}
 
@@ -278,9 +278,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator /(FVector3 a, FP b)
 		{
-			a.X.RawValue = (a.X.RawValue << FP.FractionalBits) / b.RawValue;
-			a.Y.RawValue = (a.Y.RawValue << FP.FractionalBits) / b.RawValue;
-			a.Z.RawValue = (a.Z.RawValue << FP.FractionalBits) / b.RawValue;
+			a.X /= b;
+			a.Y /= b;
+			a.Z /= b;
 			return a;
 		}
 
@@ -290,9 +290,9 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator /(FVector3 a, int b)
 		{
-			a.X.RawValue /= b;
-			a.Y.RawValue /= b;
-			a.Z.RawValue /= b;
+			a.X /= b;
+			a.Y /= b;
+			a.Z /= b;
 			return a;
 		}
 
@@ -314,10 +314,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Dot(FVector3 a, FVector3 b)
 		{
-			a.X.RawValue =
-				(a.X.RawValue * b.X.RawValue >> FP.FractionalBits) +
-				(a.Y.RawValue * b.Y.RawValue >> FP.FractionalBits) +
-				(a.Z.RawValue * b.Z.RawValue >> FP.FractionalBits);
+			a.X = a.X * b.X + a.Y * b.Y + a.Z * b.Z;
 			return a.X;
 		}
 
@@ -328,9 +325,9 @@ namespace Mathematics.Fixed
 		public static FVector3 Cross(FVector3 a, FVector3 b)
 		{
 			var result = default(FVector3);
-			result.X.RawValue = (a.Y.RawValue * b.Z.RawValue >> FP.FractionalBits) - (a.Z.RawValue * b.Y.RawValue >> FP.FractionalBits);
-			result.Y.RawValue = (a.Z.RawValue * b.X.RawValue >> FP.FractionalBits) - (a.X.RawValue * b.Z.RawValue >> FP.FractionalBits);
-			result.Z.RawValue = (a.X.RawValue * b.Y.RawValue >> FP.FractionalBits) - (a.Y.RawValue * b.X.RawValue >> FP.FractionalBits);
+			result.X = a.Y * b.Z - a.Z * b.Y;
+			result.Y = a.Z * b.X - a.X * b.Z;
+			result.Z = a.X * b.Y - a.Y * b.X;
 			return result;
 		}
 

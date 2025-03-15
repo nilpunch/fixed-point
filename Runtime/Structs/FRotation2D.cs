@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
 {
@@ -13,7 +14,7 @@ namespace Mathematics.Fixed
 			OneMinusCos = FP.One - FMath.Cos(angle.Radians);
 		}
 
-		private FRotation2D(FP sin, FP oneMinusCos)
+		public FRotation2D(FP sin, FP oneMinusCos)
 		{
 			Sin = sin;
 			OneMinusCos = oneMinusCos;
@@ -23,6 +24,8 @@ namespace Mathematics.Fixed
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => FP.One - OneMinusCos;
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			set => OneMinusCos = FP.One - value;
 		}
 
 		public FAngle CounterclockwiseAngle
@@ -68,6 +71,23 @@ namespace Mathematics.Fixed
 			return new FRotation2D(sin, FP.One - cos);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FRotation2D Normalize(FRotation2D rotation2D)
+		{
+			var sin = rotation2D.Sin;
+			var cos = rotation2D.Cos;
+			var length = FMath.Sqrt(sin * sin + cos * cos);
+			if (length > 0)
+			{
+				var invLength = FP.One / length;
+				return new FRotation2D(sin * invLength, FP.One - cos * invLength);
+			}
+			else
+			{
+				return Identity;
+			}
+		}
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FRotation2D Inverse(FRotation2D rotation2D)
 		{

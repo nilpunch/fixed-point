@@ -10,7 +10,7 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalBits = 16; // Fixed for max performance.
+		public const int FractionalBits = 20; // Fixed for max performance.
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;
@@ -24,6 +24,12 @@ namespace Mathematics.Fixed
 		public static unsafe FP FromRaw(long rawValue)
 		{
 			return *(FP*)(&rawValue);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP FromRatio(long x, long y)
+		{
+			return FromRaw((x << FractionalBits) / y);
 		}
 
 		/// <summary>
