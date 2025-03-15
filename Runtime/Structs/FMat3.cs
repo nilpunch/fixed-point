@@ -59,7 +59,7 @@ namespace Mathematics.Fixed
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FVector3 operator *(FVector3 vector, FMat3 matrix)
+		public static FVector3 operator *(FVector3 vector, in FMat3 matrix)
 		{
 			var result = default(FVector3);
 			result.X = matrix.M00 * vector.X + matrix.M01 * vector.Y + matrix.M02 * vector.Z;
@@ -112,7 +112,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FMat3 Inverse(FMat3 m)
+		public static FMat3 Inverse(in FMat3 m)
 		{
 			var det =
 				m.M00 * (m.M11 * m.M22 - m.M21 * m.M12) -

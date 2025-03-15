@@ -158,7 +158,10 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator +(FP a, FVector3 b)
 		{
-			return b + a;
+			b.X += a;
+			b.Y += a;
+			b.Z += a;
+			return b;
 		}
 
 		/// <summary>
@@ -203,7 +206,10 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator -(FP a, FVector3 b)
 		{
-			return -b + a;
+			b.X = a - b.X;
+			b.Y = a - b.Y;
+			b.Z = a - b.Z;
+			return b;
 		}
 
 		/// <summary>
@@ -236,7 +242,10 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator *(FP a, FVector3 b)
 		{
-			return b * a;
+			b.X *= a;
+			b.Y *= a;
+			b.Z *= a;
+			return b;
 		}
 
 		/// <summary>
@@ -257,7 +266,10 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 operator *(int b, FVector3 a)
 		{
-			return a * b;
+			a.X *= b;
+			a.Y *= b;
+			a.Z *= b;
+			return a;
 		}
 
 		/// <summary>
