@@ -4,8 +4,6 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppSetOption(Option.NullChecks, false)]
-	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
@@ -78,7 +76,8 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(int scalar, FP x)
 		{
-			return x * scalar;
+			x.RawValue *= scalar;
+			return x;
 		}
 
 		/// <summary>

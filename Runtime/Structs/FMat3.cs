@@ -4,7 +4,6 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public struct FMat3
@@ -43,7 +42,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FMat3 operator *(FMat3 a, FMat3 b)
+		public static FMat3 operator *(in FMat3 a, in FMat3 b)
 		{
 			var result = default(FMat3);
 			result.M00 = a.M00 * b.M00 + a.M01 * b.M10 + a.M02 * b.M20;
@@ -97,16 +96,17 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FMat3 Transpose(FMat3 matrix)
 		{
-			var m01 = matrix.M01;
-			var m02 = matrix.M02;
-			var m12 = matrix.M12;
+			var result = default(FMat3);
 
-			matrix.M01 = matrix.M10;
-			matrix.M02 = matrix.M20;
-			matrix.M12 = matrix.M21;
-			matrix.M10 = m01;
-			matrix.M20 = m02;
-			matrix.M21 = m12;
+			result.M00 = matrix.M00;
+			result.M11 = matrix.M11;
+			result.M22 = matrix.M22;
+			result.M01 = matrix.M10;
+			result.M02 = matrix.M20;
+			result.M12 = matrix.M21;
+			result.M10 = matrix.M01;
+			result.M20 = matrix.M02;
+			result.M21 = matrix.M12;
 
 			return matrix;
 		}
