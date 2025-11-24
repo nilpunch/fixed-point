@@ -5,7 +5,6 @@ using Unity.IL2CPP.CompilerServices;
 namespace Mathematics.Fixed
 {
 	[Il2CppSetOption(Option.NullChecks, false)]
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public struct FQuaternion : IEquatable<FQuaternion>, IFormattable
 	{

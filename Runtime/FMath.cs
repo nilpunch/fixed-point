@@ -7,7 +7,6 @@ namespace Mathematics.Fixed
 	[Il2CppEagerStaticClassConstruction]
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public static partial class FMath
 	{
 		/// <summary>
@@ -144,13 +143,13 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP ClampUsable(FP value)
 		{
-			if (value.RawValue < FP.UseableMinValueRaw)
+			if (value.RawValue < FP.UsableMinValueRaw)
 			{
-				return FP.FromRaw(FP.UseableMinValueRaw);
+				return FP.FromRaw(FP.UsableMinValueRaw);
 			}
-			if (value.RawValue > FP.UseableMaxValueRaw)
+			if (value.RawValue > FP.UsableMaxValueRaw)
 			{
-				return FP.FromRaw(FP.UseableMaxValueRaw);
+				return FP.FromRaw(FP.UsableMaxValueRaw);
 			}
 			return value;
 		}

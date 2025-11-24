@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public struct FMat3
 	{

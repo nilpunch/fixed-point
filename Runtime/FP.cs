@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.IL2CPP.CompilerServices;
 
 namespace Mathematics.Fixed
 {
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalBits = 20; // Fixed for max performance.
+		public const int FractionalBits = 16; // Fixed for max performance.
 		public const int CalculationsEpsilonScaling = 10;
 
 		public long RawValue;

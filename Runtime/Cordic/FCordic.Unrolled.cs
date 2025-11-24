@@ -6,7 +6,6 @@ namespace Mathematics.Fixed
 {
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
 	public static partial class FCordic
 	{
 		/// <summary>
