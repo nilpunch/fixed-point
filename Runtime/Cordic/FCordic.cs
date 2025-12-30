@@ -12,11 +12,11 @@ namespace Mathematics.Fixed
 		public const int Precision = FP.FractionalBits;
 
 		// CORDIC cosine constant 0.60725...
-		public const long InvGainBase63 = 5600919740058907648;
-		public const long InvGain = InvGainBase63 >> (63 - FP.FractionalBits);
+		public const int InvGainBase30 = 652032874;
+		public const int InvGain = InvGainBase30 >> (30 - FP.FractionalBits);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Sin(long angle)
+		public static int Sin(int angle)
 		{
 			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
@@ -37,7 +37,7 @@ namespace Mathematics.Fixed
 				angle = FP.PiRaw - angle; // Map to [0, Pi/2]
 			}
 
-			var sin = 0L;
+			var sin = 0;
 			var cos = InvGain;
 			CordicCircular16(ref cos, ref sin, ref angle);
 
@@ -45,7 +45,7 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SinCos(long angle, out long sin, out long cos)
+		public static void SinCos(int angle, out int sin, out int cos)
 		{
 			angle %= FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
@@ -66,7 +66,7 @@ namespace Mathematics.Fixed
 				angle = FP.PiRaw - angle; // Map to [0, Pi/2]
 			}
 
-			sin = 0L;
+			sin = 0;
 			cos = InvGain;
 			CordicCircular16(ref cos, ref sin, ref angle);
 
@@ -86,15 +86,15 @@ namespace Mathematics.Fixed
 		/// Angle is [0, HalfPi].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SinCosZeroToHalfPi(long angle, out long sin, out long cos)
+		public static void SinCosZeroToHalfPi(int angle, out int sin, out int cos)
 		{
-			sin = 0L;
+			sin = 0;
 			cos = InvGain;
 			CordicCircular(ref cos, ref sin, ref angle);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Tan(long angle)
+		public static int Tan(int angle)
 		{
 			angle = angle % FP.PiRaw; // Map to [-Pi, Pi)
 
@@ -109,7 +109,7 @@ namespace Mathematics.Fixed
 				angle = FP.PiRaw - angle; // Map to [0, Pi/2]
 			}
 
-			var sin = 0L;
+			var sin = 0;
 			var cos = InvGain;
 			CordicCircular16(ref cos, ref sin, ref angle);
 
@@ -119,17 +119,17 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Atan(long a)
+		public static int Atan(int a)
 		{
 			var x = FP.OneRaw;
-			var z = 0L;
+			var z = 0;
 			CordicVectoring16(ref x, ref a, ref z, 0);
 
 			return z;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Atan2(long y, long x)
+		public static int Atan2(int y, int x)
 		{
 			var tan = FP.Div(y, x);
 
@@ -168,7 +168,7 @@ namespace Mathematics.Fixed
 		/// Precise cordic [-1, 1].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Asin(long sin)
+		public static int Asin(int sin)
 		{
 			if (sin < -FP.OneRaw || sin > FP.OneRaw)
 			{
@@ -190,11 +190,11 @@ namespace Mathematics.Fixed
 		/// Precise cordic [-1, 1].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long AsinZeroToOne(long sin)
+		public static int AsinZeroToOne(int sin)
 		{
 			var x = FP.OneRaw;
-			var y = 0L;
-			var z = 0L;
+			var y = 0;
+			var z = 0;
 			CordicVectoringDoubleIteration(ref x, ref y, ref z, sin);
 
 			return z;
@@ -205,7 +205,7 @@ namespace Mathematics.Fixed
 		/// z is [0, Pi/2].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void CordicCircular(ref long xRef, ref long yRef, ref long zRef)
+		public static void CordicCircular(ref int xRef, ref int yRef, ref int zRef)
 		{
 			var x = xRef;
 			var y = yRef;
@@ -239,7 +239,7 @@ namespace Mathematics.Fixed
 		/// z is [0, Pi/2].
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void CordicVectoring(ref long xRef, ref long yRef, ref long zRef, long target)
+		public static void CordicVectoring(ref int xRef, ref int yRef, ref int zRef, int target)
 		{
 			var x = xRef;
 			var y = yRef;
@@ -273,7 +273,7 @@ namespace Mathematics.Fixed
 		/// Double iteration method https://stackoverflow.com/questions/25976656/cordic-arcsine-implementation-fails.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void CordicVectoringDoubleIteration(ref long xRef, ref long yRef, ref long zRef, long target)
+		public static void CordicVectoringDoubleIteration(ref int xRef, ref int yRef, ref int zRef, int target)
 		{
 			var x = xRef;
 			var y = yRef;

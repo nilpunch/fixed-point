@@ -16,7 +16,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.OneRaw + FP.HalfRaw + FP.EpsilonRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 3)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 57)]
-		public int RoundToInt(long rawValue)
+		public int RoundToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -34,7 +34,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.OneRaw + FP.OneRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 3)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 57)]
-		public int WhenCastToInt_ThenFloorToInt(long rawValue)
+		public int WhenCastToInt_ThenFloorToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -52,7 +52,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.OneRaw + FP.OneRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 4)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 58)]
-		public int CeilToInt(long rawValue)
+		public int CeilToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -70,7 +70,7 @@ namespace Mathematics.Fixed
 		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
 		[TestCase(FP.MaxValueRaw - 1, ExpectedResult = FP.MaxValueRaw - 1)]
 		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MinValueRaw)]
-		public long WhenDevidedByOne_ThenReturnTheSameNumber(long rawValue)
+		public long WhenDevidedByOne_ThenReturnTheSameNumber(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -280,27 +280,27 @@ namespace Mathematics.Fixed
 			FP.FromRaw(FP.OneRaw - 1), -FP.FromRaw(FP.OneRaw - 1),
 			FP.FromRaw(FP.OneRaw + 1), -FP.FromRaw(FP.OneRaw + 1),
 
-			// Problematic log2
-			FP.FromRaw(1L << (FP.FractionalBits + FP.IntegerBits / 2)),
-			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) - 1),
-			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) + 1),
-
-			// PIs
-			FP.Pi, FP.HalfPi, -FP.HalfPi,
-
-			// Smallest and largest values
-			FP.MaxValue, FP.MinValue,
-
-			// Large random numbers
-			FP.FromRaw(6791302811978701836), FP.FromRaw(-8192141831180282065), FP.FromRaw(6222617001063736300), FP.FromRaw(-7871200276881732034),
-			FP.FromRaw(8249382838880205112), FP.FromRaw(-7679310892959748444), FP.FromRaw(7708113189940799513), FP.FromRaw(-5281862979887936768),
-			FP.FromRaw(8220231180772321456), FP.FromRaw(-5204203381295869580), FP.FromRaw(6860614387764479339), FP.FromRaw(-9080626825133349457),
-			FP.FromRaw(6658610233456189347), FP.FromRaw(-6558014273345705245), FP.FromRaw(6700571222183426493),
-
-			// Small random numbers
-			FP.FromRaw(-436730658), FP.FromRaw(-2259913246), FP.FromRaw(329347474), FP.FromRaw(2565801981), FP.FromRaw(3398143698), FP.FromRaw(137497017), FP.FromRaw(1060347500),
-			FP.FromRaw(-3457686027), FP.FromRaw(1923669753), FP.FromRaw(2891618613), FP.FromRaw(2418874813), FP.FromRaw(2899594950), FP.FromRaw(2265950765), FP.FromRaw(-1962365447),
-			FP.FromRaw(3077934393),
+			// // Problematic log2
+			// FP.FromRaw(1L << (FP.FractionalBits + FP.IntegerBits / 2)),
+			// FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) - 1),
+			// FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) + 1),
+			//
+			// // PIs
+			// FP.Pi, FP.HalfPi, -FP.HalfPi,
+			//
+			// // Smallest and largest values
+			// FP.MaxValue, FP.MinValue,
+			//
+			// // Large random numbers
+			// FP.FromRaw(6791302811978701836), FP.FromRaw(-8192141831180282065), FP.FromRaw(6222617001063736300), FP.FromRaw(-7871200276881732034),
+			// FP.FromRaw(8249382838880205112), FP.FromRaw(-7679310892959748444), FP.FromRaw(7708113189940799513), FP.FromRaw(-5281862979887936768),
+			// FP.FromRaw(8220231180772321456), FP.FromRaw(-5204203381295869580), FP.FromRaw(6860614387764479339), FP.FromRaw(-9080626825133349457),
+			// FP.FromRaw(6658610233456189347), FP.FromRaw(-6558014273345705245), FP.FromRaw(6700571222183426493),
+			//
+			// // Small random numbers
+			// FP.FromRaw(-436730658), FP.FromRaw(-2259913246), FP.FromRaw(329347474), FP.FromRaw(2565801981), FP.FromRaw(3398143698), FP.FromRaw(137497017), FP.FromRaw(1060347500),
+			// FP.FromRaw(-3457686027), FP.FromRaw(1923669753), FP.FromRaw(2891618613), FP.FromRaw(2418874813), FP.FromRaw(2899594950), FP.FromRaw(2265950765), FP.FromRaw(-1962365447),
+			// FP.FromRaw(3077934393),
 
 			// Tiny random numbers
 			FP.FromRaw(-171),

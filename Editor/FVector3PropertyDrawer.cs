@@ -19,9 +19,9 @@ namespace Mathematics.Fixed.Editor
 
 			EditorGUI.BeginProperty(position, label, property);
 			{
-				var xValue = FP.FromRaw(xProperty.longValue).ToFloat();
-				var yValue = FP.FromRaw(yProperty.longValue).ToFloat();
-				var zValue = FP.FromRaw(zProperty.longValue).ToFloat();
+				var xValue = FP.FromRaw(xProperty.intValue).ToFloat();
+				var yValue = FP.FromRaw(yProperty.intValue).ToFloat();
+				var zValue = FP.FromRaw(zProperty.intValue).ToFloat();
 
 				bool wideMode = EditorGUIUtility.wideMode;
 				EditorGUIUtility.wideMode = true;

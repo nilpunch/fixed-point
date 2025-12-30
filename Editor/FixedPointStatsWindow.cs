@@ -32,20 +32,20 @@ namespace Mathematics.Fixed.Editor
 			if (GUILayout.Button("Log CORDIC constants"))
 			{
 				string sum = string.Empty;
-				for (int i = 0; i < 64; ++i)
+				for (int i = 0; i < 32; ++i)
 				{
 					var result = Math.Atan(1.0 / Math.Pow(2, i));
-					sum += (long)(result * (1UL << 63)) + ",\n";
+					sum += (int)(result * (1 << 30)) + ",\n";
 				}
 				Debug.Log(sum);
 
 				double cos = 1f;
-				for (int i = 0; i < 64; ++i)
+				for (int i = 0; i < 32; ++i)
 				{
 					var result = Math.Atan(1.0 / Math.Pow(2, i));
 					cos *= Math.Cos(result);
 				}
-				Debug.Log((long)(cos * (1UL << 63)));
+				Debug.Log((int)(cos * (1 << 30)));
 			}
 			
 			const float log10Of2 = 0.30103f;

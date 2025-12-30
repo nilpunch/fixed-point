@@ -5,37 +5,55 @@ namespace Mathematics.Fixed
 	public static class FConversions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ToFP(this long value)
+		public static FP ToFP(this int value)
 		{
 			return FP.FromRaw(value << FP.FractionalBits);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ToFP(this int value)
+		public static FP ToFPSafe(this int value)
 		{
-			return FP.FromRaw((long)value << FP.FractionalBits);
+			var raw = (long)value << FP.FractionalBits;
+
+			if (raw > FP.MaxValueRaw)
+			{
+				return FP.FromRaw(FP.MaxValueRaw);
+			}
+
+			if (raw < FP.MinValueRaw)
+			{
+				return FP.FromRaw(FP.MinValueRaw);
+			}
+
+			return FP.FromRaw((int)raw);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP ToFP(this long value)
+		{
+			return FP.FromRaw((int)(value << FP.FractionalBits));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP ToFP(this float value)
 		{
-			return FP.FromRaw((long)(value * FP.OneRaw));
+			return FP.FromRaw((int)(value * FP.OneRaw));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP ToFP(this double value)
 		{
-			return FP.FromRaw((long)(value * FP.OneRaw));
+			return FP.FromRaw((int)(value * FP.OneRaw));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int ToInt(this FP value)
 		{
-			return (int)(value.RawValue >> FP.FractionalBits);
+			return value.RawValue >> FP.FractionalBits;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long ToLong(this FP value)
+		public static int ToLong(this FP value)
 		{
 			return value.RawValue >> FP.FractionalBits;
 		}

@@ -4,51 +4,48 @@ namespace Mathematics.Fixed
 {
 	public partial struct FP
 	{
-		public const int AllBits = sizeof(long) * 8;
+		public const int AllBits = sizeof(int) * 8;
 
 		public const int AllBitsWithoutSign = AllBits - 1;
 		public const int IntegerBits = AllBitsWithoutSign - FractionalBits;
 		public const int IntegerBitsWithSign = IntegerBits + 1;
-		public const long FractionalMask = long.MaxValue >> (AllBitsWithoutSign - FractionalBits);
-		public const long IntegerSignMask = long.MaxValue << FractionalBits;
-		public const long IntegerFractionalMask = long.MaxValue;
-		public const long SignMask = long.MinValue;
+		public const int FractionalMask = int.MaxValue >> (AllBitsWithoutSign - FractionalBits);
+		public const int IntegerSignMask = int.MaxValue << FractionalBits;
+		public const int IntegerFractionalMask = int.MaxValue;
+		public const int SignMask = int.MinValue;
 
-		public const long EpsilonRaw = 1L;
-		public const long CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
-		public const long CalculationsEpsilonRaw = CalculationsEpsilonSqrRaw * CalculationsEpsilonScaling;
+		public const int EpsilonRaw = 1;
+		public const int CalculationsEpsilonSqrRaw = EpsilonRaw * CalculationsEpsilonScaling;
+		public const int CalculationsEpsilonRaw = CalculationsEpsilonSqrRaw * CalculationsEpsilonScaling;
 
-		public const long MaxValueRaw = long.MaxValue;
-		public const long MinValueRaw = long.MinValue;
+		public const int MaxValueRaw = int.MaxValue;
+		public const int MinValueRaw = int.MinValue;
 
-		public const long UsableMaxValueRaw = int.MaxValue;
-		public const long UsableMinValueRaw = int.MinValue;
+		public const int OneRaw = 1 << FractionalBits;
+		public const int MinusOneRaw = IntegerSignMask;
+		public const int TwoRaw = OneRaw * 2;
+		public const int ThreeRaw = OneRaw * 3;
+		public const int HalfRaw = OneRaw / 2;
+		public const int QuarterRaw = OneRaw / 4;
 
-		public const long OneRaw = 1L << FractionalBits;
-		public const long MinusOneRaw = IntegerSignMask;
-		public const long TwoRaw = OneRaw * 2;
-		public const long ThreeRaw = OneRaw * 3;
-		public const long HalfRaw = OneRaw / 2;
-		public const long QuarterRaw = OneRaw / 4;
+		// 61 is the largest N such that (int)(PI * 2^N) < int.MaxValue.
+		public const int PiBase29 = 1686629713; // (int)(3.141592653589793 * (1 << 29));
+		public const int PiRaw = PiBase29 >> (29 - FractionalBits);
+		public const int HalfPiRaw = PiRaw / 2;
+		public const int TwoPiRaw = PiRaw * 2;
 
-		// 61 is the largest N such that (long)(PI * 2^N) < long.MaxValue.
-		public const long PiBase61 = 7244019458077122560L; // (long)(3.141592653589793 * (1L << 61));
-		public const long PiRaw = PiBase61 >> (61 - FractionalBits);
-		public const long HalfPiRaw = PiRaw / 2;
-		public const long TwoPiRaw = PiRaw * 2;
+		public const int Deg2RadBase30 = 18740330; // (int)(0.017453292519943295 * (1 << 30));
+		public const int Rad2DegBase25 = 1922527337; // (int)(57.29577951308232 * (1 << 25));
+		public const int Deg2RadRaw = Deg2RadBase30 >> (30 - FractionalBits);
+		public const int Rad2DegRaw = Rad2DegBase25 >> (25 - FractionalBits);
 
-		public const long Deg2RadBase61 = 40244552544872904L; // (long)(0.017453292519943295 * (1L << 61));
-		public const long Rad2DegBase57 = 8257192040480628736L; // (long)(57.29577951308232 * (1L << 57));
-		public const long Deg2RadRaw = Deg2RadBase61 >> (61 - FractionalBits);
-		public const long Rad2DegRaw = Rad2DegBase57 >> (57 - FractionalBits);
+		public const int Ln2Base30 = 744261117; // (int)(0.6931471805599453 * (1 << 30));
+		public const int Ln2Raw = Ln2Base30 >> (30 - FractionalBits);
+		public const int Log2MaxRaw = IntegerBits * OneRaw;
+		public const int Log2MinRaw = -(IntegerBits + 1) * OneRaw;
 
-		public const long Ln2Base61 = 1598288580650331904L; // (long)(0.6931471805599453 * (1L << 61));
-		public const long Ln2Raw = Ln2Base61 >> (61 - FractionalBits);
-		public const long Log2MaxRaw = IntegerBits * OneRaw;
-		public const long Log2MinRaw = -(IntegerBits + 1) * OneRaw;
-
-		public const long Sqrt2Base61 = 3260954456333195264L; // (long)(1.414213562373095 * (1L << 61));
-		public const long Sqrt2Raw = Sqrt2Base61 >> (61 - FractionalBits);
+		public const int Sqrt2Base30 = 1518500249; // (int)(1.414213562373095 * (1 << 30));
+		public const int Sqrt2Raw = Sqrt2Base30 >> (30 - FractionalBits);
 
 		public static FP Epsilon
 		{
@@ -107,7 +104,7 @@ namespace Mathematics.Fixed
 		public static FP Zero
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(0L);
+			get => FromRaw(0);
 		}
 
 		public static FP MinusOne

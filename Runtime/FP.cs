@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
@@ -6,26 +8,26 @@ namespace Mathematics.Fixed
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
-		public const int FractionalBits = 16; // Fixed for max performance.
+		public const int FractionalBits = 16;
 		public const int CalculationsEpsilonScaling = 10;
 
-		public long RawValue;
+		public int RawValue;
 
-		private FP(long rawValue)
+		private FP(int rawValue)
 		{
 			RawValue = rawValue;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe FP FromRaw(long rawValue)
+		public static unsafe FP FromRaw(int rawValue)
 		{
 			return *(FP*)(&rawValue);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP FromRatio(long x, long y)
+		public static FP FromRatio(int x, int y)
 		{
-			return FromRaw((x << FractionalBits) / y);
+			return FromRaw((int)((long)x << FractionalBits) / y);
 		}
 
 		/// <summary>
@@ -54,12 +56,12 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, FP y)
 		{
-			x.RawValue = x.RawValue * y.RawValue >> FractionalBits;
+			x.RawValue = (int)(((long)x.RawValue * y.RawValue) >> FractionalBits);
 			return x;
 		}
 
 		/// <summary>
-		/// Performs fast multiplication with checking for overflow.
+		/// Performs fast multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, int scalar)
@@ -69,7 +71,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Performs fast multiplication with checking for overflow.
+		/// Performs fast multiplication without checking for overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(int scalar, FP x)
@@ -79,19 +81,17 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Division by 0 returns min or max value, depending on the sign of the numerator.
-		/// It has some rare minor inaccuracies, and they are tied to absolute precision.<br/>
-		/// Inaccuracies are in range [0, Epsilon * 2000).
+		/// Division by 0 throws.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
-			x.RawValue = (x.RawValue << FractionalBits) / y.RawValue;
+			x.RawValue = (int)(((long)x.RawValue << FractionalBits) / y.RawValue);
 			return x;
 		}
 
 		/// <summary>
-		/// Performs fast division with checking for overflow.
+		/// Performs fast division.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, int scalar)
@@ -101,7 +101,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Performs modulo with checking for overflow.
+		/// Performs modulo.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator %(FP x, FP y)
@@ -111,7 +111,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Negate x with overflow checking.
+		/// Negates value.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
@@ -129,7 +129,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >(FP x, int y)
 		{
-			return x.RawValue > (long)y << FractionalBits;
+			return x.RawValue >> FractionalBits > y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -147,7 +147,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator <(FP x, int y)
 		{
-			return x.RawValue < (long)y << FractionalBits;
+			return x.RawValue >> FractionalBits < y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -165,7 +165,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator >=(FP x, int y)
 		{
-			return x.RawValue >= (long)y << FractionalBits;
+			return x.RawValue >> FractionalBits >= y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -183,7 +183,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator <=(FP x, int y)
 		{
-			return x.RawValue <= (long)y << FractionalBits;
+			return x.RawValue >> FractionalBits <= y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -41,7 +41,7 @@ namespace Mathematics.Fixed
 				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2]
 			}
 
-			var lutIndex = (int)(rawRadians >> SinLutShift);
+			var lutIndex = rawRadians >> SinLutShift;
 
 			var sinValue = SinLut[lutIndex];
 

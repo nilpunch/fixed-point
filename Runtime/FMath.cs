@@ -139,29 +139,15 @@ namespace Mathematics.Fixed
 			}
 			return value;
 		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP ClampUsable(FP value)
-		{
-			if (value.RawValue < FP.UsableMinValueRaw)
-			{
-				return FP.FromRaw(FP.UsableMinValueRaw);
-			}
-			if (value.RawValue > FP.UsableMaxValueRaw)
-			{
-				return FP.FromRaw(FP.UsableMaxValueRaw);
-			}
-			return value;
-		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Lerp(FP start, FP end, FP t)
 		{
 			if (t.RawValue < 0)
 			{
-				t.RawValue = 0L;
+				t.RawValue = 0;
 			}
-			if (t.RawValue > FP.OneRaw)
+			else if (t.RawValue > FP.OneRaw)
 			{
 				t.RawValue = FP.OneRaw;
 			}
@@ -186,9 +172,9 @@ namespace Mathematics.Fixed
 			value.RawValue = (value.RawValue - start.RawValue << FP.FractionalBits) / (end.RawValue - start.RawValue);
 			if (value.RawValue < 0)
 			{
-				value.RawValue = 0L;
+				value.RawValue = 0;
 			}
-			if (value.RawValue > FP.OneRaw)
+			else if (value.RawValue > FP.OneRaw)
 			{
 				value.RawValue = FP.OneRaw;
 			}
@@ -270,7 +256,7 @@ namespace Mathematics.Fixed
 		{
 			if ((value.RawValue & FP.FractionalMask) >= FP.OneRaw)
 			{
-				return (int)((value.RawValue >> FP.FractionalBits) + 1);
+				return (value.RawValue >> FP.FractionalBits) + 1;
 			}
 			return value.ToInt();
 		}
@@ -310,7 +296,7 @@ namespace Mathematics.Fixed
 		{
 			if ((value.RawValue & FP.FractionalMask) >= FP.HalfRaw)
 			{
-				return (int)((value.RawValue >> FP.FractionalBits) + 1);
+				return (value.RawValue >> FP.FractionalBits) + 1;
 			}
 			return value.ToInt();
 		}
@@ -414,15 +400,15 @@ namespace Mathematics.Fixed
 		{
 			if (x.RawValue <= 0)
 			{
-				throw new ArgumentOutOfRangeException("Non-positive value passed to Ln", "x");
+				throw new ArgumentOutOfRangeException(nameof(x), "Non-positive value passed to Ln");
 			}
 
 			// This implementation is based on Clay. S. Turner's fast binary logarithm
 			// algorithm (C. S. Turner,  "A Fast Binary Logarithm Algorithm", IEEE Signal
 			//     Processing Mag., pp. 124,140, Sep. 2010.)
 
-			long b = 1U << (FP.FractionalBits - 1);
-			long y = 0;
+			var b = 1 << (FP.FractionalBits - 1);
+			var y = 0;
 
 			var rawX = x.RawValue;
 			while (rawX < FP.OneRaw)

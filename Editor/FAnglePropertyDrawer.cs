@@ -17,7 +17,7 @@ namespace Mathematics.Fixed.Editor
 
 			EditorGUI.BeginProperty(position, label, valueProperty);
 			{
-				var propertyValue = FP.FromRaw(valueProperty.longValue).ToFloat();
+				var propertyValue = FP.FromRaw(valueProperty.intValue).ToFloat();
 
 				EditorGUI.BeginChangeCheck();
 				var newValue = EditorGUI.FloatField(position, new GUIContent(property.displayName), propertyValue);

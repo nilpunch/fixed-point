@@ -6,13 +6,13 @@ namespace Mathematics.Fixed
 	public static partial class FMath
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long SafeNeg(long x)
+		public static int SafeNeg(int x)
 		{
 			return x == FP.MinValueRaw ? FP.MaxValueRaw : -x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long CopySign(long to, long from)
+		public static int CopySign(int to, int from)
 		{
 			var signTo = to >> FP.AllBitsWithoutSign;
 			var absTo = (to + signTo) ^ signTo;
@@ -21,28 +21,31 @@ namespace Mathematics.Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Floor(long value)
+		public static int Floor(int value)
 		{
 			return value & FP.IntegerSignMask;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Abs(long value)
+		public static int Abs(int value)
 		{
 			var mask = value >> FP.AllBitsWithoutSign;
 			return (value + mask) ^ mask;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Sqrt(long x)
+		public static int Sqrt(int x)
 		{
+			var sqrtLut = SqrtLutRaw;
+			var logTable256 = LogTable256;
+			
 			if (x <= FP.OneRaw)
 			{
 				if (x < 0)
 				{
 					throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
 				}
-				return SqrtLutRaw[(int)(x >> SqrtLutShift01)];
+				return sqrtLut[x >> SqrtLutShift01];
 			}
 
 			// Math behind the algorithm:
@@ -54,16 +57,39 @@ namespace Mathematics.Fixed
 
 			// Approximate upper bound of log2(x) using bit length. Essentially ceil(log2(x)).
 			// We just want proper scaling to the LUT range, not a precise log2(x).
-			var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
+			var log2 = FP.IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (uint)x);
 
 			// Ensure n is even so that no fraction is lost when dividing n by 2.
 			var n = log2 + (log2 & 1);
 			var halfN = n >> 1;
 
 			var m = x >> n;
-			var sqrtM = SqrtLutRaw[(int)(m >> SqrtLutShift01)];
+			var sqrtM = sqrtLut[m >> SqrtLutShift01];
 
 			return sqrtM << halfN;
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			static int InlinedLeadingZeroCount(byte[] logTable256, uint x)
+			{
+				uint t;
+
+				if ((t = x >> 24) > 0)
+				{
+					return 7 - logTable256[t];
+				}
+				else if ((t = x >> 16) > 0)
+				{
+					return 15 - logTable256[t];
+				}
+				else if ((t = x >> 8) > 0)
+				{
+					return 23 - logTable256[t];
+				}
+				else
+				{
+					return 31 - logTable256[x];
+				}
+			}
 		}
 
 		/// <summary>
@@ -76,7 +102,7 @@ namespace Mathematics.Fixed
 		/// Thrown if the input is negative.
 		/// </exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long SqrtPrecise(long x)
+		public static int SqrtPrecise(int x)
 		{
 			if (x < 0)
 			{
@@ -110,33 +136,8 @@ namespace Mathematics.Fixed
 			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
 			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
 
-#pragma warning disable CS0162 // Unreachable code detected
-			if (FP.FractionalBits < FP.AllBits / 2) // Faster case for FP.FractionalBits <= 31.
-			{
-				value <<= FP.FractionalBits;
-				result <<= FP.FractionalBits;
-			}
-			else
-			{
-				LeftShift128(out var valueHigh, ref value, FP.FractionalBits);
-				LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
-
-				var t = result + bit;
-
-				// Exit early if we can continue with a standart 64-bit version.
-				while (bit != 0 && (valueHigh != 0 || resultHigh != 0 || t < result))
-				{
-					AddToNew128(out var tHigh, out t, ref resultHigh, ref result, bit);
-					RightShift128(ref resultHigh, ref result, 1);
-					if (valueHigh > tHigh || (valueHigh == tHigh && value >= t))
-					{
-						Sub128(ref valueHigh, ref value, ref tHigh, ref t);
-						Add128(ref resultHigh, ref result, bit);
-					}
-					bit >>= 2;
-				}
-			}
-#pragma warning restore CS0162 // Unreachable code detected
+			value <<= FP.FractionalBits;
+			result <<= FP.FractionalBits;
 
 			while (bit != 0)
 			{
@@ -156,53 +157,29 @@ namespace Mathematics.Fixed
 				result++;
 			}
 
-			return (long)result;
+			return (int)result;
+		}
 
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			void LeftShift128(out ulong high, ref ulong low, int shift)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int LeadingZeroCount(uint x)
+		{
+			uint t;
+
+			if ((t = x >> 24) > 0)
 			{
-				high = low >> (FP.AllBits - shift);
-				low <<= shift;
+				return 7 - LogTable256[t];
 			}
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			void RightShift128(ref ulong high, ref ulong low, int shift)
+			else if ((t = x >> 16) > 0)
 			{
-				low = (high << (FP.AllBits - shift)) | (low >> shift);
-				high >>= shift;
+				return 15 - LogTable256[t];
 			}
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			void Add128(ref ulong highA, ref ulong lowA, ulong b)
+			else if ((t = x >> 8) > 0)
 			{
-				var sum = lowA + b;
-				if (sum < lowA)
-				{
-					++highA;
-				}
-				lowA = sum;
+				return 23 - LogTable256[t];
 			}
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			void AddToNew128(out ulong highC, out ulong lowC, ref ulong highA, ref ulong lowA, ulong b)
+			else
 			{
-				lowC = lowA + b;
-				highC = highA;
-				if (lowC < lowA)
-				{
-					++highC;
-				}
-			}
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			void Sub128(ref ulong highA, ref ulong lowA, ref ulong highB, ref ulong lowB)
-			{
-				if (lowA < lowB)
-				{
-					--highA;
-				}
-				lowA -= lowB;
-				highA -= highB;
+				return 31 - LogTable256[x];
 			}
 		}
 	}
