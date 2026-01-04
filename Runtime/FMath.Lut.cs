@@ -18,17 +18,37 @@
 		public const int SqrtLutShift01 = FP.FractionalBits - SqrtPrecision01;
 		private const int SqrtLutSize01 = (int)(FP.OneRaw >> SqrtLutShift01); // [0, 1)
 
-		public readonly static FP[] SinLut;
-		public readonly static FP[] TanLut;
-		public readonly static FP[] AsinLut;
-		public readonly static long[] SqrtLutRaw;
+		public static readonly byte[] LogTable256;
+		public static readonly FP[] SinLut;
+		public static readonly FP[] TanLut;
+		public static readonly FP[] AsinLut;
+		public static readonly long[] SqrtLutRaw;
 
 		static FMath()
 		{
+			LogTable256 = GenerateLZCLut();
 			SinLut = GenerateSinLut();
 			TanLut = GenerateTanLut();
 			AsinLut = GenerateAsinLut();
 			SqrtLutRaw = GenerateSqrtLut();
+		}
+
+		private static byte[] GenerateLZCLut()
+		{
+			var lut = new byte[256];
+			lut[0] = lut[1] = 0;
+
+			for (var i = 2; i < 256; i++)
+			{
+				lut[i] = (byte)(1 + lut[i / 2]);
+			}
+
+			for (var i = 1; i < 256; i++)
+			{
+				lut[i]++;
+			}
+
+			return lut;
 		}
 
 		private static FP[] GenerateSinLut()

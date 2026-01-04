@@ -36,13 +36,16 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Sqrt(long x)
 		{
+			var sqrtLut = SqrtLutRaw;
+			var logTable256 = LogTable256;
+
 			if (x <= FP.OneRaw)
 			{
 				if (x < 0)
 				{
 					throw new ArgumentOutOfRangeException(nameof(x), "Negative value passed to Sqrt.");
 				}
-				return SqrtLutRaw[(int)(x >> SqrtLutShift01)];
+				return sqrtLut[(int)(x >> SqrtLutShift01)];
 			}
 
 			// Math behind the algorithm:
@@ -54,16 +57,47 @@ namespace Mathematics.Fixed
 
 			// Approximate upper bound of log2(x) using bit length. Essentially ceil(log2(x)).
 			// We just want proper scaling to the LUT range, not a precise log2(x).
-			var log2 = FP.IntegerBitsWithSign - FP.LeadingZeroCount((ulong)x);
+			var log2 = FP.IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (ulong)x);
 
 			// Ensure n is even so that no fraction is lost when dividing n by 2.
 			var n = log2 + (log2 & 1);
 			var halfN = n >> 1;
 
 			var m = x >> n;
-			var sqrtM = SqrtLutRaw[(int)(m >> SqrtLutShift01)];
+			var sqrtM = sqrtLut[(int)(m >> SqrtLutShift01)];
 
 			return sqrtM << halfN;
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			static int InlinedLeadingZeroCount(byte[] logTable256, ulong x)
+			{
+				const ulong MSB32 = 1UL << 32;
+
+				var baseLog = 0;
+				ulong t;
+				if (x >= MSB32)
+				{
+					baseLog = 32;
+					x >>= 32;
+				}
+
+				if ((t = x >> 24) > 0)
+				{
+					return 40 - (baseLog + logTable256[(int)t]);
+				}
+				else if ((t = x >> 16) > 0)
+				{
+					return 48 - (baseLog + logTable256[(int)t]);
+				}
+				else if ((t = x >> 8) > 0)
+				{
+					return 56 - (baseLog + logTable256[(int)t]);
+				}
+				else
+				{
+					return 64 - (baseLog + logTable256[(int)x]);
+				}
+			}
 		}
 
 		/// <summary>
@@ -203,6 +237,37 @@ namespace Mathematics.Fixed
 				}
 				lowA -= lowB;
 				highA -= highB;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int LeadingZeroCount(ulong x)
+		{
+			const ulong MSB32 = 1UL << 32;
+
+			var baseLog = 0;
+			ulong t;
+			if (x >= MSB32)
+			{
+				baseLog = 32;
+				x >>= 32;
+			}
+
+			if ((t = x >> 24) > 0)
+			{
+				return 40 - (baseLog + LogTable256[(int)t]);
+			}
+			else if ((t = x >> 16) > 0)
+			{
+				return 48 - (baseLog + LogTable256[(int)t]);
+			}
+			else if ((t = x >> 8) > 0)
+			{
+				return 56 - (baseLog + LogTable256[(int)t]);
+			}
+			else
+			{
+				return 64 - (baseLog + LogTable256[(int)x]);
 			}
 		}
 	}

@@ -57,7 +57,26 @@ namespace Mathematics.Fixed
 
 			var sign = maskX ^ maskY;
 
-			Mul64To128(absX, absY, out ulong hi, out ulong lo);
+			// Mul64To128
+			var op1 = absX;
+			var op2 = absY;
+			var u1 = op1 & 0xFFFFFFFF;
+			var v1 = op2 & 0xFFFFFFFF;
+			var t = u1 * v1;
+			var w3 = t & 0xFFFFFFFF;
+			var k = t >> 32;
+
+			op1 >>= 32;
+			t = op1 * v1 + k;
+			k = t & 0xFFFFFFFF;
+			var w1 = t >> 32;
+
+			op2 >>= 32;
+			t = u1 * op2 + k;
+			k = t >> 32;
+
+			var hi = op1 * op2 + w1 + k;
+			var lo = (t << 32) | w3;
 
 			var shiftedHi = hi >> FractionalBits;
 			var shiftedLo = hi << (AllBits - FractionalBits) | lo >> FractionalBits;
@@ -117,7 +136,7 @@ namespace Mathematics.Fixed
 			var absY = (ulong)((y + maskY) ^ maskY);
 			var sign = maskX ^ maskY;
 
-			var xLzc = LeadingZeroCount(absX);
+			var xLzc = FMath.LeadingZeroCount(absX);
 			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
 			var yShift = FractionalBits - xShift;
 
@@ -152,7 +171,7 @@ namespace Mathematics.Fixed
 			var absY = (ulong)((y + maskY) ^ maskY);
 			var sign = maskX ^ maskY;
 
-			var xLzc = LeadingZeroCount(absX);
+			var xLzc = FMath.LeadingZeroCount(absX);
 			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
 			var yShift = FractionalBits - xShift;
 
@@ -201,39 +220,6 @@ namespace Mathematics.Fixed
 
 			hi = op1 * op2 + w1 + k;
 			lo = (t << 32) | w3;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int LeadingZeroCount(ulong x)
-		{
-			var hi = (uint)(x >> 32);
-
-			if (hi == 0)
-			{
-				return 32 + LeadingZeroCount((uint)x);
-			}
-			else
-			{
-				return LeadingZeroCount(hi);
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int LeadingZeroCount(uint x)
-		{
-			x |= x >> 1;
-			x |= x >> 2;
-			x |= x >> 4;
-			x |= x >> 8;
-			x |= x >> 16;
-
-			x -= x >> 1 & 0x55555555;
-			x = (x >> 2 & 0x33333333) + (x & 0x33333333);
-			x = (x >> 4) + x & 0x0f0f0f0f;
-			x += x >> 8;
-			x += x >> 16;
-
-			return 32 - (int)(x & 0x3F);
 		}
 	}
 }

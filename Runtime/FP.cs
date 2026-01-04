@@ -27,7 +27,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Adds x and y without performing overflow checking.
+		/// Adds x and y with performing overflow checking.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
@@ -37,7 +37,7 @@ namespace Mathematics.Fixed
 		}
 
 		/// <summary>
-		/// Subtracts y from x without performing overflow checking.
+		/// Subtracts y from x with performing overflow checking.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x, FP y)

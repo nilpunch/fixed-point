@@ -74,27 +74,27 @@ namespace Mathematics.Fixed
 
 		/// <summary>
 		/// Returns the absolute value of a Fix64 number.
-		/// FastAbs(Fix64.MinValue) is undefined.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP Abs(FP value)
-		{
-			var mask = value.RawValue >> FP.AllBitsWithoutSign;
-			return FP.FromRaw((value.RawValue + mask) ^ mask);
-		}
-
-		/// <summary>
-		/// Returns the absolute value of a Fix64 number.
 		/// Note: Abs(Fix64.MinValue) == Fix64.MaxValue.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP SafeAbs(FP value)
+		public static FP Abs(FP value)
 		{
 			if (value.RawValue == FP.MinValueRaw)
 			{
 				return FP.MaxValue;
 			}
 
+			var mask = value.RawValue >> FP.AllBitsWithoutSign;
+			return FP.FromRaw((value.RawValue + mask) ^ mask);
+		}
+
+		/// <summary>
+		/// Returns the absolute value of a Fix64 number.
+		/// FastAbs(Fix64.MinValue) is undefined.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP FastAbs(FP value)
+		{
 			var mask = value.RawValue >> FP.AllBitsWithoutSign;
 			return FP.FromRaw((value.RawValue + mask) ^ mask);
 		}
@@ -172,7 +172,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP MoveTowards(FP current, FP target, FP maxDelta)
 		{
-			return Abs(target - current) <= maxDelta ? target : current + SignInt(target - current) * maxDelta;
+			return FastAbs(target - current) <= maxDelta ? target : current + SignInt(target - current) * maxDelta;
 		}
 
 		/// <summary>
@@ -190,7 +190,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FP x, FP y, FP epsilon)
 		{
-			var difference = Abs(x - y);
+			var difference = FastAbs(x - y);
 			return difference <= epsilon;
 		}
 
