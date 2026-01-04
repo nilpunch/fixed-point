@@ -143,11 +143,11 @@ namespace Mathematics.Fixed
 			{
 				if (y >= 0)
 				{
-					y = Atan(tan) + FP.HalfPiRaw;
+					y = Atan(tan) + FP.PiRaw;
 				}
 				else
 				{
-					y = Atan(tan) - FP.HalfPiRaw;
+					y = Atan(tan) - FP.PiRaw;
 				}
 				return y;
 			}
