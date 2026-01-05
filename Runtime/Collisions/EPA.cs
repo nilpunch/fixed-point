@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mathematics.Fixed
 {
@@ -105,8 +106,10 @@ namespace Mathematics.Fixed
 			}
 		}
 
-		public static Collision Calculate<T>(Simplex simplex, T shapeA,
-			T shapeB, int maxIterations = 100) where T : ISupportMappable
+		public static Collision Calculate<TA, TB>(Simplex simplex, TA shapeA,
+			TB shapeB, int maxIterations = 100)
+			where TA : ISupportMappable
+			where TB : ISupportMappable
 		{
 			Faces.Clear();
 			Vertices.Clear();
@@ -123,8 +126,8 @@ namespace Mathematics.Fixed
 
 			ClosestFace closestFace = default;
 
-			var iteration = 1;
-			for (var i = 0; i < maxIterations; i++)
+			int iteration;
+			for (iteration = 0; iteration < maxIterations; iteration++)
 			{
 				closestFace = FindClosestFace(Faces);
 
@@ -208,6 +211,7 @@ namespace Mathematics.Fixed
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static ClosestFace FindClosestFace(List<PolytopeFace> faces)
 		{
 			var closest = new ClosestFace(FP.MaxValue, default);
@@ -227,6 +231,7 @@ namespace Mathematics.Fixed
 			return closest;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static FVector3 CalculateFaceNormal(FVector3 a, FVector3 b, FVector3 c)
 		{
 			var ab = b - a;
@@ -234,6 +239,7 @@ namespace Mathematics.Fixed
 			return FVector3.Normalize(FVector3.Cross(ab, ac));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void RemoveIfExistsOrAdd(List<PolytopeEdge> edges, PolytopeEdge edge)
 		{
 			var edgeIndex = -1;
@@ -242,7 +248,7 @@ namespace Mathematics.Fixed
 			{
 				var pair = edges[index];
 
-				if (pair.A.Equals(edge.B) && pair.B.Equals(edge.A))
+				if (pair.A == edge.B && pair.B == edge.A)
 				{
 					edgeIndex = index;
 					break;

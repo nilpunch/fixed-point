@@ -16,7 +16,10 @@ namespace Mathematics.Fixed
 			Difference = difference;
 		}
 
-		public static MinkowskiDifference Calculate<T>(T shapeA, T shapeB, FVector3 direction) where T : ISupportMappable
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static MinkowskiDifference Calculate<TA, TB>(TA shapeA, TB shapeB, FVector3 direction)
+			where TA : ISupportMappable
+			where TB : ISupportMappable
 		{
 			var supportA = shapeA.SupportPoint(direction);
 			var supportB = shapeB.SupportPoint(-direction);

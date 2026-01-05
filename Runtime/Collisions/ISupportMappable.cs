@@ -2,7 +2,7 @@ namespace Mathematics.Fixed
 {
 	public interface ISupportMappable
 	{
-		FVector3 Centre { get; }
+		FVector3 Center { get; }
 
 		/// <summary>
 		/// Returns furthest point of object in some direction.

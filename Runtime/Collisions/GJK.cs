@@ -36,11 +36,13 @@ namespace Mathematics.Fixed
 			}
 		}
 
-		public static Result Calculate<T>(T shapeA, T shapeB, int maxIterations = 100) where T : ISupportMappable
+		public static Result Calculate<TA, TB>(TA shapeA, TB shapeB, int maxIterations = 100)
+			where TA : ISupportMappable
+			where TB : ISupportMappable
 		{
 			var simplex = new Simplex();
 
-			var direction = NormalizeSafe(shapeB.Centre - shapeA.Centre, FVector3.Up);
+			var direction = NormalizeSafe(shapeB.Center - shapeA.Center, FVector3.Up);
 
 			var colliding = false;
 			var iterations = 1;
@@ -79,6 +81,7 @@ namespace Mathematics.Fixed
 			return new Result(colliding, simplex, iterations, direction);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static FVector3 NormalizeSafe(FVector3 vector, FVector3 defaultValue)
 		{
 			var result = FVector3.Normalize(vector);
@@ -97,14 +100,16 @@ namespace Mathematics.Fixed
 			return FVector3.Cross(FVector3.Cross(a, b), c);
 		}
 
-		private static (bool EncloseOrigin, FVector3 NextDirection) TryEncloseOrigin<T>(ref Simplex simplex,
-			T shapeA, T shapeB, FVector3 direction) where T : ISupportMappable
+		private static (bool EncloseOrigin, FVector3 NextDirection) TryEncloseOrigin<TA, TB>(ref Simplex simplex,
+			TA shapeA, TB shapeB, FVector3 direction)
+			where TA : ISupportMappable
+			where TB : ISupportMappable
 		{
 			switch (simplex.Stage)
 			{
 				case 0:
 				{
-					direction = NormalizeSafe(shapeB.Centre - shapeA.Centre, FVector3.Up);
+					direction = NormalizeSafe(shapeB.Center - shapeA.Center, FVector3.Up);
 					break;
 				}
 				case 1:
