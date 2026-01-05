@@ -71,7 +71,7 @@ namespace Mathematics.Fixed
 					if (a.UpperBound.Z >= b.LowerBound.Z && b.UpperBound.Z >= a.LowerBound.Z
 						&& a.UpperBound.Y >= b.LowerBound.Y && b.UpperBound.Y >= a.LowerBound.Y)
 					{
-						result.Add(new BoradPhasePair(i, j));
+						result.Add(new BoradPhasePair(aIndex, bIndex));
 					}
 				}
 			}
