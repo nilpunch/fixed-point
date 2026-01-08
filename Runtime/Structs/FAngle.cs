@@ -123,7 +123,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Abs(FAngle angle)
 		{
-			return new FAngle(FMath.FastAbs(angle.Radians));
+			return new FAngle(FMath.Abs(angle.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

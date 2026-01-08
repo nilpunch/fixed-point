@@ -146,7 +146,9 @@ namespace Mathematics.Fixed
 					// Ensure it points toward the origin
 					var a0 = -simplex.A.Difference;
 					if (FVector3.Dot(direction, a0) < FP.Zero)
+					{
 						direction = -direction;
+					}
 					break;
 				}
 				case 4:

@@ -267,7 +267,7 @@ namespace Mathematics.Fixed
 			}
 
 			// If a = b or a = b then theta = 0 then we can return interpolation between a and b.
-			if (FMath.FastAbs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
+			if (FMath.Abs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
 			{
 				return Nlerp(a, b, t, longPath);
 			}
@@ -437,7 +437,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FQuaternion a, FQuaternion b, FP epsilon)
 		{
-			return FMath.FastAbs(Dot(a, b)) > FP.One - epsilon;
+			return FMath.Abs(Dot(a, b)) > FP.One - epsilon;
 		}
 
 		/// <summary>
@@ -482,7 +482,7 @@ namespace Mathematics.Fixed
 		public static FQuaternion EnsureNormalization(FQuaternion a)
 		{
 			var lengthSqr = LengthSqr(a);
-			if (FMath.FastAbs(FP.One - lengthSqr) > FP.CalculationsEpsilonSqr)
+			if (FMath.Abs(FP.One - lengthSqr) > FP.CalculationsEpsilonSqr)
 			{
 				return a / FMath.Sqrt(lengthSqr);
 			}

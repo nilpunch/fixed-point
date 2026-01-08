@@ -26,11 +26,16 @@ namespace Mathematics.Fixed
 			return value & FP.IntegerSignMask;
 		}
 
+		/// <summary>
+		/// Returns the absolute value of a Fix64 number.
+		/// Note: Abs(Fix64.MinValue) == Fix64.MaxValue.
+		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Abs(long value)
 		{
 			var mask = value >> FP.AllBitsWithoutSign;
-			return (value + mask) ^ mask;
+			var t = (value ^ mask) - mask;
+			return t + (t >> FP.AllBitsWithoutSign);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

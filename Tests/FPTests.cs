@@ -8,6 +8,98 @@ namespace Mathematics.Fixed
 	[TestFixture]
 	public class FPTests
 	{
+		[TestCase(0UL, ExpectedResult = 63 + 1)]
+		[TestCase(1UL << 0, ExpectedResult = 63 - 0)]
+		[TestCase(1UL << 1, ExpectedResult = 63 - 1)]
+		[TestCase(1UL << 2, ExpectedResult = 63 - 2)]
+		[TestCase(1UL << 3, ExpectedResult = 63 - 3)]
+		[TestCase(1UL << 4, ExpectedResult = 63 - 4)]
+		[TestCase(1UL << 5, ExpectedResult = 63 - 5)]
+		[TestCase(1UL << 6, ExpectedResult = 63 - 6)]
+		[TestCase(1UL << 7, ExpectedResult = 63 - 7)]
+		[TestCase(1UL << 8, ExpectedResult = 63 - 8)]
+		[TestCase(1UL << 9, ExpectedResult = 63 - 9)]
+		[TestCase(1UL << 10, ExpectedResult = 63 - 10)]
+		[TestCase(1UL << 11, ExpectedResult = 63 - 11)]
+		[TestCase(1UL << 12, ExpectedResult = 63 - 12)]
+		[TestCase(1UL << 13, ExpectedResult = 63 - 13)]
+		[TestCase(1UL << 14, ExpectedResult = 63 - 14)]
+		[TestCase(1UL << 15, ExpectedResult = 63 - 15)]
+		[TestCase(1UL << 16, ExpectedResult = 63 - 16)]
+		[TestCase(1UL << 17, ExpectedResult = 63 - 17)]
+		[TestCase(1UL << 18, ExpectedResult = 63 - 18)]
+		[TestCase(1UL << 19, ExpectedResult = 63 - 19)]
+		[TestCase(1UL << 20, ExpectedResult = 63 - 20)]
+		[TestCase(1UL << 21, ExpectedResult = 63 - 21)]
+		[TestCase(1UL << 22, ExpectedResult = 63 - 22)]
+		[TestCase(1UL << 23, ExpectedResult = 63 - 23)]
+		[TestCase(1UL << 24, ExpectedResult = 63 - 24)]
+		[TestCase(1UL << 25, ExpectedResult = 63 - 25)]
+		[TestCase(1UL << 26, ExpectedResult = 63 - 26)]
+		[TestCase(1UL << 27, ExpectedResult = 63 - 27)]
+		[TestCase(1UL << 28, ExpectedResult = 63 - 28)]
+		[TestCase(1UL << 29, ExpectedResult = 63 - 29)]
+		[TestCase(1UL << 30, ExpectedResult = 63 - 30)]
+		[TestCase(1UL << 31, ExpectedResult = 63 - 31)]
+		[TestCase(1UL << 32, ExpectedResult = 63 - 32)]
+		[TestCase(1UL << 33, ExpectedResult = 63 - 33)]
+		[TestCase(1UL << 34, ExpectedResult = 63 - 34)]
+		[TestCase(1UL << 35, ExpectedResult = 63 - 35)]
+		[TestCase(1UL << 36, ExpectedResult = 63 - 36)]
+		[TestCase(1UL << 37, ExpectedResult = 63 - 37)]
+		[TestCase(1UL << 38, ExpectedResult = 63 - 38)]
+		[TestCase(1UL << 39, ExpectedResult = 63 - 39)]
+		[TestCase(1UL << 40, ExpectedResult = 63 - 40)]
+		[TestCase(1UL << 41, ExpectedResult = 63 - 41)]
+		[TestCase(1UL << 42, ExpectedResult = 63 - 42)]
+		[TestCase(1UL << 43, ExpectedResult = 63 - 43)]
+		[TestCase(1UL << 44, ExpectedResult = 63 - 44)]
+		[TestCase(1UL << 45, ExpectedResult = 63 - 45)]
+		[TestCase(1UL << 46, ExpectedResult = 63 - 46)]
+		[TestCase(1UL << 47, ExpectedResult = 63 - 47)]
+		[TestCase(1UL << 48, ExpectedResult = 63 - 48)]
+		[TestCase(1UL << 49, ExpectedResult = 63 - 49)]
+		[TestCase(1UL << 50, ExpectedResult = 63 - 50)]
+		[TestCase(1UL << 51, ExpectedResult = 63 - 51)]
+		[TestCase(1UL << 52, ExpectedResult = 63 - 52)]
+		[TestCase(1UL << 53, ExpectedResult = 63 - 53)]
+		[TestCase(1UL << 54, ExpectedResult = 63 - 54)]
+		[TestCase(1UL << 55, ExpectedResult = 63 - 55)]
+		[TestCase(1UL << 56, ExpectedResult = 63 - 56)]
+		[TestCase(1UL << 57, ExpectedResult = 63 - 57)]
+		[TestCase(1UL << 58, ExpectedResult = 63 - 58)]
+		[TestCase(1UL << 59, ExpectedResult = 63 - 59)]
+		[TestCase(1UL << 60, ExpectedResult = 63 - 60)]
+		[TestCase(1UL << 61, ExpectedResult = 63 - 61)]
+		[TestCase(1UL << 62, ExpectedResult = 63 - 62)]
+		[TestCase(1UL << 63, ExpectedResult = 63 - 63)]
+		public int LZC(ulong rawValue)
+		{
+			// Act
+			var result = FMath.LeadingZeroCount(rawValue);
+
+			// Assert
+			return result;
+		}
+		
+		[TestCase(FP.OneRaw, ExpectedResult = FP.OneRaw)]
+		[TestCase(-FP.OneRaw, ExpectedResult = FP.OneRaw)]
+		[TestCase(FP.EpsilonRaw, ExpectedResult = FP.EpsilonRaw)]
+		[TestCase(-FP.EpsilonRaw, ExpectedResult = FP.EpsilonRaw)]
+		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MaxValueRaw)]
+		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
+		public long Abs(long rawValue)
+		{
+			// Arrange
+			var fp = FP.FromRaw(rawValue);
+
+			// Act
+			var result = FMath.Abs(fp);
+
+			// Assert
+			return result.RawValue;
+		}
+		
 		[TestCase(FP.HalfRaw, ExpectedResult = 0)] // Round to even
 		[TestCase(FP.HalfRaw - FP.EpsilonRaw, ExpectedResult = 0)]
 		[TestCase(FP.HalfRaw + FP.EpsilonRaw, ExpectedResult = 1)]

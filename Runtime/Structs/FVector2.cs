@@ -376,7 +376,7 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 AbsComponents(FVector2 a)
 		{
-			return new FVector2(FMath.FastAbs(a.X), FMath.FastAbs(a.Y));
+			return new FVector2(FMath.Abs(a.X), FMath.Abs(a.Y));
 		}
 
 		/// <summary>

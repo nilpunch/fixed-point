@@ -132,37 +132,51 @@ namespace Mathematics.Fixed
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Atan2(long y, long x)
 		{
-			var tan = FP.Div(y, x);
-
-			if (x > 0)
+			if (x == 0)
 			{
-				return Atan(tan);
-			}
-
-			if (x < 0)
-			{
-				if (y >= 0)
+				if (y > 0)
 				{
-					y = Atan(tan) + FP.PiRaw;
+					return FP.HalfPiRaw;
 				}
-				else
+
+				if (y < 0)
 				{
-					y = Atan(tan) - FP.PiRaw;
+					return -FP.HalfPiRaw;
 				}
-				return y;
-			}
 
-			if (y > 0)
-			{
-				return FP.HalfPiRaw;
-			}
-
-			if (y == 0)
-			{
 				return 0;
 			}
 
-			return -FP.HalfPiRaw;
+			var absY = FMath.Abs(y);
+			var absX = FMath.Abs(x);
+
+			if (absY <= absX)
+			{
+				var angle = Atan(FP.Div(y, x));
+
+				if (x > 0)
+				{
+					return angle;
+				}
+
+				if (y >= 0)
+				{
+					return angle + FP.PiRaw;
+				}
+
+				return angle - FP.PiRaw;
+			}
+			else
+			{
+				var angle = FP.HalfPiRaw - Atan(FP.Div(x, y));
+
+				if (y > 0)
+				{
+					return angle;
+				}
+
+				return angle - FP.PiRaw;
+			}
 		}
 
 		/// <summary>
