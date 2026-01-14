@@ -3,7 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mathematics.Fixed
+namespace Fixed64
 {
 	[TestFixture]
 	public class FPTests

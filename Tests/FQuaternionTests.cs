@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Mathematics.Fixed
+namespace Fixed64
 {
 	[TestFixture]
 	public class FQuaternionTests
