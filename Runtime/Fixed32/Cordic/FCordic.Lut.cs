@@ -1,5 +1,6 @@
 // ReSharper disable all ShiftExpressionResultEqualsZero
 
+using System;
 using Unity.IL2CPP.CompilerServices;
 
 namespace Fixed32
@@ -7,7 +8,7 @@ namespace Fixed32
 	public static partial class FCordic
 	{
 		/// <summary>
-		/// 32 iterations of Math.Atan(2^-i) where i = 0 .. 30.
+		/// Lookup for Math.Atan(2^-i) where i = [0, 30].
 		/// </summary>
 		public static readonly int[] RawAtans =
 		{
@@ -43,5 +44,40 @@ namespace Fixed32
 			2 >> (30 - FP.FractionalBits),
 			1 >> (30 - FP.FractionalBits),
 		};
+
+		/// <summary>
+		/// Non-deterministic across boundaries. Must be baked in code.<br/>
+		/// Lookup for Math.Atan(2^-i) where i = [0, 30].
+		/// </summary>
+		public static int[] GenerateRawAtansLookup()
+		{
+			var result = new int[31];
+
+			for (var i = 0; i <= 30; i++)
+			{
+				var atan = Math.Atan(1.0 / Math.Pow(2, i));
+				var raw = (int)(atan * (1 << 30));
+				result[i] = raw;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Non-deterministic across boundaries. Must be baked in code.<br/>
+		/// CORDIC cosine constant.
+		/// </summary>
+		public static int CalculateRawGain()
+		{
+			var cos = 1.0;
+
+			for (var i = 0; i < 32; i++)
+			{
+				var result = Math.Atan(1.0 / Math.Pow(2, i));
+				cos *= Math.Cos(result);
+			}
+
+			return (int)(cos * (1 << 30));
+		}
 	}
 }

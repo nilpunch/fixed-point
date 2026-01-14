@@ -34,7 +34,7 @@ namespace Fixed64.Editor
 					yProperty.longValue = newValue.y.ToFP().RawValue;
 					zProperty.longValue = newValue.z.ToFP().RawValue;
 				}
-				
+
 				EditorGUIUtility.wideMode = wideMode;
 			}
 			EditorGUI.EndProperty();

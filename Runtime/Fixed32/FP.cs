@@ -29,49 +29,84 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP FromRatio(int x, int y)
 		{
-			return FromRaw((int)(((long)x << FractionalBits) / y));
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				return FromRaw((int)(((long)x << FractionalBits) / y));
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
 		{
-			x.RawValue += y.RawValue;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue += y.RawValue;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x, FP y)
 		{
-			x.RawValue -= y.RawValue;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue -= y.RawValue;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, FP y)
 		{
-			x.RawValue = (int)(((long)x.RawValue * y.RawValue) >> FractionalBits);
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue = (int)(((long)x.RawValue * y.RawValue) >> FractionalBits);
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(FP x, int scalar)
 		{
-			x.RawValue *= scalar;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue *= scalar;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator *(int scalar, FP x)
 		{
-			x.RawValue *= scalar;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue *= scalar;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator /(FP x, FP y)
 		{
-			x.RawValue = (int)(((long)x.RawValue << FractionalBits) / y.RawValue);
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue = (int)(((long)x.RawValue << FractionalBits) / y.RawValue);
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,15 +119,25 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator %(FP x, FP y)
 		{
-			x.RawValue %= y.RawValue;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue %= y.RawValue;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator -(FP x)
 		{
-			x.RawValue = -x.RawValue;
-			return x;
+#if CHECK_OVERFLOW
+			checked
+#endif
+			{
+				x.RawValue = -x.RawValue;
+				return x;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

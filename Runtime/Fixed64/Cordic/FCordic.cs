@@ -12,7 +12,10 @@ namespace Fixed64
 	{
 		public const int Precision = FP.FractionalBits;
 
-		// CORDIC cosine constant 0.60725...
+		/// <summary>
+		/// CORDIC cosine constant 0.60725...<br/>
+		/// Calculated using <see cref="FCordic.CalculateRawGain"/>.
+		/// </summary>
 		public const long InvGainBase63 = 5600919740058907648;
 		public const long InvGain = InvGainBase63 >> (63 - FP.FractionalBits);
 

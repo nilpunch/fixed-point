@@ -3,77 +3,45 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Fixed64
+namespace Fixed32
 {
 	[TestFixture]
 	public class FPTests
 	{
-		[TestCase(0UL, ExpectedResult = 63 + 1)]
-		[TestCase(1UL << 0, ExpectedResult = 63 - 0)]
-		[TestCase(1UL << 1, ExpectedResult = 63 - 1)]
-		[TestCase(1UL << 2, ExpectedResult = 63 - 2)]
-		[TestCase(1UL << 3, ExpectedResult = 63 - 3)]
-		[TestCase(1UL << 4, ExpectedResult = 63 - 4)]
-		[TestCase(1UL << 5, ExpectedResult = 63 - 5)]
-		[TestCase(1UL << 6, ExpectedResult = 63 - 6)]
-		[TestCase(1UL << 7, ExpectedResult = 63 - 7)]
-		[TestCase(1UL << 8, ExpectedResult = 63 - 8)]
-		[TestCase(1UL << 9, ExpectedResult = 63 - 9)]
-		[TestCase(1UL << 10, ExpectedResult = 63 - 10)]
-		[TestCase(1UL << 11, ExpectedResult = 63 - 11)]
-		[TestCase(1UL << 12, ExpectedResult = 63 - 12)]
-		[TestCase(1UL << 13, ExpectedResult = 63 - 13)]
-		[TestCase(1UL << 14, ExpectedResult = 63 - 14)]
-		[TestCase(1UL << 15, ExpectedResult = 63 - 15)]
-		[TestCase(1UL << 16, ExpectedResult = 63 - 16)]
-		[TestCase(1UL << 17, ExpectedResult = 63 - 17)]
-		[TestCase(1UL << 18, ExpectedResult = 63 - 18)]
-		[TestCase(1UL << 19, ExpectedResult = 63 - 19)]
-		[TestCase(1UL << 20, ExpectedResult = 63 - 20)]
-		[TestCase(1UL << 21, ExpectedResult = 63 - 21)]
-		[TestCase(1UL << 22, ExpectedResult = 63 - 22)]
-		[TestCase(1UL << 23, ExpectedResult = 63 - 23)]
-		[TestCase(1UL << 24, ExpectedResult = 63 - 24)]
-		[TestCase(1UL << 25, ExpectedResult = 63 - 25)]
-		[TestCase(1UL << 26, ExpectedResult = 63 - 26)]
-		[TestCase(1UL << 27, ExpectedResult = 63 - 27)]
-		[TestCase(1UL << 28, ExpectedResult = 63 - 28)]
-		[TestCase(1UL << 29, ExpectedResult = 63 - 29)]
-		[TestCase(1UL << 30, ExpectedResult = 63 - 30)]
-		[TestCase(1UL << 31, ExpectedResult = 63 - 31)]
-		[TestCase(1UL << 32, ExpectedResult = 63 - 32)]
-		[TestCase(1UL << 33, ExpectedResult = 63 - 33)]
-		[TestCase(1UL << 34, ExpectedResult = 63 - 34)]
-		[TestCase(1UL << 35, ExpectedResult = 63 - 35)]
-		[TestCase(1UL << 36, ExpectedResult = 63 - 36)]
-		[TestCase(1UL << 37, ExpectedResult = 63 - 37)]
-		[TestCase(1UL << 38, ExpectedResult = 63 - 38)]
-		[TestCase(1UL << 39, ExpectedResult = 63 - 39)]
-		[TestCase(1UL << 40, ExpectedResult = 63 - 40)]
-		[TestCase(1UL << 41, ExpectedResult = 63 - 41)]
-		[TestCase(1UL << 42, ExpectedResult = 63 - 42)]
-		[TestCase(1UL << 43, ExpectedResult = 63 - 43)]
-		[TestCase(1UL << 44, ExpectedResult = 63 - 44)]
-		[TestCase(1UL << 45, ExpectedResult = 63 - 45)]
-		[TestCase(1UL << 46, ExpectedResult = 63 - 46)]
-		[TestCase(1UL << 47, ExpectedResult = 63 - 47)]
-		[TestCase(1UL << 48, ExpectedResult = 63 - 48)]
-		[TestCase(1UL << 49, ExpectedResult = 63 - 49)]
-		[TestCase(1UL << 50, ExpectedResult = 63 - 50)]
-		[TestCase(1UL << 51, ExpectedResult = 63 - 51)]
-		[TestCase(1UL << 52, ExpectedResult = 63 - 52)]
-		[TestCase(1UL << 53, ExpectedResult = 63 - 53)]
-		[TestCase(1UL << 54, ExpectedResult = 63 - 54)]
-		[TestCase(1UL << 55, ExpectedResult = 63 - 55)]
-		[TestCase(1UL << 56, ExpectedResult = 63 - 56)]
-		[TestCase(1UL << 57, ExpectedResult = 63 - 57)]
-		[TestCase(1UL << 58, ExpectedResult = 63 - 58)]
-		[TestCase(1UL << 59, ExpectedResult = 63 - 59)]
-		[TestCase(1UL << 60, ExpectedResult = 63 - 60)]
-		[TestCase(1UL << 61, ExpectedResult = 63 - 61)]
-		[TestCase(1UL << 62, ExpectedResult = 63 - 62)]
-		[TestCase(1UL << 63, ExpectedResult = 63 - 63)]
-		public int LZC(ulong rawValue)
+		[TestCase(0U, ExpectedResult = 31 + 1)]
+		[TestCase(1U << 0, ExpectedResult = 31 - 0)]
+		[TestCase(1U << 1, ExpectedResult = 31 - 1)]
+		[TestCase(1U << 2, ExpectedResult = 31 - 2)]
+		[TestCase(1U << 3, ExpectedResult = 31 - 3)]
+		[TestCase(1U << 4, ExpectedResult = 31 - 4)]
+		[TestCase(1U << 5, ExpectedResult = 31 - 5)]
+		[TestCase(1U << 6, ExpectedResult = 31 - 6)]
+		[TestCase(1U << 7, ExpectedResult = 31 - 7)]
+		[TestCase(1U << 8, ExpectedResult = 31 - 8)]
+		[TestCase(1U << 9, ExpectedResult = 31 - 9)]
+		[TestCase(1U << 10, ExpectedResult = 31 - 10)]
+		[TestCase(1U << 11, ExpectedResult = 31 - 11)]
+		[TestCase(1U << 12, ExpectedResult = 31 - 12)]
+		[TestCase(1U << 13, ExpectedResult = 31 - 13)]
+		[TestCase(1U << 14, ExpectedResult = 31 - 14)]
+		[TestCase(1U << 15, ExpectedResult = 31 - 15)]
+		[TestCase(1U << 16, ExpectedResult = 31 - 16)]
+		[TestCase(1U << 17, ExpectedResult = 31 - 17)]
+		[TestCase(1U << 18, ExpectedResult = 31 - 18)]
+		[TestCase(1U << 19, ExpectedResult = 31 - 19)]
+		[TestCase(1U << 20, ExpectedResult = 31 - 20)]
+		[TestCase(1U << 21, ExpectedResult = 31 - 21)]
+		[TestCase(1U << 22, ExpectedResult = 31 - 22)]
+		[TestCase(1U << 23, ExpectedResult = 31 - 23)]
+		[TestCase(1U << 24, ExpectedResult = 31 - 24)]
+		[TestCase(1U << 25, ExpectedResult = 31 - 25)]
+		[TestCase(1U << 26, ExpectedResult = 31 - 26)]
+		[TestCase(1U << 27, ExpectedResult = 31 - 27)]
+		[TestCase(1U << 28, ExpectedResult = 31 - 28)]
+		[TestCase(1U << 29, ExpectedResult = 31 - 29)]
+		[TestCase(1U << 30, ExpectedResult = 31 - 30)]
+		[TestCase(1U << 31, ExpectedResult = 31 - 31)]
+		public int LZC(uint rawValue)
 		{
 			// Act
 			var result = FMath.LeadingZeroCount(rawValue);
@@ -88,7 +56,7 @@ namespace Fixed64
 		[TestCase(-FP.EpsilonRaw, ExpectedResult = FP.EpsilonRaw)]
 		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MaxValueRaw)]
 		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
-		public long Abs(long rawValue)
+		public int Abs(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -108,7 +76,7 @@ namespace Fixed64
 		[TestCase(FP.OneRaw + FP.HalfRaw + FP.EpsilonRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 3)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 57)]
-		public int RoundToInt(long rawValue)
+		public int RoundToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -126,7 +94,7 @@ namespace Fixed64
 		[TestCase(FP.OneRaw + FP.OneRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 3)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 57)]
-		public int WhenCastToInt_ThenFloorToInt(long rawValue)
+		public int WhenCastToInt_ThenFloorToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -144,7 +112,7 @@ namespace Fixed64
 		[TestCase(FP.OneRaw + FP.OneRaw, ExpectedResult = 2)]
 		[TestCase(FP.PiRaw, ExpectedResult = 4)]
 		[TestCase(FP.Rad2DegRaw, ExpectedResult = 58)]
-		public int CeilToInt(long rawValue)
+		public int CeilToInt(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -162,7 +130,7 @@ namespace Fixed64
 		[TestCase(FP.MaxValueRaw, ExpectedResult = FP.MaxValueRaw)]
 		[TestCase(FP.MaxValueRaw - 1, ExpectedResult = FP.MaxValueRaw - 1)]
 		[TestCase(FP.MinValueRaw, ExpectedResult = FP.MinValueRaw)]
-		public long WhenDevidedByOne_ThenReturnTheSameNumber(long rawValue)
+		public long WhenDevidedByOne_ThenReturnTheSameNumber(int rawValue)
 		{
 			// Arrange
 			var fp = FP.FromRaw(rawValue);
@@ -252,19 +220,28 @@ namespace Fixed64
 				expected = FP.MinValue.ToDouble();
 			}
 
-			var actual = a * b;
+			FP actual;
+			try
+			{
+				actual = a * b;
+			}
+			catch (OverflowException e)
+			{
+#if CHECK_OVERFLOW
+				Assert.Pass();
+				return;
+#else
+				Assert.Fail(e.Message);
+				return;
+#endif
+			}
+
 			var delta = Math.Abs(expected - actual.ToDouble());
 
 			if (delta > FP.Epsilon.ToDouble())
 			{
-				if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some rare minor inaccuracies, and they are tied to absolute precision.
-				{
-					Debug.LogWarning($"{a} * {b} = {actual}, but expected {expected}. Delta = {delta}.");
-				}
-				else
-				{
-					Assert.AreEqual(expected.ToFP(), actual, $"{a} * {b} = {actual}, but expected {expected}. Delta = {delta}.");
-				}
+				actual = FP.FromRaw(FP.Mul(a.RawValue, b.RawValue));
+				Assert.AreEqual(expected.ToFP(), actual, $"{a} * {b} = {actual}, but expected {expected}. Delta = {delta}.");
 			}
 		}
 
@@ -274,49 +251,52 @@ namespace Fixed64
 			var aDouble = a.ToDouble();
 			var bDouble = b.ToDouble();
 
-			if (a == FP.Zero)
-			{
-				var expected = FP.Zero;
-				Assert.AreEqual(expected, a / b);
-				return;
-			}
-
 			if (b == FP.Zero)
 			{
-				// Assert.Throws<DivideByZeroException>(() => Ignore(a / b));
-
-				var expected = a < FP.Zero ? FP.MinValue : FP.MaxValue;
-				Assert.AreEqual(expected, a / b);
+				Assert.Throws<DivideByZeroException>(() => Ignore(a / b));
 				return;
 			}
 
+			if (a == FP.Zero)
 			{
-				var expected = aDouble / bDouble;
+				Assert.AreEqual(FP.Zero, a / b);
+				return;
+			}
 
-				// Expect saturation up to max and min values
-				if (expected > FP.MaxValue.ToDouble())
-				{
-					expected = FP.MaxValue.ToDouble();
-				}
-				else if (expected < FP.MinValue.ToDouble())
-				{
-					expected = FP.MinValue.ToDouble();
-				}
+			var expected = aDouble / bDouble;
 
-				var actual = a / b;
-				var delta = Math.Abs(expected - actual.ToDouble());
+			// Expect saturation up to max and min values
+			if (expected > FP.MaxValue.ToDouble())
+			{
+				expected = FP.MaxValue.ToDouble();
+			}
+			else if (expected < FP.MinValue.ToDouble())
+			{
+				expected = FP.MinValue.ToDouble();
+			}
 
-				if (delta > FP.Epsilon.ToDouble())
-				{
-					if (delta < (FP.Epsilon * 2000).ToDouble()) // It has some rare minor inaccuracies, and they are tied to absolute precision.
-					{
-						Debug.LogWarning($"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
-					}
-					else
-					{
-						Assert.AreEqual(expected.ToFP(), actual, $"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
-					}
-				}
+			FP actual;
+			try
+			{
+				actual = a / b;
+			}
+			catch (OverflowException e)
+			{
+#if CHECK_OVERFLOW
+				Assert.Pass();
+				return;
+#else
+				Assert.Fail(e.Message);
+				return;
+#endif
+			}
+
+			var delta = Math.Abs(expected - actual.ToDouble());
+
+			if (delta > FP.Epsilon.ToDouble())
+			{
+				actual = FP.FromRaw(FP.Div(a.RawValue, b.RawValue));
+				Assert.AreEqual(expected.ToFP(), actual, $"{a} / {b} = {actual}, but expected {expected}. Delta = {delta}.");
 			}
 		}
 
@@ -373,9 +353,9 @@ namespace Fixed64
 			FP.FromRaw(FP.OneRaw + 1), -FP.FromRaw(FP.OneRaw + 1),
 
 			// Problematic log2
-			FP.FromRaw(1L << (FP.FractionalBits + FP.IntegerBits / 2)),
-			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) - 1),
-			FP.FromRaw((1L << (FP.FractionalBits + FP.IntegerBits / 2)) + 1),
+			FP.FromRaw(1 << (FP.FractionalBits + FP.IntegerBits / 2)),
+			FP.FromRaw((1 << (FP.FractionalBits + FP.IntegerBits / 2)) - 1),
+			FP.FromRaw((1 << (FP.FractionalBits + FP.IntegerBits / 2)) + 1),
 
 			// PIs
 			FP.Pi, FP.HalfPi, -FP.HalfPi,
@@ -384,20 +364,20 @@ namespace Fixed64
 			FP.MaxValue, FP.MinValue,
 
 			// Large random numbers
-			FP.FromRaw(6791302811978701836), FP.FromRaw(-8192141831180282065), FP.FromRaw(6222617001063736300), FP.FromRaw(-7871200276881732034),
-			FP.FromRaw(8249382838880205112), FP.FromRaw(-7679310892959748444), FP.FromRaw(7708113189940799513), FP.FromRaw(-5281862979887936768),
-			FP.FromRaw(8220231180772321456), FP.FromRaw(-5204203381295869580), FP.FromRaw(6860614387764479339), FP.FromRaw(-9080626825133349457),
-			FP.FromRaw(6658610233456189347), FP.FromRaw(-6558014273345705245), FP.FromRaw(6700571222183426493),
+			FP.FromRaw(679130281), FP.FromRaw(-819214183), FP.FromRaw(622261700), FP.FromRaw(-787120027),
+			FP.FromRaw(824938283), FP.FromRaw(-767931089), FP.FromRaw(770811318), FP.FromRaw(-528186297),
+			FP.FromRaw(822023118), FP.FromRaw(-520420338), FP.FromRaw(686061438), FP.FromRaw(-908062682),
+			FP.FromRaw(665861023), FP.FromRaw(-655801427), FP.FromRaw(670057122),
 
 			// Small random numbers
-			FP.FromRaw(-436730658), FP.FromRaw(-2259913246), FP.FromRaw(329347474), FP.FromRaw(2565801981), FP.FromRaw(3398143698), FP.FromRaw(137497017), FP.FromRaw(1060347500),
-			FP.FromRaw(-3457686027), FP.FromRaw(1923669753), FP.FromRaw(2891618613), FP.FromRaw(2418874813), FP.FromRaw(2899594950), FP.FromRaw(2265950765), FP.FromRaw(-1962365447),
-			FP.FromRaw(3077934393),
+			FP.FromRaw(-43675), FP.FromRaw(-225946), FP.FromRaw(3294), FP.FromRaw(25681), FP.FromRaw(33998), FP.FromRaw(13747), FP.FromRaw(106750),
+			FP.FromRaw(-3457), FP.FromRaw(192653), FP.FromRaw(28913), FP.FromRaw(24188), FP.FromRaw(26890), FP.FromRaw(22655), FP.FromRaw(-196223),
+			FP.FromRaw(30779),
 
 			// Tiny random numbers
-			FP.FromRaw(-171),
-			FP.FromRaw(-359), FP.FromRaw(491), FP.FromRaw(844), FP.FromRaw(158), FP.FromRaw(-413), FP.FromRaw(-422), FP.FromRaw(-737), FP.FromRaw(-575), FP.FromRaw(-330),
-			FP.FromRaw(-376), FP.FromRaw(435), FP.FromRaw(-311), FP.FromRaw(116), FP.FromRaw(715), FP.FromRaw(-1024), FP.FromRaw(-487), FP.FromRaw(59), FP.FromRaw(724), FP.FromRaw(993)
+			FP.FromRaw(-17),
+			FP.FromRaw(-35), FP.FromRaw(49), FP.FromRaw(84), FP.FromRaw(18), FP.FromRaw(-43), FP.FromRaw(-422), FP.FromRaw(-737), FP.FromRaw(-575), FP.FromRaw(-330),
+			FP.FromRaw(-37), FP.FromRaw(43), FP.FromRaw(-31), FP.FromRaw(16), FP.FromRaw(71), FP.FromRaw(-102), FP.FromRaw(-487), FP.FromRaw(59), FP.FromRaw(724), FP.FromRaw(993)
 		};
 	}
 }

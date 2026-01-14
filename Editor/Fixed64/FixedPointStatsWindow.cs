@@ -11,7 +11,7 @@ namespace Fixed64.Editor
 
 		private SerializedObject _serializedObject;
 		private Vector2 _scroll;
-		
+
 		[MenuItem("Window/Fixed Point/Stats 64")]
 		public static void ShowWindow()
 		{
@@ -31,28 +31,16 @@ namespace Fixed64.Editor
 
 			if (GUILayout.Button("Log CORDIC constants"))
 			{
-				string sum = string.Empty;
-				for (int i = 0; i < 64; ++i)
-				{
-					var result = Math.Atan(1.0 / Math.Pow(2, i));
-					sum += (long)(result * (1UL << 63)) + ",\n";
-				}
-				Debug.Log(sum);
+				Debug.Log(string.Join(",\n", FCordic.GenerateRawAtansLookup()));
 
-				double cos = 1f;
-				for (int i = 0; i < 64; ++i)
-				{
-					var result = Math.Atan(1.0 / Math.Pow(2, i));
-					cos *= Math.Cos(result);
-				}
-				Debug.Log((long)(cos * (1UL << 63)));
+				Debug.Log(FCordic.CalculateRawGain());
 			}
-			
+
 			const float log10Of2 = 0.30103f;
 			int decimalDigitsOfAccuracy = Mathf.CeilToInt(log10Of2 * FP.FractionalBits);
 
 			_serializedObject.Update();
-			
+
 			EditorGUILayout.Space(5f);
 
 			EditorGUILayout.TextField("Fractional Places", FP.FractionalBits.ToString());
@@ -81,7 +69,7 @@ namespace Fixed64.Editor
 			FCordic.SinCos(testFp.RawValue, out var sinRaw, out var cosRaw);
 			var sinFP = FP.FromRaw(sinRaw);
 			var cosFP = FP.FromRaw(cosRaw);
-			
+
 			EditorGUILayout.TextField("Sin", sinFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Sin", Math.Sin(testRadians).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(sinFP.ToDouble() - Math.Sin(testRadians)).ToString("G5"));
@@ -90,12 +78,12 @@ namespace Fixed64.Editor
 			EditorGUILayout.TextField("Actual Cos", Math.Cos(testRadians).ToString("G5"));
 			EditorGUILayout.TextField("Delta", Math.Abs(cosFP.ToDouble() - Math.Cos(testRadians)).ToString("G5"));
 			EditorGUILayout.Space(2f);
-			
+
 			var tanFP = FP.FromRaw(FCordic.Tan(testFp.RawValue));
 			EditorGUILayout.TextField("Tan", tanFP.ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Tan", Math.Tan(testRadians).ToString("G5"));
 			EditorGUILayout.TextField("Delta", Math.Abs(tanFP.ToDouble() - Math.Tan(testRadians)).ToString("G5"));
-			
+
 			EditorGUILayout.Space(5f);
 			EditorGUILayout.TextField("Sin (MaxValue)", FMath.Sin(FP.MaxValue).ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Sin (MaxValue)", Math.Sin(FP.MaxValue.ToDouble()).ToString("G5"));
@@ -104,7 +92,7 @@ namespace Fixed64.Editor
 			EditorGUILayout.TextField("Cos (MaxValue)", FMath.Cos(FP.MaxValue).ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Cos (MaxValue)", Math.Cos(FP.MaxValue.ToDouble()).ToString("G5"));
 			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Cos(FP.MaxValue).ToDouble() - Math.Cos(FP.MaxValue.ToDouble())).ToString("G5"));
-			
+
 			EditorGUILayout.PropertyField(_serializedObject.FindProperty(nameof(_testValue)), new GUIContent("Test Value"));
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
