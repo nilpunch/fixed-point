@@ -85,23 +85,21 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Max(FP x, FP y)
 		{
-			var rawResult = x.RawValue;
 			if (y.RawValue > x.RawValue)
 			{
-				rawResult = y.RawValue;
+				x.RawValue = y.RawValue;
 			}
-			return FP.FromRaw(rawResult);
+			return x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Min(FP x, FP y)
 		{
-			var rawResult = x.RawValue;
 			if (y.RawValue < x.RawValue)
 			{
-				rawResult = y.RawValue;
+				x.RawValue = y.RawValue;
 			}
-			return FP.FromRaw(rawResult);
+			return x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

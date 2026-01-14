@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Fixed32
 {
 	[Serializable]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct FVector3 : IEquatable<FVector3>, IFormattable
 	{
 		public FP X;

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Fixed64
 {
 	[Serializable]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct FQuaternion : IEquatable<FQuaternion>, IFormattable
 	{
 		public FP X;
@@ -244,12 +246,12 @@ namespace Fixed64
 		/// Returns a spherical interpolation between two quaternions.
 		/// Non-commutative, torque-minimal, constant velocity.
 		/// </summary>
-		public static FQuaternion Slerp(FQuaternion a, FQuaternion b, FP t, bool longPath = false)
+		public static FQuaternion Slerp(FQuaternion a, FQuaternion b, FP t, bool intPath = false)
 		{
 			// Calculate angle between them.
 			var cosHalfTheta = Dot(a, b);
 
-			if (longPath)
+			if (intPath)
 			{
 				if (cosHalfTheta > FP.Zero)
 				{
@@ -269,7 +271,7 @@ namespace Fixed64
 			// If a = b or a = b then theta = 0 then we can return interpolation between a and b.
 			if (FMath.Abs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
 			{
-				return Nlerp(a, b, t, longPath);
+				return Nlerp(a, b, t, intPath);
 			}
 
 			var halfTheta = FMath.Acos(cosHalfTheta);
@@ -286,19 +288,19 @@ namespace Fixed64
 		/// Commutative, torque-minimal, non-constant velocity.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FQuaternion Nlerp(FQuaternion a, FQuaternion b, FP t, bool longPath = false)
+		public static FQuaternion Nlerp(FQuaternion a, FQuaternion b, FP t, bool intPath = false)
 		{
-			return NormalizeSafe(Lerp(a, b, t, longPath));
+			return NormalizeSafe(Lerp(a, b, t, intPath));
 		}
 
 		/// <summary>
 		/// Returns a componentwise interpolation between two quaternions.
 		/// </summary>
-		public static FQuaternion Lerp(FQuaternion a, FQuaternion b, FP t, bool longPath = false)
+		public static FQuaternion Lerp(FQuaternion a, FQuaternion b, FP t, bool intPath = false)
 		{
 			var dot = Dot(a, b);
 
-			if (longPath)
+			if (intPath)
 			{
 				if (dot > FP.Zero)
 				{
@@ -376,7 +378,7 @@ namespace Fixed64
 
 		/// <summary>
 		/// Returns a quaternion representing a rotation around a unit axis by an angle in radians.
-		/// The rotation direction is clockwise when looking along the rotation axis towards the origin.
+		/// The rotation direction is clockwise when looking aint the rotation axis towards the origin.
 		/// If input vector is zero length then rotation will be around forward axis.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -410,7 +412,7 @@ namespace Fixed64
 
 		/// <summary>
 		/// Returns a quaternion representing a rotation around a unit axis by an angle in degrees.
-		/// The rotation direction is clockwise when looking along the rotation axis towards the origin.
+		/// The rotation direction is clockwise when looking aint the rotation axis towards the origin.
 		/// /// If input vector is zero length then rotation will be around forward axis.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
