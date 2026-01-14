@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Fixed;
 
 namespace Fixed64
 {
@@ -265,5 +266,37 @@ namespace Fixed64
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override string ToString() => $"{Degrees}°";
+
+		public static FAngle FromQuaternion(FQuaternion quaternion, RotationAxis rotationAxis = RotationAxis.Y)
+		{
+			var test = quaternion.X * quaternion.Y + quaternion.Z * quaternion.W;
+			if (test.RawValue >= FP.HalfRaw) // Singularity at north pole.
+			{
+				switch (rotationAxis)
+				{
+					case RotationAxis.Y: return FromRadians(2 * FMath.Atan2(quaternion.X, quaternion.W));
+					case RotationAxis.Z: return FromRadians(FP.HalfPi);
+					case RotationAxis.X: return FromRadians(FP.Zero);
+					default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
+				}
+			}
+			if (test.RawValue <= -FP.HalfRaw) // Singularity at south pole.
+			{
+				switch (rotationAxis)
+				{
+					case RotationAxis.Y: return FromRadians(-2 * FMath.Atan2(quaternion.X, quaternion.W));
+					case RotationAxis.Z: return FromRadians(-FP.HalfPi);
+					case RotationAxis.X: return FromRadians(FP.Zero);
+					default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
+				}
+			}
+			switch (rotationAxis)
+			{
+				case RotationAxis.Y: return FromRadians(FMath.Atan2(2 * quaternion.Y * quaternion.W - 2 * quaternion.X * quaternion.Z, FP.One - 2 * (quaternion.Y * quaternion.Y) - 2 * (quaternion.Z * quaternion.Z)));
+				case RotationAxis.Z: return FromRadians(FMath.Asin(2 * test));
+				case RotationAxis.X: return FromRadians(FMath.Atan2(2 * quaternion.X * quaternion.W - 2 * quaternion.Y * quaternion.Z, FP.One - 2 * (quaternion.X * quaternion.X) - 2 * (quaternion.Z * quaternion.Z)));
+				default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
+			}
+		}
 	}
 }

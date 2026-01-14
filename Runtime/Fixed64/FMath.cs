@@ -350,15 +350,15 @@ namespace Fixed64
 		{
 			if (x.RawValue <= 0)
 			{
-				throw new ArgumentOutOfRangeException("Non-positive value passed to Ln", "x");
+				throw new ArgumentOutOfRangeException(nameof(x), x, "Non-positive value passed to Ln");
 			}
 
 			// This implementation is based on Clay. S. Turner's fast binary logarithm
 			// algorithm (C. S. Turner,  "A Fast Binary Logarithm Algorithm", IEEE Signal
 			//     Processing Mag., pp. 124,140, Sep. 2010.)
 
-			long b = 1U << (FP.FractionalBits - 1);
-			long y = 0;
+			var b = 1L << (FP.FractionalBits - 1);
+			var y = 0L;
 
 			var rawX = x.RawValue;
 			while (rawX < FP.OneRaw)

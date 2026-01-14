@@ -145,85 +145,91 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Div(long x, long y)
 		{
-			if (y == 0)
+			unchecked
 			{
-				throw new DivideByZeroException();
+				if (y == 0)
+				{
+					throw new DivideByZeroException();
+				}
+
+				if (x == 0)
+				{
+					return 0;
+				}
+
+				var maskX = x >> AllBitsWithoutSign;
+				var maskY = y >> AllBitsWithoutSign;
+				var absX = (ulong)((x + maskX) ^ maskX);
+				var absY = (ulong)((y + maskY) ^ maskY);
+				var sign = maskX ^ maskY;
+
+				var xLzc = FMath.LeadingZeroCount(absX);
+				var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
+				var yShift = FractionalBits - xShift;
+
+				var scaledX = absX << xShift;
+				var scaledY = absY >> yShift;
+
+				var nonZeroY = scaledY == 0 ? 1 : scaledY;
+
+				var quotient = scaledX / nonZeroY;
+
+				var overflowValue = sign < 0 ? MinValueRaw : MaxValueRaw;
+				var signedQuotient = ((long)quotient ^ sign) - sign;
+				var result = quotient > MaxValueRaw ? overflowValue : signedQuotient;
+
+				var finalResult = scaledY == 0 ? overflowValue : result;
+
+				return finalResult;
 			}
-
-			if (x == 0)
-			{
-				return 0;
-			}
-
-			var maskX = x >> AllBitsWithoutSign;
-			var maskY = y >> AllBitsWithoutSign;
-			var absX = (ulong)((x + maskX) ^ maskX);
-			var absY = (ulong)((y + maskY) ^ maskY);
-			var sign = maskX ^ maskY;
-
-			var xLzc = FMath.LeadingZeroCount(absX);
-			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
-			var yShift = FractionalBits - xShift;
-
-			var scaledX = absX << xShift;
-			var scaledY = absY >> yShift;
-
-			var nonZeroY = scaledY == 0 ? 1 : scaledY;
-
-			var quotient = scaledX / nonZeroY;
-
-			var overflowValue = sign < 0 ? MinValueRaw : MaxValueRaw;
-			var signedQuotient = ((long)quotient ^ sign) - sign;
-			var result = quotient > MaxValueRaw ? overflowValue : signedQuotient;
-
-			var finalResult = scaledY == 0 ? overflowValue : result;
-
-			return finalResult;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long DivRem(long x, long y, out long reminder)
 		{
-			if (y == 0)
+			unchecked
 			{
-				throw new DivideByZeroException();
+				if (y == 0)
+				{
+					throw new DivideByZeroException();
+				}
+
+				if (x == 0)
+				{
+					reminder = y;
+					return 0;
+				}
+
+				var maskX = x >> AllBitsWithoutSign;
+				var maskY = y >> AllBitsWithoutSign;
+				var absX = (ulong)((x + maskX) ^ maskX);
+				var absY = (ulong)((y + maskY) ^ maskY);
+				var sign = maskX ^ maskY;
+
+				var xLzc = FMath.LeadingZeroCount(absX);
+				var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
+				var yShift = FractionalBits - xShift;
+
+				var scaledX = absX << xShift;
+				var scaledY = absY >> yShift;
+
+				if (scaledY == 0)
+				{
+					reminder = 0;
+					return sign < 0 ? MinValueRaw : MaxValueRaw;
+				}
+
+				var quotient = scaledX / scaledY;
+
+				if (quotient > MaxValueRaw)
+				{
+					reminder = 0;
+					return sign < 0 ? MinValueRaw : MaxValueRaw;
+				}
+
+				reminder = ((long)(scaledX - quotient * scaledY) ^ sign) - sign;
+				return ((long)quotient ^ sign) - sign;
 			}
-
-			if (x == 0)
-			{
-				reminder = y;
-				return 0;
-			}
-
-			var maskX = x >> AllBitsWithoutSign;
-			var maskY = y >> AllBitsWithoutSign;
-			var absX = (ulong)((x + maskX) ^ maskX);
-			var absY = (ulong)((y + maskY) ^ maskY);
-			var sign = maskX ^ maskY;
-
-			var xLzc = FMath.LeadingZeroCount(absX);
-			var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
-			var yShift = FractionalBits - xShift;
-
-			var scaledX = absX << xShift;
-			var scaledY = absY >> yShift;
-
-			if (scaledY == 0)
-			{
-				reminder = 0;
-				return sign < 0 ? MinValueRaw : MaxValueRaw;
-			}
-
-			var quotient = scaledX / scaledY;
-
-			if (quotient > MaxValueRaw)
-			{
-				reminder = 0;
-				return sign < 0 ? MinValueRaw : MaxValueRaw;
-			}
-
-			reminder = ((long)(scaledX - quotient * scaledY) ^ sign) - sign;
-			return ((long)quotient ^ sign) - sign;
 		}
 
 		/// <summary>

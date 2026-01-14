@@ -350,7 +350,7 @@ namespace Fixed32
 		{
 			if (x.RawValue <= 0)
 			{
-				throw new ArgumentOutOfRangeException("Non-positive value passed to Ln", "x");
+				throw new ArgumentOutOfRangeException(nameof(x), x, "Non-positive value passed to Ln");
 			}
 
 			// This implementation is based on Clay. S. Turner's fast binary logarithm
