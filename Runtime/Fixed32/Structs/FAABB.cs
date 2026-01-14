@@ -28,15 +28,32 @@ namespace Fixed32
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => (UpperBound - LowerBound) * FP.Half;
 		}
-		
-		public FP Perimeter
+
+		public FP SurfaceArea
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				var size = UpperBound - LowerBound;
-				return 2 * (size.Y + size.Y + size.Z);
+				return 2 * (size.X * size.Y + size.Y * size.Z + size.Z * size.X);
 			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FAABB FromCenterAndExtents(FVector3 center, FVector3 extents)
+		{
+			return new FAABB(
+				center - extents,
+				center + extents
+			);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Contains(FVector3 point)
+		{
+			return point.X >= LowerBound.X && point.X <= UpperBound.X &&
+				point.Y >= LowerBound.Y && point.Y <= UpperBound.Y &&
+				point.Z >= LowerBound.Z && point.Z <= UpperBound.Z;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

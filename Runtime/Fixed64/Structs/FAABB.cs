@@ -29,13 +29,13 @@ namespace Fixed64
 			get => (UpperBound - LowerBound) * FP.Half;
 		}
 
-		public FP Perimeter
+		public FP SurfaceArea
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				var size = UpperBound - LowerBound;
-				return 2 * (size.Y + size.Y + size.Z);
+				return 2 * (size.X * size.Y + size.Y * size.Z + size.Z * size.X);
 			}
 		}
 
