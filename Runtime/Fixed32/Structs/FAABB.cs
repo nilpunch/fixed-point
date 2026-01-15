@@ -29,14 +29,76 @@ namespace Fixed32
 			get => (UpperBound - LowerBound) * FP.Half;
 		}
 
-		public FP SurfaceArea
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Contains(FVector3 point)
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get
+			return point.X >= LowerBound.X && point.X <= UpperBound.X &&
+				point.Y >= LowerBound.Y && point.Y <= UpperBound.Y &&
+				point.Z >= LowerBound.Z && point.Z <= UpperBound.Z;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool RayIntersect(FVector3 origin, FVector3 direction)
+		{
+			return RayIntersect(origin, direction, out _);
+		}
+
+		// Adapted from jitterphysics2
+		// https://github.com/notgiven688/jitterphysics2/blob/main/src/Jitter2/LinearMath/JBoundingBox.cs
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool RayIntersect(FVector3 origin, FVector3 direction, out FP enter)
+		{
+			enter = FP.Zero;
+			var exit = FP.MaxValue;
+
+			if (!Intersect1D(origin.X, direction.X, LowerBound.X, UpperBound.X, ref enter, ref exit))
 			{
-				var size = UpperBound - LowerBound;
-				return 2 * (size.X * size.Y + size.Y * size.Z + size.Z * size.X);
+				return false;
 			}
+
+			if (!Intersect1D(origin.Y, direction.Y, LowerBound.Y, UpperBound.Y, ref enter, ref exit))
+			{
+				return false;
+			}
+
+			if (!Intersect1D(origin.Z, direction.Z, LowerBound.Z, UpperBound.Z, ref enter, ref exit))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static bool Intersect1D(FP start, FP dir, FP min, FP max, ref FP enter, ref FP exit)
+		{
+			if (dir * dir < FP.CalculationsEpsilonSqr)
+			{
+				return start >= min && start <= max;
+			}
+
+			var t0 = (min - start) / dir;
+			var t1 = (max - start) / dir;
+
+			if (t0 > t1)
+			{
+				(t0, t1) = (t1, t0);
+			}
+
+			if (t0 > exit || t1 < enter)
+			{
+				return false;
+			}
+
+			if (t0 > enter)
+			{
+				enter = t0;
+			}
+			if (t1 < exit)
+			{
+				exit = t1;
+			}
+			return true;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,14 +108,6 @@ namespace Fixed32
 				center - extents,
 				center + extents
 			);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool Contains(FVector3 point)
-		{
-			return point.X >= LowerBound.X && point.X <= UpperBound.X &&
-				point.Y >= LowerBound.Y && point.Y <= UpperBound.Y &&
-				point.Z >= LowerBound.Z && point.Z <= UpperBound.Z;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +126,7 @@ namespace Fixed32
 				FVector3.MaxComponents(a.UpperBound, b.UpperBound)
 			);
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Equals(FAABB other)
 		{

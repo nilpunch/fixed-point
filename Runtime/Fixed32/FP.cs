@@ -37,6 +37,87 @@ namespace Fixed32
 			}
 		}
 
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Add(FP x, FP y)
+		{
+			return FromRaw(Add(x.RawValue, y.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Sub(FP x, FP y)
+		{
+			return FromRaw(Sub(x.RawValue, y.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Neg(FP x)
+		{
+			return FromRaw(Neg(x.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP MulScalar(FP x, int scalar)
+		{
+			return FromRaw(MulScalar(x.RawValue, scalar));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP DivScalar(FP x, int scalar)
+		{
+			return FromRaw(DivScalar(x.RawValue, scalar));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Mul(FP x, FP y)
+		{
+			return FromRaw(Mul(x.RawValue, y.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Mod(FP x, FP y)
+		{
+			return FromRaw(Mod(x.RawValue, y.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP Div(FP x, FP y)
+		{
+			return FromRaw(Div(x.RawValue, y.RawValue));
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP DivRem(FP x, FP y, out FP remainder)
+		{
+			return FromRaw(DivRem(x.RawValue, y.RawValue, out remainder.RawValue));
+		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP operator +(FP x, FP y)
 		{

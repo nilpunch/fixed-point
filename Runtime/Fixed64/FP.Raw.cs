@@ -41,7 +41,7 @@ namespace Fixed64
 		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Negate(long x)
+		public static long Neg(long x)
 		{
 			return x == MinValueRaw ? MaxValueRaw : -x;
 		}

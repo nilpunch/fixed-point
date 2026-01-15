@@ -40,30 +40,9 @@ namespace Fixed32
 		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Negate(int x)
+		public static int Neg(int x)
 		{
 			return x == MinValueRaw ? MaxValueRaw : -x;
-		}
-
-		/// <summary>
-		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Mul(int x, int y)
-		{
-			var result = ((long)x * y) >> FractionalBits;
-
-			if (result > MaxValueRaw)
-			{
-				return MaxValueRaw;
-			}
-
-			if (result < MinValueRaw)
-			{
-				return MinValueRaw;
-			}
-
-			return (int)result;
 		}
 
 		/// <summary>
@@ -95,6 +74,27 @@ namespace Fixed32
 		{
 			// There is a single edge case.
 			return x == MinValueRaw && scalar == -1 ? MaxValueRaw : x / scalar;
+		}
+
+		/// <summary>
+		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int Mul(int x, int y)
+		{
+			var result = ((long)x * y) >> FractionalBits;
+
+			if (result > MaxValueRaw)
+			{
+				return MaxValueRaw;
+			}
+
+			if (result < MinValueRaw)
+			{
+				return MinValueRaw;
+			}
+
+			return (int)result;
 		}
 
 		/// <summary>

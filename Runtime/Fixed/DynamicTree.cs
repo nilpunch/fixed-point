@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Fixed32;
+using FP64 = Fixed64.FP;
+using FMath64 = Fixed64.FMath;
 
-namespace Fixed32
+namespace Fixed
 {
 	// Adapted from Box2D v3.1
 	// https://github.com/erincatto/box2d/blob/c05c48738fbe5c27625e36c5f0cfbdaddfc8359a/src/dynamic_tree.c
@@ -24,25 +28,21 @@ namespace Fixed32
 
 		public int ProxyCount { get; set; }
 
+		private readonly Stack<int> _stack = new Stack<int>(1024);
+
 		private TreeNode DefaultNode { get; } = new TreeNode()
 		{
 			AABB = new FAABB(),
 			CategoryBits = DefaultCategory,
 			Children = new Children()
 			{
-				Child1 = NullIndex,
-				Child2 = NullIndex,
+				Left = NullIndex,
+				Right = NullIndex,
 			},
 			Parent = NullIndex,
 			Height = 0,
 			Flags = AllocatedNode,
 		};
-
-		private int[] leafIndices;
-		private int[] leafBoxes;
-		private int[] leafCenters;
-		private int[] binIndices;
-		private int rebuildCapacity = 0;
 
 		private int AllocateNode()
 		{
@@ -98,18 +98,18 @@ namespace Fixed32
 		private int FindBestSibling(FAABB boxD)
 		{
 			var centerD = boxD.Center;
-			var areaD = boxD.SurfaceArea;
+			var areaD = SurfaceAreaHeuristic(boxD);
 
 			var nodes = Nodes;
 			var rootIndex = Root;
 			ref var root = ref nodes[rootIndex];
 
 			// Area of current node.
-			var areaBase = root.AABB.SurfaceArea;
+			var areaBase = SurfaceAreaHeuristic(root.AABB);
 
 			// Area of inflated node.
-			var directCost = FAABB.Union(root.AABB, boxD).SurfaceArea;
-			var inheritedCost = FP.Zero;
+			var directCost = SurfaceAreaHeuristic(FAABB.Union(root.AABB, boxD));
+			var inheritedCost = FP64.Zero;
 
 			var bestSibling = rootIndex;
 			var bestCost = directCost;
@@ -120,8 +120,8 @@ namespace Fixed32
 			while (nodes[index].Height > 0)
 			{
 				ref var node = ref nodes[index];
-				var child1 = node.Children.Child1;
-				var child2 = node.Children.Child2;
+				var child1 = node.Children.Left;
+				var child2 = node.Children.Right;
 
 				// Cost of creating a new parent for this node and the new leaf.
 				var cost = directCost + inheritedCost;
@@ -144,9 +144,9 @@ namespace Fixed32
 				var leaf2 = n2.Height == 0;
 
 				// Cost of descending into child 1.
-				var lowerCost1 = FP.MaxValue;
-				var directCost1 = FAABB.Union(n1.AABB, boxD).SurfaceArea;
-				var area1 = FP.Zero;
+				var lowerCost1 = FP64.MaxValue;
+				var directCost1 = SurfaceAreaHeuristic(FAABB.Union(n1.AABB, boxD));
+				var area1 = FP64.Zero;
 				if (leaf1)
 				{
 					// Child 1 is a leaf.
@@ -163,20 +163,20 @@ namespace Fixed32
 				else
 				{
 					// Child 1 is an internal node.
-					area1 = n1.AABB.SurfaceArea;
+					area1 = SurfaceAreaHeuristic(n1.AABB);
 
 					// Lower bound cost of inserting under child 1. The minimum accounts for two possibilities:
 					// 1. Child1 could be the sibling with cost1 = inheritedCost + directCost1
 					// 2. A descendent of child1 could be the sibling with the lower bound cost of
 					//       cost1 = inheritedCost + (directCost1 - area1) + areaD
 					// This minimum here leads to the minimum of these two costs.
-					lowerCost1 = inheritedCost + directCost1 + FMath.Min(areaD - area1, FP.Zero);
+					lowerCost1 = inheritedCost + directCost1 + FMath64.Min(areaD - area1, FP64.Zero);
 				}
 
 				// Cost of descending into child 2.
-				var lowerCost2 = FP.MaxValue;
-				var directCost2 = FAABB.Union(n2.AABB, boxD).SurfaceArea;
-				var area2 = FP.Zero;
+				var lowerCost2 = FP64.MaxValue;
+				var directCost2 = SurfaceAreaHeuristic(FAABB.Union(n2.AABB, boxD));
+				var area2 = FP64.Zero;
 				if (leaf2)
 				{
 					var cost2 = directCost2 + inheritedCost;
@@ -188,8 +188,8 @@ namespace Fixed32
 				}
 				else
 				{
-					area2 = n2.AABB.SurfaceArea;
-					lowerCost2 = inheritedCost + directCost2 + FMath.Min(areaD - area2, FP.Zero);
+					area2 = SurfaceAreaHeuristic(n2.AABB);
+					lowerCost2 = inheritedCost + directCost2 + FMath64.Min(areaD - area2, FP64.Zero);
 				}
 
 				if (leaf1 && leaf2)
@@ -207,10 +207,8 @@ namespace Fixed32
 				{
 					// No clear choice based on lower bound surface area. This can happen when both
 					// children fully contain D. Fall back to node distance.
-					var d1 = n1.AABB.Center - centerD;
-					var d2 = n2.AABB.Center - centerD;
-					lowerCost1 = FVector3.LengthSqr(d1);
-					lowerCost2 = FVector3.LengthSqr(d2);
+					lowerCost1 = LengthSqr(n1.AABB.Center - centerD);
+					lowerCost2 = LengthSqr(n2.AABB.Center - centerD);
 				}
 
 				// Descend.
@@ -255,8 +253,8 @@ namespace Fixed32
 				return;
 			}
 
-			var iB = A.Children.Child1;
-			var iC = A.Children.Child2;
+			var iB = A.Children.Left;
+			var iC = A.Children.Right;
 
 			ref var B = ref Nodes[iB];
 			ref var C = ref Nodes[iC];
@@ -264,21 +262,21 @@ namespace Fixed32
 			if (B.Height == 0)
 			{
 				// B is a leaf and C is internal.
-				var iF = C.Children.Child1;
-				var iG = C.Children.Child2;
+				var iF = C.Children.Left;
+				var iG = C.Children.Right;
 				ref var F = ref Nodes[iF];
 				ref var G = ref Nodes[iG];
 
 				// Base cost.
-				var costBase = C.AABB.SurfaceArea;
+				var costBase = SurfaceAreaHeuristic(C.AABB);
 
 				// Cost of swapping B and F.
 				var aabbBG = FAABB.Union(B.AABB, G.AABB);
-				var costBF = aabbBG.SurfaceArea;
+				var costBF = SurfaceAreaHeuristic(aabbBG);
 
 				// Cost of swapping B and G.
 				var aabbBF = FAABB.Union(B.AABB, F.AABB);
-				var costBG = aabbBF.SurfaceArea;
+				var costBG = SurfaceAreaHeuristic(aabbBF);
 
 				if (costBase < costBF && costBase < costBG)
 				{
@@ -289,8 +287,8 @@ namespace Fixed32
 				if (costBF < costBG)
 				{
 					// Swap B and F.
-					A.Children.Child1 = iF;
-					C.Children.Child1 = iB;
+					A.Children.Left = iF;
+					C.Children.Left = iB;
 
 					B.Parent = iC;
 					F.Parent = iA;
@@ -306,8 +304,8 @@ namespace Fixed32
 				else
 				{
 					// Swap B and G.
-					A.Children.Child1 = iG;
-					C.Children.Child2 = iB;
+					A.Children.Left = iG;
+					C.Children.Right = iB;
 
 					B.Parent = iC;
 					G.Parent = iA;
@@ -324,21 +322,21 @@ namespace Fixed32
 			else if (C.Height == 0)
 			{
 				// C is a leaf and B is internal.
-				var iD = B.Children.Child1;
-				var iE = B.Children.Child2;
+				var iD = B.Children.Left;
+				var iE = B.Children.Right;
 				ref var D = ref Nodes[iD];
 				ref var E = ref Nodes[iE];
 
 				// Base cost.
-				var costBase = B.AABB.SurfaceArea;
+				var costBase = SurfaceAreaHeuristic(B.AABB);
 
 				// Cost of swapping C and D.
 				var aabbCE = FAABB.Union(C.AABB, E.AABB);
-				var costCD = aabbCE.SurfaceArea;
+				var costCD = SurfaceAreaHeuristic(aabbCE);
 
 				// Cost of swapping C and E.
 				var aabbCD = FAABB.Union(C.AABB, D.AABB);
-				var costCE = aabbCD.SurfaceArea;
+				var costCE = SurfaceAreaHeuristic(aabbCD);
 
 				if (costBase < costCD && costBase < costCE)
 				{
@@ -349,8 +347,8 @@ namespace Fixed32
 				if (costCD < costCE)
 				{
 					// Swap C and D.
-					A.Children.Child2 = iD;
-					B.Children.Child1 = iC;
+					A.Children.Right = iD;
+					B.Children.Left = iC;
 
 					C.Parent = iB;
 					D.Parent = iA;
@@ -366,8 +364,8 @@ namespace Fixed32
 				else
 				{
 					// Swap C and E.
-					A.Children.Child2 = iE;
-					B.Children.Child2 = iC;
+					A.Children.Right = iE;
+					B.Children.Right = iC;
 
 					C.Parent = iB;
 					E.Parent = iA;
@@ -383,10 +381,10 @@ namespace Fixed32
 			}
 			else
 			{
-				var iD = B.Children.Child1;
-				var iE = B.Children.Child2;
-				var iF = C.Children.Child1;
-				var iG = C.Children.Child2;
+				var iD = B.Children.Left;
+				var iE = B.Children.Right;
+				var iF = C.Children.Left;
+				var iG = C.Children.Right;
 
 				ref var D = ref Nodes[iD];
 				ref var E = ref Nodes[iE];
@@ -394,8 +392,8 @@ namespace Fixed32
 				ref var G = ref Nodes[iG];
 
 				// Base cost.
-				var areaB = B.AABB.SurfaceArea;
-				var areaC = C.AABB.SurfaceArea;
+				var areaB = SurfaceAreaHeuristic(B.AABB);
+				var areaC = SurfaceAreaHeuristic(C.AABB);
 				var costBase = areaB + areaC;
 
 				var bestCost = costBase;
@@ -403,7 +401,7 @@ namespace Fixed32
 
 				// Cost of swapping B and F.
 				var aabbBG = FAABB.Union(B.AABB, G.AABB);
-				var costBF = areaB + aabbBG.SurfaceArea;
+				var costBF = areaB + SurfaceAreaHeuristic(aabbBG);
 				if (costBF < bestCost)
 				{
 					bestCost = costBF;
@@ -412,7 +410,7 @@ namespace Fixed32
 
 				// Cost of swapping B and G.
 				var aabbBF = FAABB.Union(B.AABB, F.AABB);
-				var costBG = areaB + aabbBF.SurfaceArea;
+				var costBG = areaB + SurfaceAreaHeuristic(aabbBF);
 				if (costBG < bestCost)
 				{
 					bestCost = costBG;
@@ -421,7 +419,7 @@ namespace Fixed32
 
 				// Cost of swapping C and D.
 				var aabbCE = FAABB.Union(C.AABB, E.AABB);
-				var costCD = areaC + aabbCE.SurfaceArea;
+				var costCD = areaC + SurfaceAreaHeuristic(aabbCE);
 				if (costCD < bestCost)
 				{
 					bestCost = costCD;
@@ -430,7 +428,7 @@ namespace Fixed32
 
 				// Cost of swapping C and E.
 				var aabbCD = FAABB.Union(C.AABB, D.AABB);
-				var costCE = areaC + aabbCD.SurfaceArea;
+				var costCE = areaC + SurfaceAreaHeuristic(aabbCD);
 				if (costCE < bestCost)
 				{
 					bestRotation = RotateType.CE;
@@ -443,8 +441,8 @@ namespace Fixed32
 						break;
 
 					case RotateType.BF:
-						A.Children.Child1 = iF;
-						C.Children.Child1 = iB;
+						A.Children.Left = iF;
+						C.Children.Left = iB;
 
 						B.Parent = iC;
 						F.Parent = iA;
@@ -459,8 +457,8 @@ namespace Fixed32
 						break;
 
 					case RotateType.BG:
-						A.Children.Child1 = iG;
-						C.Children.Child2 = iB;
+						A.Children.Left = iG;
+						C.Children.Right = iB;
 
 						B.Parent = iC;
 						G.Parent = iA;
@@ -475,8 +473,8 @@ namespace Fixed32
 						break;
 
 					case RotateType.CD:
-						A.Children.Child2 = iD;
-						B.Children.Child1 = iC;
+						A.Children.Right = iD;
+						B.Children.Left = iC;
 
 						C.Parent = iB;
 						D.Parent = iA;
@@ -491,8 +489,8 @@ namespace Fixed32
 						break;
 
 					case RotateType.CE:
-						A.Children.Child2 = iE;
-						B.Children.Child2 = iC;
+						A.Children.Right = iE;
+						B.Children.Right = iC;
 
 						C.Parent = iB;
 						E.Parent = iA;
@@ -542,13 +540,13 @@ namespace Fixed32
 			if (oldParent != NullIndex)
 			{
 				// The sibling was not the root.
-				if (Nodes[oldParent].Children.Child1 == sibling)
+				if (Nodes[oldParent].Children.Left == sibling)
 				{
-					Nodes[oldParent].Children.Child1 = newParent;
+					Nodes[oldParent].Children.Left = newParent;
 				}
 				else
 				{
-					Nodes[oldParent].Children.Child2 = newParent;
+					Nodes[oldParent].Children.Right = newParent;
 				}
 			}
 			else
@@ -557,8 +555,8 @@ namespace Fixed32
 				Root = newParent;
 			}
 
-			newNode.Children.Child1 = sibling;
-			newNode.Children.Child2 = leaf;
+			newNode.Children.Left = sibling;
+			newNode.Children.Right = leaf;
 			Nodes[sibling].Parent = newParent;
 			Nodes[leaf].Parent = newParent;
 
@@ -567,11 +565,10 @@ namespace Fixed32
 			while (index != NullIndex)
 			{
 				ref var node = ref Nodes[index];
-				var c1 = node.Children.Child1;
-				var c2 = node.Children.Child2;
+				var c1 = node.Children.Left;
+				var c2 = node.Children.Right;
 
-				var b1 = Nodes[c2].AABB;
-				node.AABB = FAABB.Union(Nodes[c1].AABB, b1);
+				node.AABB = FAABB.Union(Nodes[c1].AABB, Nodes[c2].AABB);
 				node.CategoryBits = Nodes[c1].CategoryBits | Nodes[c2].CategoryBits;
 				node.Height = (ushort)(1 + Max(Nodes[c1].Height, Nodes[c2].Height));
 				node.Flags |= (ushort)((Nodes[c1].Flags | Nodes[c2].Flags) & EnlargedNode);
@@ -597,20 +594,20 @@ namespace Fixed32
 			var parent = leafNode.Parent;
 			var grandParent = Nodes[parent].Parent;
 
-			var sibling = (Nodes[parent].Children.Child1 == leaf)
-				? Nodes[parent].Children.Child2
-				: Nodes[parent].Children.Child1;
+			var sibling = (Nodes[parent].Children.Left == leaf)
+				? Nodes[parent].Children.Right
+				: Nodes[parent].Children.Left;
 
 			if (grandParent != NullIndex)
 			{
 				// Destroy parent and connect sibling to grandParent.
-				if (Nodes[grandParent].Children.Child1 == parent)
+				if (Nodes[grandParent].Children.Left == parent)
 				{
-					Nodes[grandParent].Children.Child1 = sibling;
+					Nodes[grandParent].Children.Left = sibling;
 				}
 				else
 				{
-					Nodes[grandParent].Children.Child2 = sibling;
+					Nodes[grandParent].Children.Right = sibling;
 				}
 
 				Nodes[sibling].Parent = grandParent;
@@ -621,8 +618,8 @@ namespace Fixed32
 				while (index != NullIndex)
 				{
 					ref var node = ref Nodes[index];
-					ref var c1 = ref Nodes[node.Children.Child1];
-					ref var c2 = ref Nodes[node.Children.Child2];
+					ref var c1 = ref Nodes[node.Children.Left];
+					ref var c2 = ref Nodes[node.Children.Right];
 
 					node.AABB = FAABB.Union(c1.AABB, c2.AABB);
 					node.CategoryBits = c1.CategoryBits | c2.CategoryBits;
@@ -681,7 +678,7 @@ namespace Fixed32
 
 		public void EnlargeProxy(int proxyId, FAABB aabb)
 		{
-			// Update and flag nodes as enlarged
+			// Update and flag nodes as enlarged.
 			ref var node = ref Nodes[proxyId];
 			node.AABB = aabb;
 
@@ -752,8 +749,8 @@ namespace Fixed32
 					{
 						if (stackCount < StackSize - 1)
 						{
-							stack[stackCount++] = node.Children.Child1;
-							stack[stackCount++] = node.Children.Child2;
+							stack[stackCount++] = node.Children.Left;
+							stack[stackCount++] = node.Children.Right;
 						}
 					}
 				}
@@ -762,7 +759,7 @@ namespace Fixed32
 			return result;
 		}
 
-		public TreeStats RayCast(in RayCastInput input, ulong maskBits, TreeRayCastCallback callback, object context = null)
+		public TreeStats RayCast(RayCastInput input, ulong maskBits, TreeRayCastCallback callback, object context = null)
 		{
 			TreeStats result = default;
 
@@ -771,39 +768,30 @@ namespace Fixed32
 				return result;
 			}
 
-			var p1 = input.Origin;
-			var d = FVector3.NormalizeSafe(input.Translation);
-
 			var maxFraction = input.MaxFraction;
-			var b = d * maxFraction;
-			var p2 = p1 + b;
-
-			var segmentAABB = new FAABB
-			{
-				LowerBound = FVector3.MinComponents(p1, p2),
-				UpperBound = FVector3.MaxComponents(p1, p2)
-			};
-
-			const int StackSize = 1024;
-			Span<int> stack = stackalloc int[StackSize];
-			var stackCount = 0;
-			stack[stackCount++] = Root;
 
 			var subInput = input;
 
-			while (stackCount > 0)
+			_stack.Push(Root);
+
+			while (_stack.Count > 0)
 			{
-				var nodeId = stack[--stackCount];
+				var nodeId = _stack.Pop();
 
 				ref var node = ref Nodes[nodeId];
 				result.NodeVisits++;
 
-				if ((node.CategoryBits & maskBits) == 0 || !FAABB.Overlaps(node.AABB, segmentAABB))
+				if ((node.CategoryBits & maskBits) == 0)
 				{
 					continue;
 				}
 
-				if (!RayAABBTest(p1, p2, node.AABB))
+				if (!node.AABB.RayIntersect(input.Origin, input.Direction, out var enter))
+				{
+					continue;
+				}
+
+				if (enter > maxFraction)
 				{
 					continue;
 				}
@@ -822,76 +810,30 @@ namespace Fixed32
 					if (value > FP.Zero && value <= maxFraction)
 					{
 						maxFraction = value;
-						var b1 = d * maxFraction;
-						p2 = p1 + b1;
-						segmentAABB.LowerBound = FVector3.MinComponents(p1, p2);
-						segmentAABB.UpperBound = FVector3.MaxComponents(p1, p2);
 					}
+
+					continue;
+				}
+
+				ref var left = ref Nodes[node.Children.Left];
+				ref var right = ref Nodes[node.Children.Right];
+
+				var dLeft = LengthSqr(left.AABB.Center - input.Origin);
+				var dRight = LengthSqr(right.AABB.Center - input.Origin);
+
+				if (dLeft < dRight)
+				{
+					_stack.Push(node.Children.Right);
+					_stack.Push(node.Children.Left);
 				}
 				else
 				{
-					ref var c1 = ref Nodes[node.Children.Child1];
-					ref var c2 = ref Nodes[node.Children.Child2];
-
-					var d1 = FVector3.DistanceSqr(c1.AABB.Center, p1);
-					var d2 = FVector3.DistanceSqr(c2.AABB.Center, p1);
-
-					if (d1 < d2)
-					{
-						stack[stackCount++] = node.Children.Child2;
-						stack[stackCount++] = node.Children.Child1;
-					}
-					else
-					{
-						stack[stackCount++] = node.Children.Child1;
-						stack[stackCount++] = node.Children.Child2;
-					}
+					_stack.Push(node.Children.Left);
+					_stack.Push(node.Children.Right);
 				}
 			}
 
 			return result;
-		}
-
-		private static bool RayAABBTest(FVector3 rayStart, FVector3 rayEnd, FAABB aabb)
-		{
-			var tmin = FP.Zero;
-			var tmax = FP.One;
-
-			var rayDir = rayEnd - rayStart;
-
-			for (var i = 0; i < 3; i++)
-			{
-				if (FMath.Abs(rayDir[i]) < FP.Epsilon)
-				{
-					if (rayStart[i] < aabb.LowerBound[i] || rayStart[i] > aabb.UpperBound[i])
-					{
-						return false;
-					}
-				}
-				else
-				{
-					var invDir = FP.One / rayDir[i];
-					var t1 = (aabb.LowerBound[i] - rayStart[i]) * invDir;
-					var t2 = (aabb.UpperBound[i] - rayStart[i]) * invDir;
-
-					if (t1 > t2)
-					{
-						var temp = t1;
-						t1 = t2;
-						t2 = temp;
-					}
-
-					tmin = FMath.Max(tmin, t1);
-					tmax = FMath.Min(tmax, t2);
-
-					if (tmin > tmax)
-					{
-						return false;
-					}
-				}
-			}
-
-			return tmin <= FP.One && tmax >= FP.Zero;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -932,6 +874,25 @@ namespace Fixed32
 			}
 
 			return changed;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP64 SurfaceAreaHeuristic(FAABB aabb)
+		{
+			var size = aabb.UpperBound - aabb.LowerBound;
+			var x = size.X.To64();
+			var y = size.Y.To64();
+			var z = size.Z.To64();
+			return x * y + x * z + y * z;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static FP64 LengthSqr(FVector3 v)
+		{
+			var x = v.X.To64();
+			var y = v.Y.To64();
+			var z = v.Z.To64();
+			return x * x + y * y + z * z;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -993,8 +954,8 @@ namespace Fixed32
 		[StructLayout(LayoutKind.Sequential)]
 		public struct Children
 		{
-			public int Child1;
-			public int Child2;
+			public int Left;
+			public int Right;
 		}
 
 		public struct TreeStats
@@ -1010,7 +971,7 @@ namespace Fixed32
 		public struct RayCastInput
 		{
 			public FVector3 Origin;
-			public FVector3 Translation;
+			public FVector3 Direction;
 			public FP MaxFraction;
 		}
 	}
