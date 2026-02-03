@@ -399,12 +399,12 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 NormalizeSafe(FVector3 a, FVector3 defaultValue = new FVector3())
 		{
-			var lengthSqr = LengthSqr(a);
-			if (lengthSqr < FP.CalculationsEpsilonSqr)
+			var length = Length(a);
+			if (length == FP.Zero)
 			{
 				return defaultValue;
 			}
-			return a / FP.Sqrt(lengthSqr);
+			return a / length;
 		}
 
 		/// <summary>

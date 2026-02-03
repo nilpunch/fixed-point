@@ -328,8 +328,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 NormalizeSafe(FVector2 a, FVector2 defaultValue = new FVector2())
 		{
-			var lengthSqr = LengthSqr(a);
-			var length = FP.Sqrt(lengthSqr);
+			var length = Length(a);
 			if (length == FP.Zero)
 			{
 				return defaultValue;
@@ -354,6 +353,10 @@ namespace Fixed64
 		{
 			var orthogonal = Orthogonal(a);
 			var length = Length(orthogonal);
+			if (length == FP.Zero)
+			{
+				return Zero;
+			}
 			return orthogonal / length;
 		}
 
