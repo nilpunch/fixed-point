@@ -47,9 +47,9 @@ namespace Fixed64.Editor
 			EditorGUILayout.TextField("Integer Places", FP.IntegerBits.ToString());
 			EditorGUILayout.Space(10f);
 
-			EditorGUILayout.TextField("Max Integer Value", (FMath.Floor(FP.MaxValue).ToLong()).ToString());
-			EditorGUILayout.TextField("Min Integer Value", (FMath.Floor(FP.MinValue).ToLong()).ToString());
-			EditorGUILayout.TextField("Max Integer To Sqr", (FMath.Sqrt(FP.MaxValue).ToLong()).ToString());
+			EditorGUILayout.TextField("Max Integer Value", (FP.Floor(FP.MaxValue).ToLong()).ToString());
+			EditorGUILayout.TextField("Min Integer Value", (FP.Floor(FP.MinValue).ToLong()).ToString());
+			EditorGUILayout.TextField("Max Integer To Sqr", (FP.Sqrt(FP.MaxValue).ToLong()).ToString());
 			EditorGUILayout.Space(5f);
 			EditorGUILayout.TextField("Absolute Epsilon ", FP.Epsilon.ToString("G5"));
 			EditorGUILayout.TextField("Calculations Epsilon ", FP.CalculationsEpsilon.ToString("G5"));
@@ -85,23 +85,23 @@ namespace Fixed64.Editor
 			EditorGUILayout.TextField("Delta", Math.Abs(tanFP.ToDouble() - Math.Tan(testRadians)).ToString("G5"));
 
 			EditorGUILayout.Space(5f);
-			EditorGUILayout.TextField("Sin (MaxValue)", FMath.Sin(FP.MaxValue).ToDouble().ToString("G5"));
+			EditorGUILayout.TextField("Sin (MaxValue)", FP.Sin(FP.MaxValue).ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Sin (MaxValue)", Math.Sin(FP.MaxValue.ToDouble()).ToString("G5"));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Sin(FP.MaxValue).ToDouble() - Math.Sin(FP.MaxValue.ToDouble())).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs(FP.Sin(FP.MaxValue).ToDouble() - Math.Sin(FP.MaxValue.ToDouble())).ToString("G5"));
 			EditorGUILayout.Space(5f);
-			EditorGUILayout.TextField("Cos (MaxValue)", FMath.Cos(FP.MaxValue).ToDouble().ToString("G5"));
+			EditorGUILayout.TextField("Cos (MaxValue)", FP.Cos(FP.MaxValue).ToDouble().ToString("G5"));
 			EditorGUILayout.TextField("Actual Cos (MaxValue)", Math.Cos(FP.MaxValue.ToDouble()).ToString("G5"));
-			EditorGUILayout.TextField("Delta", Math.Abs(FMath.Cos(FP.MaxValue).ToDouble() - Math.Cos(FP.MaxValue.ToDouble())).ToString("G5"));
+			EditorGUILayout.TextField("Delta", Math.Abs(FP.Cos(FP.MaxValue).ToDouble() - Math.Cos(FP.MaxValue.ToDouble())).ToString("G5"));
 
 			EditorGUILayout.PropertyField(_serializedObject.FindProperty(nameof(_testValue)), new GUIContent("Test Value"));
 			_serializedObject.ApplyModifiedProperties();
 			var testValueFp = _testValue.ToFP();
 
-			var asinFP = FMath.Asin(testValueFp);
+			var asinFP = FP.Asin(testValueFp);
 			EditorGUILayout.TextField("Arcsin", asinFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arcsin", Math.Asin(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(asinFP.ToDouble() - Math.Asin(_testValue)).ToString("G5"));
-			var atanFP = FMath.Atan(testValueFp);
+			var atanFP = FP.Atan(testValueFp);
 			EditorGUILayout.TextField("Arctan", atanFP.ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Actual Arctan", Math.Atan(_testValue).ToString("F" + decimalDigitsOfAccuracy));
 			EditorGUILayout.TextField("Delta", Math.Abs(atanFP.ToDouble() - Math.Atan(_testValue)).ToString("G5"));

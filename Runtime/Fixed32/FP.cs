@@ -7,6 +7,7 @@ namespace Fixed32
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
+	[Il2CppEagerStaticClassConstruction]
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{

@@ -1,30 +1,30 @@
 ﻿namespace Fixed32
 {
-	public static partial class FMath
+	public partial struct FP
 	{
 		public const int SinPrecision = 15; // Corelate with lut size. Must satisfy the guard.
-		public const int SinLutShift = FP.FractionalBits - SinPrecision;
-		private const int SinLutSize = FP.HalfPiRaw >> SinLutShift; // [0, HalfPi)
+		public const int SinLutShift = FractionalBits - SinPrecision;
+		private const int SinLutSize = HalfPiRaw >> SinLutShift; // [0, HalfPi)
 
-		private const int SinPrecisionGuard = 1 / (SinPrecision <= FP.FractionalBits && SinLutSize < FP.OneRaw ? 1 : 0);
+		private const int SinPrecisionGuard = 1 / (SinPrecision <= FractionalBits && SinLutSize < OneRaw ? 1 : 0);
 
 		public const int TanPrecision = 15; // Corelate with lut size. Must satisfy the guard.
-		public const int TanLutShift = FP.FractionalBits - TanPrecision;
-		private const int TanLutSize = FP.HalfPiRaw >> TanLutShift; // [0, HalfPi)
+		public const int TanLutShift = FractionalBits - TanPrecision;
+		private const int TanLutSize = HalfPiRaw >> TanLutShift; // [0, HalfPi)
 
-		private const int TanPrecisionGuard = 1 / (TanPrecision <= FP.FractionalBits && TanLutSize < FP.OneRaw ? 1 : 0);
+		private const int TanPrecisionGuard = 1 / (TanPrecision <= FractionalBits && TanLutSize < OneRaw ? 1 : 0);
 
 		public const int AsinPrecision = 15; // Corelate with lut size. Must satisfy the guard.
-		public const int AsinLutShift = FP.FractionalBits - AsinPrecision;
-		private const int AsinLutSize = FP.OneRaw >> AsinLutShift; // [0, 1)
+		public const int AsinLutShift = FractionalBits - AsinPrecision;
+		private const int AsinLutSize = OneRaw >> AsinLutShift; // [0, 1)
 
-		private const int AsinPrecisionGuard = 1 / (AsinPrecision <= FP.FractionalBits && AsinLutSize < FP.OneRaw ? 1 : 0);
+		private const int AsinPrecisionGuard = 1 / (AsinPrecision <= FractionalBits && AsinLutSize < OneRaw ? 1 : 0);
 
 		public const int SqrtPrecision01 = 15; // Corelate with lut size. Must satisfy the guard.
-		public const int SqrtLutShift01 = FP.FractionalBits - SqrtPrecision01;
-		private const int SqrtLutSize01 = FP.OneRaw >> SqrtLutShift01; // [0, 1)
+		public const int SqrtLutShift01 = FractionalBits - SqrtPrecision01;
+		private const int SqrtLutSize01 = OneRaw >> SqrtLutShift01; // [0, 1)
 
-		private const int SqrtPrecisionGuard = 1 / (SqrtPrecision01 <= FP.FractionalBits && SqrtLutSize01 < FP.OneRaw ? 1 : 0);
+		private const int SqrtPrecisionGuard = 1 / (SqrtPrecision01 <= FractionalBits && SqrtLutSize01 < OneRaw ? 1 : 0);
 
 		public static readonly byte[] LogTable256;
 		public static readonly FP[] SinLut;
@@ -32,7 +32,7 @@
 		public static readonly FP[] AsinLut;
 		public static readonly int[] SqrtLutRaw;
 
-		static FMath()
+		static FP()
 		{
 			LogTable256 = GenerateLZCLut();
 			SinLut = GenerateSinLut();
@@ -62,15 +62,15 @@
 		private static FP[] GenerateSinLut()
 		{
 			var lut = new FP[SinLutSize + 1];
-			lut[^1] = FP.One;
+			lut[^1] = One;
 
 			for (var i = 0; i < SinLutSize; i++)
 			{
-				var angle = i.ToFP() / (SinLutSize - 1) * FP.HalfPi;
+				var angle = i.ToFP() / (SinLutSize - 1) * HalfPi;
 
 				FCordic.SinCosZeroToHalfPi(angle.RawValue, out var sin, out var cos);
 
-				lut[i] = FP.FromRaw(sin);
+				lut[i] = FromRaw(sin);
 			}
 
 			return lut;
@@ -79,15 +79,15 @@
 		private static FP[] GenerateTanLut()
 		{
 			var lut = new FP[TanLutSize + 1];
-			lut[^1] = FP.MaxValue;
+			lut[^1] = MaxValue;
 
 			for (var i = 0; i < TanLutSize; i++)
 			{
-				var angle = i.ToFP() / (TanLutSize - 1) * FP.HalfPi;
+				var angle = i.ToFP() / (TanLutSize - 1) * HalfPi;
 
 				FCordic.SinCosZeroToHalfPi(angle.RawValue, out var sin, out var cos);
 
-				lut[i] = FP.FromRaw(FP.Div(sin, cos));
+				lut[i] = FromRaw(Div(sin, cos));
 			}
 
 			return lut;
@@ -96,7 +96,7 @@
 		private static FP[] GenerateAsinLut()
 		{
 			var lut = new FP[AsinLutSize + 1];
-			lut[^1] = FP.HalfPi;
+			lut[^1] = HalfPi;
 
 			for (var i = 0; i < AsinLutSize; i++)
 			{
@@ -104,7 +104,7 @@
 
 				var angle = FCordic.AsinZeroToOne(sin.RawValue);
 
-				lut[i] = FP.FromRaw(angle);
+				lut[i] = FromRaw(angle);
 			}
 
 			return lut;
@@ -113,7 +113,7 @@
 		private static int[] GenerateSqrtLut()
 		{
 			var lut = new int[SqrtLutSize01 + 1];
-			lut[^1] = FP.OneRaw;
+			lut[^1] = OneRaw;
 
 			for (var i = 0; i < SqrtLutSize01; i++)
 			{

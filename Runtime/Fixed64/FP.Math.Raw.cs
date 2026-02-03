@@ -3,27 +3,27 @@ using System.Runtime.CompilerServices;
 
 namespace Fixed64
 {
-	public static partial class FMath
+	public partial struct FP
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long SafeNeg(long x)
 		{
-			return x == FP.MinValueRaw ? FP.MaxValueRaw : -x;
+			return x == MinValueRaw ? MaxValueRaw : -x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long CopySign(long to, long from)
 		{
-			var signTo = to >> FP.AllBitsWithoutSign;
+			var signTo = to >> AllBitsWithoutSign;
 			var absTo = (to + signTo) ^ signTo;
-			var sign = from >> FP.AllBitsWithoutSign;
+			var sign = from >> AllBitsWithoutSign;
 			return (absTo ^ sign) - sign;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Floor(long value)
 		{
-			return value & FP.IntegerSignMask;
+			return value & IntegerSignMask;
 		}
 
 		/// <summary>
@@ -33,9 +33,9 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static long Abs(long value)
 		{
-			var mask = value >> FP.AllBitsWithoutSign;
+			var mask = value >> AllBitsWithoutSign;
 			var t = (value ^ mask) - mask;
-			return t + (t >> FP.AllBitsWithoutSign);
+			return t + (t >> AllBitsWithoutSign);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,7 +44,7 @@ namespace Fixed64
 			var sqrtLut = SqrtLutRaw;
 			var logTable256 = LogTable256;
 
-			if (x <= FP.OneRaw)
+			if (x <= OneRaw)
 			{
 				if (x < 0)
 				{
@@ -62,7 +62,7 @@ namespace Fixed64
 
 			// Approximate upper bound of log2(x) using bit length. Essentially ceil(log2(x)).
 			// We just want proper scaling to the LUT range, not a precise log2(x).
-			var log2 = FP.IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (ulong)x);
+			var log2 = IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (ulong)x);
 
 			// Ensure n is even so that no fraction is lost when dividing n by 2.
 			var n = log2 + (log2 & 1);
@@ -125,10 +125,10 @@ namespace Fixed64
 			var value = (ulong)x;
 			var result = 0UL;
 
-			const int correctionForOdd = FP.FractionalBits & 1;
+			const int correctionForOdd = FractionalBits & 1;
 
 			// Find highest power of 4 <= num.
-			var bit = 1UL << (FP.AllBits - 2 + correctionForOdd);
+			var bit = 1UL << (AllBits - 2 + correctionForOdd);
 			while (bit > value)
 			{
 				bit >>= 2;
@@ -147,18 +147,18 @@ namespace Fixed64
 			}
 
 			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
-			bit = 1UL << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
+			bit = 1UL << ((FractionalBits - 2 + correctionForOdd) & (AllBits - 1));
 
 #pragma warning disable CS0162 // Unreachable code detected
-			if (FP.FractionalBits < FP.AllBits / 2) // Faster case for FP.FractionalBits <= 31.
+			if (FractionalBits < AllBits / 2) // Faster case for FP.FractionalBits <= 31.
 			{
-				value <<= FP.FractionalBits;
-				result <<= FP.FractionalBits;
+				value <<= FractionalBits;
+				result <<= FractionalBits;
 			}
 			else
 			{
-				LeftShift128(out var valueHigh, ref value, FP.FractionalBits);
-				LeftShift128(out var resultHigh, ref result, FP.FractionalBits);
+				LeftShift128(out var valueHigh, ref value, FractionalBits);
+				LeftShift128(out var resultHigh, ref result, FractionalBits);
 
 				var t = result + bit;
 
@@ -200,14 +200,14 @@ namespace Fixed64
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			void LeftShift128(out ulong high, ref ulong low, int shift)
 			{
-				high = low >> (FP.AllBits - shift);
+				high = low >> (AllBits - shift);
 				low <<= shift;
 			}
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			void RightShift128(ref ulong high, ref ulong low, int shift)
 			{
-				low = (high << (FP.AllBits - shift)) | (low >> shift);
+				low = (high << (AllBits - shift)) | (low >> shift);
 				high >>= shift;
 			}
 

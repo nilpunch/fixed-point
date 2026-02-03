@@ -338,7 +338,7 @@ namespace Fixed64
 			if (sqrLength == FP.Zero || maxDistanceDelta >= FP.Zero && sqrLength <= maxDistanceDelta * maxDistanceDelta)
 				return target;
 
-			var distance = FMath.Sqrt(sqrLength);
+			var distance = FP.Sqrt(sqrLength);
 
 			return current + direction / distance * maxDistanceDelta;
 		}
@@ -349,7 +349,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Length(FVector3 a)
 		{
-			return FMath.Sqrt(LengthSqr(a));
+			return FP.Sqrt(LengthSqr(a));
 		}
 
 		/// <summary>
@@ -367,7 +367,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Distance(FVector3 a, FVector3 b)
 		{
-			return FMath.Sqrt(DistanceSqr(a, b));
+			return FP.Sqrt(DistanceSqr(a, b));
 		}
 
 		/// <summary>
@@ -404,7 +404,7 @@ namespace Fixed64
 			{
 				return defaultValue;
 			}
-			return a / FMath.Sqrt(lengthSqr);
+			return a / FP.Sqrt(lengthSqr);
 		}
 
 		/// <summary>
@@ -414,9 +414,9 @@ namespace Fixed64
 		public static FVector3 Orthogonal(FVector3 a)
 		{
 			return new FVector3(
-				FMath.CopySign(a.Z, a.X),
-				FMath.CopySign(a.Z, a.Y),
-				-FMath.CopySign(a.X, a.Z) - FMath.CopySign(a.Y, a.Z));
+				FP.CopySign(a.Z, a.X),
+				FP.CopySign(a.Z, a.Y),
+				-FP.CopySign(a.X, a.Z) - FP.CopySign(a.Y, a.Z));
 		}
 
 		/// <summary>
@@ -426,7 +426,7 @@ namespace Fixed64
 		public static FVector3 Orthonormal(FVector3 a)
 		{
 			var length = Length(a);
-			var s = FMath.CopySign(length, a.Z);
+			var s = FP.CopySign(length, a.Z);
 			var h = a.Z + s;
 			return new FVector3(s * h - a.X * a.X, -a.X * a.Y, -a.X * h);
 		}
@@ -437,7 +437,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 MaxComponents(FVector3 a, FVector3 b)
 		{
-			return new FVector3(FMath.Max(a.X, b.X), FMath.Max(a.Y, b.Y), FMath.Max(a.Z, b.Z));
+			return new FVector3(FP.Max(a.X, b.X), FP.Max(a.Y, b.Y), FP.Max(a.Z, b.Z));
 		}
 
 		/// <summary>
@@ -446,7 +446,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 MinComponents(FVector3 a, FVector3 b)
 		{
-			return new FVector3(FMath.Min(a.X, b.X), FMath.Min(a.Y, b.Y), FMath.Min(a.Z, b.Z));
+			return new FVector3(FP.Min(a.X, b.X), FP.Min(a.Y, b.Y), FP.Min(a.Z, b.Z));
 		}
 
 		/// <summary>
@@ -455,7 +455,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 AbsComponents(FVector3 a)
 		{
-			return new FVector3(FMath.Abs(a.X), FMath.Abs(a.Y), FMath.Abs(a.Z));
+			return new FVector3(FP.Abs(a.X), FP.Abs(a.Y), FP.Abs(a.Z));
 		}
 
 		/// <summary>
@@ -464,7 +464,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector3 SignComponents(FVector3 a)
 		{
-			return new FVector3(FMath.Sign(a.X), FMath.Sign(a.Y), FMath.Sign(a.Z));
+			return new FVector3(FP.Sign(a.X), FP.Sign(a.Y), FP.Sign(a.Z));
 		}
 
 		/// <summary>

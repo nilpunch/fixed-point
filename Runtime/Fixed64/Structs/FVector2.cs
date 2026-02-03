@@ -279,7 +279,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Length(FVector2 a)
 		{
-			return FMath.Sqrt(LengthSqr(a));
+			return FP.Sqrt(LengthSqr(a));
 		}
 
 		/// <summary>
@@ -297,7 +297,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Distance(FVector2 a, FVector2 b)
 		{
-			return FMath.Sqrt(DistanceSqr(a, b));
+			return FP.Sqrt(DistanceSqr(a, b));
 		}
 
 		/// <summary>
@@ -329,9 +329,12 @@ namespace Fixed64
 		public static FVector2 NormalizeSafe(FVector2 a, FVector2 defaultValue = new FVector2())
 		{
 			var lengthSqr = LengthSqr(a);
-			if (lengthSqr < FP.CalculationsEpsilonSqr)
+			var length = FP.Sqrt(lengthSqr);
+			if (length == FP.Zero)
+			{
 				return defaultValue;
-			return a / FMath.Sqrt(lengthSqr);
+			}
+			return a / length;
 		}
 
 		/// <summary>
@@ -360,7 +363,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 MaxComponents(FVector2 a, FVector2 b)
 		{
-			return new FVector2(FMath.Max(a.X, b.X), FMath.Max(a.Y, b.Y));
+			return new FVector2(FP.Max(a.X, b.X), FP.Max(a.Y, b.Y));
 		}
 
 		/// <summary>
@@ -369,7 +372,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 MinComponents(FVector2 a, FVector2 b)
 		{
-			return new FVector2(FMath.Min(a.X, b.X), FMath.Min(a.Y, b.Y));
+			return new FVector2(FP.Min(a.X, b.X), FP.Min(a.Y, b.Y));
 		}
 
 		/// <summary>
@@ -378,7 +381,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 AbsComponents(FVector2 a)
 		{
-			return new FVector2(FMath.Abs(a.X), FMath.Abs(a.Y));
+			return new FVector2(FP.Abs(a.X), FP.Abs(a.Y));
 		}
 
 		/// <summary>
@@ -387,7 +390,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FVector2 SignComponents(FVector2 a)
 		{
-			return new FVector2(FMath.Sign(a.X), FMath.Sign(a.Y));
+			return new FVector2(FP.Sign(a.X), FP.Sign(a.Y));
 		}
 
 		/// <summary>

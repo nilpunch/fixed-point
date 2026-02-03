@@ -221,7 +221,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Length(FQuaternion a)
 		{
-			return FMath.Sqrt(LengthSqr(a));
+			return FP.Sqrt(LengthSqr(a));
 		}
 
 		/// <summary>
@@ -269,16 +269,16 @@ namespace Fixed64
 			}
 
 			// If a = b or a = b then theta = 0 then we can return interpolation between a and b.
-			if (FMath.Abs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
+			if (FP.Abs(cosHalfTheta) > FP.One - FP.CalculationsEpsilon)
 			{
 				return Nlerp(a, b, t, intPath);
 			}
 
-			var halfTheta = FMath.Acos(cosHalfTheta);
-			var sinHalfTheta = FMath.Sin(halfTheta);
+			var halfTheta = FP.Acos(cosHalfTheta);
+			var sinHalfTheta = FP.Sin(halfTheta);
 
-			var influenceA = FMath.Sin((FP.One - t) * halfTheta) / sinHalfTheta;
-			var influenceB = FMath.Sin(t * halfTheta) / sinHalfTheta;
+			var influenceA = FP.Sin((FP.One - t) * halfTheta) / sinHalfTheta;
+			var influenceB = FP.Sin(t * halfTheta) / sinHalfTheta;
 
 			return EnsureNormalization(a * influenceA + b * influenceB);
 		}
@@ -346,7 +346,7 @@ namespace Fixed64
 			// Choose largest diagonal
 			if (trace1 + FP.CalculationsEpsilon > trace2 && trace1 + FP.CalculationsEpsilon > trace3)
 			{
-				var s = FMath.Sqrt(trace1) * 2;
+				var s = FP.Sqrt(trace1) * 2;
 				var invS = FP.One / s;
 				return new FQuaternion(
 					FP.Quarter * s,
@@ -356,7 +356,7 @@ namespace Fixed64
 			}
 			else if (trace2 + FP.CalculationsEpsilon > trace1 && trace2 + FP.CalculationsEpsilon > trace3)
 			{
-				var s = FMath.Sqrt(trace2) * 2;
+				var s = FP.Sqrt(trace2) * 2;
 				var invS = FP.One / s;
 				return new FQuaternion(
 					(rotatedUp.X + sideAxis.Y) * invS,
@@ -366,7 +366,7 @@ namespace Fixed64
 			}
 			else
 			{
-				var s = FMath.Sqrt(trace3) * 2;
+				var s = FP.Sqrt(trace3) * 2;
 				var invS = FP.One / s;
 				return new FQuaternion(
 					(lookAt.X + sideAxis.Z) * invS,
@@ -385,8 +385,8 @@ namespace Fixed64
 		public static FQuaternion AxisAngleRadians(FVector3 axis, FP angle)
 		{
 			axis = FVector3.NormalizeSafe(axis, FVector3.Forward);
-			var sin = FMath.Sin(FP.Half * angle);
-			var cos = FMath.Cos(FP.Half * angle);
+			var sin = FP.Sin(FP.Half * angle);
+			var cos = FP.Cos(FP.Half * angle);
 			return new FQuaternion(axis.X * sin, axis.Y * sin, axis.Z * sin, cos);
 		}
 
@@ -396,12 +396,12 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FQuaternion EulerRadians(FVector3 angle)
 		{
-			var cr = FMath.Cos(angle.X * FP.Half);
-			var sr = FMath.Sin(angle.X * FP.Half);
-			var cp = FMath.Cos(angle.Y * FP.Half);
-			var sp = FMath.Sin(angle.Y * FP.Half);
-			var cy = FMath.Cos(angle.Z * FP.Half);
-			var sy = FMath.Sin(angle.Z * FP.Half);
+			var cr = FP.Cos(angle.X * FP.Half);
+			var sr = FP.Sin(angle.X * FP.Half);
+			var cp = FP.Cos(angle.Y * FP.Half);
+			var sp = FP.Sin(angle.Y * FP.Half);
+			var cy = FP.Cos(angle.Z * FP.Half);
+			var sy = FP.Sin(angle.Z * FP.Half);
 
 			return new FQuaternion(
 				sr * cp * cy - cr * sp * sy,
@@ -419,8 +419,8 @@ namespace Fixed64
 		public static FQuaternion AxisAngleDegrees(FVector3 axis, FP angle)
 		{
 			axis = FVector3.NormalizeSafe(axis, FVector3.Forward);
-			var sin = FMath.Sin(FP.Half * angle * FP.Deg2Rad);
-			var cos = FMath.Cos(FP.Half * angle * FP.Deg2Rad);
+			var sin = FP.Sin(FP.Half * angle * FP.Deg2Rad);
+			var cos = FP.Cos(FP.Half * angle * FP.Deg2Rad);
 			return new FQuaternion(axis.X * sin, axis.Y * sin, axis.Z * sin, cos);
 		}
 
@@ -439,7 +439,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FQuaternion a, FQuaternion b, FP epsilon)
 		{
-			return FMath.Abs(Dot(a, b)) > FP.One - epsilon;
+			return FP.Abs(Dot(a, b)) > FP.One - epsilon;
 		}
 
 		/// <summary>
@@ -474,7 +474,7 @@ namespace Fixed64
 			{
 				return defaultValue;
 			}
-			return a / FMath.Sqrt(sqrLength);
+			return a / FP.Sqrt(sqrLength);
 		}
 
 		/// <summary>
@@ -484,9 +484,9 @@ namespace Fixed64
 		public static FQuaternion EnsureNormalization(FQuaternion a)
 		{
 			var lengthSqr = LengthSqr(a);
-			if (FMath.Abs(FP.One - lengthSqr) > FP.CalculationsEpsilonSqr)
+			if (FP.Abs(FP.One - lengthSqr) > FP.CalculationsEpsilonSqr)
 			{
-				return a / FMath.Sqrt(lengthSqr);
+				return a / FP.Sqrt(lengthSqr);
 			}
 			return a;
 		}

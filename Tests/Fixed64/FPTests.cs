@@ -76,7 +76,7 @@ namespace Fixed64
 		public int LZC(ulong rawValue)
 		{
 			// Act
-			var result = FMath.LeadingZeroCount(rawValue);
+			var result = FP.LeadingZeroCount(rawValue);
 
 			// Assert
 			return result;
@@ -94,7 +94,7 @@ namespace Fixed64
 			var fp = FP.FromRaw(rawValue);
 
 			// Act
-			var result = FMath.Abs(fp);
+			var result = FP.Abs(fp);
 
 			// Assert
 			return result.RawValue;
@@ -114,7 +114,7 @@ namespace Fixed64
 			var fp = FP.FromRaw(rawValue);
 
 			// Act
-			var result = FMath.RoundToInt(fp);
+			var result = FP.RoundToInt(fp);
 
 			// Assert
 			return result;
@@ -150,7 +150,7 @@ namespace Fixed64
 			var fp = FP.FromRaw(rawValue);
 
 			// Act
-			var result = FMath.CeilToInt(fp);
+			var result = FP.CeilToInt(fp);
 
 			// Assert
 			return result;
@@ -177,14 +177,14 @@ namespace Fixed64
 		[TestCaseSource(nameof(TestCases))]
 		public void SqrtPrecise(FP value)
 		{
-			if (FMath.SignInt(value) < 0)
+			if (FP.SignInt(value) < 0)
 			{
-				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.SqrtPrecise(value));
+				Assert.Throws<ArgumentOutOfRangeException>(() => FP.SqrtPrecise(value));
 			}
 			else
 			{
 				var expected = Math.Sqrt(value.ToDouble());
-				var actual = FMath.SqrtPrecise(value).ToDouble();
+				var actual = FP.SqrtPrecise(value).ToDouble();
 				var delta = Math.Abs(expected - actual);
 
 				if (delta > FP.Epsilon.ToDouble())
@@ -204,17 +204,17 @@ namespace Fixed64
 		[TestCaseSource(nameof(TestCases))]
 		public void SqrtApprox(FP value)
 		{
-			if (FMath.SignInt(value) < 0)
+			if (FP.SignInt(value) < 0)
 			{
-				Assert.Throws<ArgumentOutOfRangeException>(() => FMath.Sqrt(value));
+				Assert.Throws<ArgumentOutOfRangeException>(() => FP.Sqrt(value));
 			}
 			else
 			{
 				var expected = Math.Sqrt(value.ToDouble());
-				var actual = FP.FromRaw(FMath.Sqrt(value.RawValue)).ToDouble();
+				var actual = FP.FromRaw(FP.Sqrt(value.RawValue)).ToDouble();
 				var delta = Math.Abs(expected - actual);
 
-				var expectedEpsilon = FP.FromRaw(2 << (FMath.SqrtLutShift01 + 2));
+				var expectedEpsilon = FP.FromRaw(2 << (FP.SqrtLutShift01 + 2));
 				if (delta > expectedEpsilon.ToDouble())
 				{
 					Assert.AreEqual(expected.ToFP(), actual, $"sqrt({value}) = {actual}, but expected {expected}. Delta = {delta}.");
@@ -226,7 +226,7 @@ namespace Fixed64
 		public void Atan(FP value)
 		{
 			var expected = Math.Atan(value.ToDouble());
-			var actual = FMath.Atan(value);
+			var actual = FP.Atan(value);
 			var delta = Math.Abs(expected - actual.ToDouble());
 
 			if (delta > 0.00009)
@@ -339,7 +339,7 @@ namespace Fixed64
 			var xDouble = x.ToDouble();
 
 			var expected = Math.Atan2(yDouble, xDouble);
-			var actual = FMath.Atan2(y, x);
+			var actual = FP.Atan2(y, x);
 			var delta = Math.Abs(expected - actual.ToDouble());
 
 			if (delta > 0.005)

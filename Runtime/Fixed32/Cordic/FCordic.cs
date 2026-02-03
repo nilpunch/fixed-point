@@ -119,7 +119,7 @@ namespace Fixed32
 
 			var result = FP.Div(sin, cos);
 
-			return flipVertical ? FMath.SafeNeg(result) : result;
+			return flipVertical ? FP.SafeNeg(result) : result;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -150,8 +150,8 @@ namespace Fixed32
 				return 0;
 			}
 
-			var absY = FMath.Abs(y);
-			var absX = FMath.Abs(x);
+			var absY = FP.Abs(y);
+			var absX = FP.Abs(x);
 
 			if (absY <= absX)
 			{

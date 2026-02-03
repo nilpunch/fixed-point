@@ -163,7 +163,7 @@ namespace Fixed64
 				var absY = (ulong)((y + maskY) ^ maskY);
 				var sign = maskX ^ maskY;
 
-				var xLzc = FMath.LeadingZeroCount(absX);
+				var xLzc = LeadingZeroCount(absX);
 				var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
 				var yShift = FractionalBits - xShift;
 
@@ -206,7 +206,7 @@ namespace Fixed64
 				var absY = (ulong)((y + maskY) ^ maskY);
 				var sign = maskX ^ maskY;
 
-				var xLzc = FMath.LeadingZeroCount(absX);
+				var xLzc = LeadingZeroCount(absX);
 				var xShift = xLzc > FractionalBits ? FractionalBits : xLzc;
 				var yShift = FractionalBits - xShift;
 

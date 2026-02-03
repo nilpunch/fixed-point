@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Fixed32
+namespace Fixed64
 {
-	public static partial class FMath
+	public partial struct FP
 	{
 		/// <summary>
 		/// Sin of the angle.
@@ -22,26 +22,26 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Sin(FP radians)
 		{
-			var rawRadians = radians.RawValue % FP.TwoPiRaw; // Map to [-2*Pi, 2*Pi)
+			var rawRadians = radians.RawValue % TwoPiRaw; // Map to [-2*Pi, 2*Pi)
 
 			if (rawRadians < 0)
 			{
-				rawRadians += FP.TwoPiRaw; // Map to [0, 2*Pi)
+				rawRadians += TwoPiRaw; // Map to [0, 2*Pi)
 			}
 
-			var flipVertical = rawRadians >= FP.PiRaw;
+			var flipVertical = rawRadians >= PiRaw;
 			if (flipVertical)
 			{
-				rawRadians -= FP.PiRaw; // Map to [0, Pi)
+				rawRadians -= PiRaw; // Map to [0, Pi)
 			}
 
-			var flipHorizontal = rawRadians >= FP.HalfPiRaw;
+			var flipHorizontal = rawRadians >= HalfPiRaw;
 			if (flipHorizontal)
 			{
-				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2]
+				rawRadians = PiRaw - rawRadians; // Map to [0, Pi/2]
 			}
 
-			var lutIndex = rawRadians >> SinLutShift;
+			var lutIndex = (int)(rawRadians >> SinLutShift);
 
 			var sinValue = SinLut[lutIndex];
 
@@ -69,14 +69,14 @@ namespace Fixed32
 
 			if (rawRadians > 0)
 			{
-				rawRadians += -FP.PiRaw - FP.HalfPiRaw;
+				rawRadians += -PiRaw - HalfPiRaw;
 			}
 			else
 			{
-				rawRadians += FP.HalfPiRaw;
+				rawRadians += HalfPiRaw;
 			}
 
-			return Sin(FP.FromRaw(rawRadians));
+			return Sin(FromRaw(rawRadians));
 		}
 
 		/// <summary>
@@ -96,20 +96,20 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Tan(FP radians)
 		{
-			var rawRadians = radians.RawValue % FP.PiRaw; // Map to [-Pi, Pi)
+			var rawRadians = radians.RawValue % PiRaw; // Map to [-Pi, Pi)
 
 			if (rawRadians < 0)
 			{
-				rawRadians += FP.PiRaw; // Map to [0, Pi)
+				rawRadians += PiRaw; // Map to [0, Pi)
 			}
 
-			var flipVertical = rawRadians >= FP.HalfPiRaw;
+			var flipVertical = rawRadians >= HalfPiRaw;
 			if (flipVertical)
 			{
-				rawRadians = FP.PiRaw - rawRadians; // Map to [0, Pi/2]
+				rawRadians = PiRaw - rawRadians; // Map to [0, Pi/2]
 			}
 
-			var lutIndex = rawRadians >> TanLutShift;
+			var lutIndex = (int)(rawRadians >> TanLutShift);
 
 			var tanValue = TanLut[lutIndex];
 
@@ -121,7 +121,7 @@ namespace Fixed32
 		{
 			var rawValue = sin.RawValue;
 
-			if (rawValue < -FP.OneRaw || rawValue > FP.OneRaw)
+			if (rawValue < -OneRaw || rawValue > OneRaw)
 			{
 				throw new ArgumentOutOfRangeException(nameof(sin));
 			}
@@ -132,7 +132,7 @@ namespace Fixed32
 				rawValue = -rawValue; // Map to [0, 1]
 			}
 
-			var lutIndex = rawValue >> AsinLutShift;
+			var lutIndex = (int)(rawValue >> AsinLutShift);
 
 			var asinValue = AsinLut[lutIndex];
 
@@ -143,19 +143,19 @@ namespace Fixed32
 		public static FP Acos(FP cos)
 		{
 			var asin = Asin(cos).RawValue;
-			return FP.FromRaw(FP.HalfPiRaw - asin);
+			return FromRaw(HalfPiRaw - asin);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan(FP tan)
 		{
-			return FP.FromRaw(FCordic.Atan(tan.RawValue));
+			return FromRaw(FCordic.Atan(tan.RawValue));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Atan2(FP y, FP x)
 		{
-			return FP.FromRaw(FCordic.Atan2(y.RawValue, x.RawValue));
+			return FromRaw(FCordic.Atan2(y.RawValue, x.RawValue));
 		}
 	}
 }

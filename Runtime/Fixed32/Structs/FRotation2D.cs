@@ -13,8 +13,8 @@ namespace Fixed32
 
 		public FRotation2D(FAngle angle)
 		{
-			Sin = FMath.Sin(angle.Radians);
-			OneMinusCos = FP.One - FMath.Cos(angle.Radians);
+			Sin = FP.Sin(angle.Radians);
+			OneMinusCos = FP.One - FP.Cos(angle.Radians);
 		}
 
 		private FRotation2D(FP sin, FP oneMinusCos)
@@ -32,7 +32,7 @@ namespace Fixed32
 		public FAngle CounterclockwiseAngle
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FAngle.FromRadians(FMath.Atan2(Sin, Cos));
+			get => FAngle.FromRadians(FP.Atan2(Sin, Cos));
 		}
 
 		public FAngle ClockwiseAngle
@@ -81,7 +81,7 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FRotation2D FromToRotation(FVector2 fromDirection, FVector2 toDirection)
 		{
-			var angleRadians = FMath.Atan2(toDirection.Y, toDirection.X) - FMath.Atan2(fromDirection.Y, fromDirection.X);
+			var angleRadians = FP.Atan2(toDirection.Y, toDirection.X) - FP.Atan2(fromDirection.Y, fromDirection.X);
 			return new FRotation2D(FAngle.FromRadians(angleRadians));
 		}
 	}

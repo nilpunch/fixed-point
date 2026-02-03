@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.IL2CPP.CompilerServices;
 
 namespace Fixed64
 {
-	[Il2CppEagerStaticClassConstruction]
-	[Il2CppSetOption(Option.NullChecks, false)]
-	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
-	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
-	public static partial class FMath
+	public partial struct FP
 	{
 		/// <summary>
 		/// Returns a number indicating the sign of a Fix64 number.
@@ -17,7 +12,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Sign(FP value)
 		{
-			return value.RawValue < 0 ? FP.MinusOne : FP.One;
+			return value.RawValue < 0 ? MinusOne : One;
 		}
 
 		/// <summary>
@@ -29,13 +24,13 @@ namespace Fixed64
 		{
 			if (value.RawValue < 0)
 			{
-				return FP.MinusOne;
+				return MinusOne;
 			}
 			if (value.RawValue > 0)
 			{
-				return FP.One;
+				return One;
 			}
-			return FP.Zero;
+			return Zero;
 		}
 
 		/// <summary>
@@ -69,7 +64,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP CopySign(FP to, FP from)
 		{
-			return FP.FromRaw(CopySign(to.RawValue, from.RawValue));
+			return FromRaw(CopySign(to.RawValue, from.RawValue));
 		}
 
 		/// <summary>
@@ -79,7 +74,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Abs(FP value)
 		{
-			return FP.FromRaw(Abs(value.RawValue));
+			return FromRaw(Abs(value.RawValue));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,11 +116,11 @@ namespace Fixed64
 		{
 			if (value.RawValue < 0)
 			{
-				return FP.Zero;
+				return Zero;
 			}
-			if (value.RawValue > FP.OneRaw)
+			if (value.RawValue > OneRaw)
 			{
-				return FP.One;
+				return One;
 			}
 			return value;
 		}
@@ -137,9 +132,9 @@ namespace Fixed64
 			{
 				t.RawValue = 0L;
 			}
-			if (t.RawValue > FP.OneRaw)
+			if (t.RawValue > OneRaw)
 			{
-				t.RawValue = FP.OneRaw;
+				t.RawValue = OneRaw;
 			}
 			return start + t * (end - start);
 		}
@@ -162,7 +157,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ApproximatelyEqual(FP x, FP y)
 		{
-			return ApproximatelyEqual(x, y, FP.CalculationsEpsilonSqr);
+			return ApproximatelyEqual(x, y, CalculationsEpsilonSqr);
 		}
 
 		/// <summary>
@@ -181,7 +176,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Floor(FP value)
 		{
-			return FP.FromRaw(value.RawValue & FP.IntegerSignMask);
+			return FromRaw(value.RawValue & IntegerSignMask);
 		}
 
 		/// <summary>
@@ -199,8 +194,8 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Ceil(FP value)
 		{
-			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
-			return hasFractionalPart ? Floor(value) + FP.One : value;
+			var hasFractionalPart = (value.RawValue & FractionalMask) != 0;
+			return hasFractionalPart ? Floor(value) + One : value;
 		}
 
 		/// <summary>
@@ -209,7 +204,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int CeilToInt(FP value)
 		{
-			var hasFractionalPart = (value.RawValue & FP.FractionalMask) != 0;
+			var hasFractionalPart = (value.RawValue & FractionalMask) != 0;
 			return hasFractionalPart ? value.ToInt() + 1 : value.ToInt();
 		}
 
@@ -220,23 +215,23 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Round(FP value)
 		{
-			var fractionalPart = value.RawValue & FP.FractionalMask;
+			var fractionalPart = value.RawValue & FractionalMask;
 			var integralPart = Floor(value);
-			if (fractionalPart < FP.HalfRaw)
+			if (fractionalPart < HalfRaw)
 			{
 				return integralPart;
 			}
 
-			if (fractionalPart > FP.HalfRaw)
+			if (fractionalPart > HalfRaw)
 			{
-				return integralPart + FP.One;
+				return integralPart + One;
 			}
 
 			// If number is halfway between two values, round to the nearest even number.
 			// This is the method used by System.Math.Round().
-			return (integralPart.RawValue & FP.OneRaw) == 0
+			return (integralPart.RawValue & OneRaw) == 0
 				? integralPart
-				: integralPart + FP.One;
+				: integralPart + One;
 		}
 
 		/// <summary>
@@ -256,7 +251,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Sqrt(FP x)
 		{
-			return FP.FromRaw(Sqrt(x.RawValue));
+			return FromRaw(Sqrt(x.RawValue));
 		}
 
 		/// <summary>
@@ -271,7 +266,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP SqrtPrecise(FP x)
 		{
-			return FP.FromRaw(SqrtPrecise(x.RawValue));
+			return FromRaw(SqrtPrecise(x.RawValue));
 		}
 
 		/// <summary>
@@ -282,7 +277,7 @@ namespace Fixed64
 		{
 			if (x.RawValue == 0)
 			{
-				return FP.One;
+				return One;
 			}
 
 			// Avoid negative arguments by exploiting that exp(-x) = 1/exp(x).
@@ -292,19 +287,19 @@ namespace Fixed64
 				x = -x;
 			}
 
-			if (x == FP.One)
+			if (x == One)
 			{
-				return neg ? FP.One / 2 : FP.Two;
+				return neg ? One / 2 : Two;
 			}
 
-			if (x >= FP.Log2Max)
+			if (x >= Log2Max)
 			{
-				return neg ? FP.One / FP.MaxValue : FP.MaxValue;
+				return neg ? One / MaxValue : MaxValue;
 			}
 
-			if (x <= FP.Log2Min)
+			if (x <= Log2Min)
 			{
-				return neg ? FP.MaxValue : FP.Zero;
+				return neg ? MaxValue : Zero;
 			}
 
 			/* The algorithm is based on the power series for exp(x):
@@ -316,22 +311,22 @@ namespace Fixed64
 
 			var integerPart = Floor(x).ToInt();
 			// Take fractional part of exponent
-			x = FP.FromRaw(x.RawValue & FP.FractionalMask);
+			x = FromRaw(x.RawValue & FractionalMask);
 
-			var result = FP.One;
-			var term = FP.One;
+			var result = One;
+			var term = One;
 			var i = 1;
 			while (term.RawValue != 0)
 			{
-				term = x * term * FP.Ln2 / i;
+				term = x * term * Ln2 / i;
 				result += term;
 				i++;
 			}
 
-			result = FP.FromRaw(result.RawValue << integerPart);
+			result = FromRaw(result.RawValue << integerPart);
 			if (neg)
 			{
-				result = FP.One / result;
+				result = One / result;
 			}
 
 			return result;
@@ -355,37 +350,37 @@ namespace Fixed64
 			// algorithm (C. S. Turner,  "A Fast Binary Logarithm Algorithm", IEEE Signal
 			//     Processing Mag., pp. 124,140, Sep. 2010.)
 
-			var b = 1L << (FP.FractionalBits - 1);
+			var b = 1L << (FractionalBits - 1);
 			var y = 0L;
 
 			var rawX = x.RawValue;
-			while (rawX < FP.OneRaw)
+			while (rawX < OneRaw)
 			{
 				rawX <<= 1;
-				y -= FP.OneRaw;
+				y -= OneRaw;
 			}
 
-			while (rawX >= (FP.OneRaw << 1))
+			while (rawX >= (OneRaw << 1))
 			{
 				rawX >>= 1;
-				y += FP.OneRaw;
+				y += OneRaw;
 			}
 
-			var z = FP.FromRaw(rawX);
+			var z = FromRaw(rawX);
 
-			for (var i = 0; i < FP.FractionalBits; i++)
+			for (var i = 0; i < FractionalBits; i++)
 			{
 				z = z * z;
-				if (z.RawValue >= (FP.OneRaw << 1))
+				if (z.RawValue >= (OneRaw << 1))
 				{
-					z = FP.FromRaw(z.RawValue >> 1);
+					z = FromRaw(z.RawValue >> 1);
 					y += b;
 				}
 
 				b >>= 1;
 			}
 
-			return FP.FromRaw(y);
+			return FromRaw(y);
 		}
 
 		/// <summary>
@@ -398,7 +393,7 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Ln(FP x)
 		{
-			return Log2(x) * FP.Ln2;
+			return Log2(x) * Ln2;
 		}
 
 		/// <summary>
@@ -414,14 +409,14 @@ namespace Fixed64
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FP Pow(FP b, FP exp)
 		{
-			if (b == FP.One)
+			if (b == One)
 			{
-				return FP.One;
+				return One;
 			}
 
 			if (exp.RawValue == 0)
 			{
-				return FP.One;
+				return One;
 			}
 
 			if (b.RawValue == 0)
@@ -431,7 +426,7 @@ namespace Fixed64
 					throw new DivideByZeroException();
 				}
 
-				return FP.Zero;
+				return Zero;
 			}
 
 			var log2 = Log2(b);

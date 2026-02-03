@@ -7,6 +7,7 @@ namespace Fixed64
 	[Il2CppSetOption(Option.NullChecks, false)]
 	[Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 	[Il2CppSetOption(Option.DivideByZeroChecks, false)]
+	[Il2CppEagerStaticClassConstruction]
 	[Serializable]
 	public partial struct FP : IEquatable<FP>, IComparable<FP>, IFormattable
 	{
@@ -36,8 +37,6 @@ namespace Fixed64
 				return FromRaw(((long)x << FractionalBits) / y);
 			}
 		}
-		
-		
 
 		/// <summary>
 		/// Operation with saturation to <see cref="FP.MinValueRaw"/> or <see cref="FP.MaxValueRaw"/> in case of overflow.

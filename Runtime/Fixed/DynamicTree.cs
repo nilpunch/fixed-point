@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Fixed32;
 using FP64 = Fixed64.FP;
-using FMath64 = Fixed64.FMath;
 
 namespace Fixed
 {
@@ -19,14 +18,14 @@ namespace Fixed
 		public const ushort EnlargedNode = 1 << 1;
 		public const ushort LeafNode = 1 << 2;
 
-		public TreeNode[] Nodes { get; set; } = Array.Empty<TreeNode>();
-		public int NodesCapacity { get; set; }
-		public int NodesCount { get; set; }
-		public int FreeList { set; get; } = NullIndex;
+		public TreeNode[] Nodes { get; private set; } = Array.Empty<TreeNode>();
+		public int NodesCapacity { get; private set; }
+		public int NodesCount { get; private set; }
+		public int FreeList { set; private get; } = NullIndex;
 
-		public int Root { get; set; } = NullIndex;
+		public int Root { get; private set; } = NullIndex;
 
-		public int ProxyCount { get; set; }
+		public int ProxyCount { get; private set; }
 
 		private readonly Stack<int> _stack = new Stack<int>(1024);
 
@@ -120,8 +119,8 @@ namespace Fixed
 			while (nodes[index].Height > 0)
 			{
 				ref var node = ref nodes[index];
-				var child1 = node.Children.Left;
-				var child2 = node.Children.Right;
+				var left = node.Children.Left;
+				var right = node.Children.Right;
 
 				// Cost of creating a new parent for this node and the new leaf.
 				var cost = directCost + inheritedCost;
@@ -137,15 +136,15 @@ namespace Fixed
 				// Inheritance cost seen by children.
 				inheritedCost += directCost - areaBase;
 
-				ref var n1 = ref nodes[child1];
-				ref var n2 = ref nodes[child2];
+				ref var leftNode = ref nodes[left];
+				ref var rightNode = ref nodes[right];
 
-				var leaf1 = n1.Height == 0;
-				var leaf2 = n2.Height == 0;
+				var leaf1 = leftNode.Height == 0;
+				var leaf2 = rightNode.Height == 0;
 
 				// Cost of descending into child 1.
 				var lowerCost1 = FP64.MaxValue;
-				var directCost1 = SurfaceAreaHeuristic(FAABB.Union(n1.AABB, boxD));
+				var directCost1 = SurfaceAreaHeuristic(FAABB.Union(leftNode.AABB, boxD));
 				var area1 = FP64.Zero;
 				if (leaf1)
 				{
@@ -156,40 +155,40 @@ namespace Fixed
 					// Need this here due to while condition above.
 					if (cost1 < bestCost)
 					{
-						bestSibling = child1;
+						bestSibling = left;
 						bestCost = cost1;
 					}
 				}
 				else
 				{
 					// Child 1 is an internal node.
-					area1 = SurfaceAreaHeuristic(n1.AABB);
+					area1 = SurfaceAreaHeuristic(leftNode.AABB);
 
 					// Lower bound cost of inserting under child 1. The minimum accounts for two possibilities:
 					// 1. Child1 could be the sibling with cost1 = inheritedCost + directCost1
 					// 2. A descendent of child1 could be the sibling with the lower bound cost of
 					//       cost1 = inheritedCost + (directCost1 - area1) + areaD
 					// This minimum here leads to the minimum of these two costs.
-					lowerCost1 = inheritedCost + directCost1 + FMath64.Min(areaD - area1, FP64.Zero);
+					lowerCost1 = inheritedCost + directCost1 + FP64.Min(areaD - area1, FP64.Zero);
 				}
 
 				// Cost of descending into child 2.
 				var lowerCost2 = FP64.MaxValue;
-				var directCost2 = SurfaceAreaHeuristic(FAABB.Union(n2.AABB, boxD));
+				var directCost2 = SurfaceAreaHeuristic(FAABB.Union(rightNode.AABB, boxD));
 				var area2 = FP64.Zero;
 				if (leaf2)
 				{
 					var cost2 = directCost2 + inheritedCost;
 					if (cost2 < bestCost)
 					{
-						bestSibling = child2;
+						bestSibling = right;
 						bestCost = cost2;
 					}
 				}
 				else
 				{
-					area2 = SurfaceAreaHeuristic(n2.AABB);
-					lowerCost2 = inheritedCost + directCost2 + FMath64.Min(areaD - area2, FP64.Zero);
+					area2 = SurfaceAreaHeuristic(rightNode.AABB);
+					lowerCost2 = inheritedCost + directCost2 + FP64.Min(areaD - area2, FP64.Zero);
 				}
 
 				if (leaf1 && leaf2)
@@ -207,20 +206,20 @@ namespace Fixed
 				{
 					// No clear choice based on lower bound surface area. This can happen when both
 					// children fully contain D. Fall back to node distance.
-					lowerCost1 = LengthSqr(n1.AABB.Center - centerD);
-					lowerCost2 = LengthSqr(n2.AABB.Center - centerD);
+					lowerCost1 = LengthSqr(leftNode.AABB.Center - centerD);
+					lowerCost2 = LengthSqr(rightNode.AABB.Center - centerD);
 				}
 
 				// Descend.
 				if (lowerCost1 < lowerCost2 && !leaf1)
 				{
-					index = child1;
+					index = left;
 					areaBase = area1;
 					directCost = directCost1;
 				}
 				else
 				{
-					index = child2;
+					index = right;
 					areaBase = area2;
 					directCost = directCost2;
 				}
@@ -877,7 +876,7 @@ namespace Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FP64 SurfaceAreaHeuristic(FAABB aabb)
+		private static FP64 SurfaceAreaHeuristic(FAABB aabb)
 		{
 			var size = aabb.UpperBound - aabb.LowerBound;
 			var x = size.X.To64();
@@ -896,7 +895,7 @@ namespace Fixed
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ushort Max(ushort a, ushort b)
+		private static ushort Max(ushort a, ushort b)
 		{
 			return a > b ? a : b;
 		}

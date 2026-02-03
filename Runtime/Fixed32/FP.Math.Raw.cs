@@ -3,27 +3,27 @@ using System.Runtime.CompilerServices;
 
 namespace Fixed32
 {
-	public static partial class FMath
+	public partial struct FP
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int SafeNeg(int x)
 		{
-			return x == FP.MinValueRaw ? FP.MaxValueRaw : -x;
+			return x == MinValueRaw ? MaxValueRaw : -x;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int CopySign(int to, int from)
 		{
-			var signTo = to >> FP.AllBitsWithoutSign;
+			var signTo = to >> AllBitsWithoutSign;
 			var absTo = (to + signTo) ^ signTo;
-			var sign = from >> FP.AllBitsWithoutSign;
+			var sign = from >> AllBitsWithoutSign;
 			return (absTo ^ sign) - sign;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int Floor(int value)
 		{
-			return value & FP.IntegerSignMask;
+			return value & IntegerSignMask;
 		}
 
 		/// <summary>
@@ -33,9 +33,9 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int Abs(int value)
 		{
-			var mask = value >> FP.AllBitsWithoutSign;
+			var mask = value >> AllBitsWithoutSign;
 			var t = (value ^ mask) - mask;
-			return t + (t >> FP.AllBitsWithoutSign);
+			return t + (t >> AllBitsWithoutSign);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,7 +44,7 @@ namespace Fixed32
 			var sqrtLut = SqrtLutRaw;
 			var logTable256 = LogTable256;
 
-			if (x <= FP.OneRaw)
+			if (x <= OneRaw)
 			{
 				if (x < 0)
 				{
@@ -62,7 +62,7 @@ namespace Fixed32
 
 			// Approximate upper bound of log2(x) using bit length. Essentially ceil(log2(x)).
 			// We just want proper scaling to the LUT range, not a precise log2(x).
-			var log2 = FP.IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (uint)x);
+			var log2 = IntegerBitsWithSign - InlinedLeadingZeroCount(logTable256, (uint)x);
 
 			// Ensure n is even so that no fraction is lost when dividing n by 2.
 			var n = log2 + (log2 & 1);
@@ -117,10 +117,10 @@ namespace Fixed32
 			var value = (uint)x;
 			var result = 0U;
 
-			const int correctionForOdd = FP.FractionalBits & 1;
+			const int correctionForOdd = FractionalBits & 1;
 
 			// Find highest power of 4 <= num.
-			var bit = 1U << (FP.AllBits - 2 + correctionForOdd);
+			var bit = 1U << (AllBits - 2 + correctionForOdd);
 			while (bit > value)
 			{
 				bit >>= 2;
@@ -139,10 +139,10 @@ namespace Fixed32
 			}
 
 			// & (FP.AllBits - 1) is a correction when FractionalBits == 0.
-			bit = 1U << ((FP.FractionalBits - 2 + correctionForOdd) & (FP.AllBits - 1));
+			bit = 1U << ((FractionalBits - 2 + correctionForOdd) & (AllBits - 1));
 
-			value <<= FP.FractionalBits;
-			result <<= FP.FractionalBits;
+			value <<= FractionalBits;
+			result <<= FractionalBits;
 
 			while (bit != 0)
 			{

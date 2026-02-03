@@ -110,7 +110,7 @@ namespace Fixed32
 		{
 			var difference = Normalize180(to - from);
 
-			return Normalize360(from + difference * FMath.Clamp01(factor));
+			return Normalize360(from + difference * FP.Clamp01(factor));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -118,13 +118,13 @@ namespace Fixed32
 		{
 			var difference = Normalize180(to - from);
 
-			return Normalize180(from + difference * FMath.Clamp01(factor));
+			return Normalize180(from + difference * FP.Clamp01(factor));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Abs(FAngle angle)
 		{
-			return new FAngle(FMath.Abs(angle.Radians));
+			return new FAngle(FP.Abs(angle.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -147,19 +147,19 @@ namespace Fixed32
 			if (-maxDelta < delta && delta < maxDelta)
 				return to;
 
-			return FromRadians(FMath.MoveTowards(from.Radians, (from + delta).Radians, maxDelta.Radians));
+			return FromRadians(FP.MoveTowards(from.Radians, (from + delta).Radians, maxDelta.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Max(FAngle a, FAngle b)
 		{
-			return FromRadians(FMath.Max(a.Radians, b.Radians));
+			return FromRadians(FP.Max(a.Radians, b.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FAngle Min(FAngle a, FAngle b)
 		{
-			return FromRadians(FMath.Min(a.Radians, b.Radians));
+			return FromRadians(FP.Min(a.Radians, b.Radians));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -219,7 +219,7 @@ namespace Fixed32
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(FAngle a, FAngle b)
 		{
-			return FMath.ApproximatelyEqual(a.Radians, b.Radians);
+			return FP.ApproximatelyEqual(a.Radians, b.Radians);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -274,7 +274,7 @@ namespace Fixed32
 			{
 				switch (rotationAxis)
 				{
-					case RotationAxis.Y: return FromRadians(2 * FMath.Atan2(quaternion.X, quaternion.W));
+					case RotationAxis.Y: return FromRadians(2 * FP.Atan2(quaternion.X, quaternion.W));
 					case RotationAxis.Z: return FromRadians(FP.HalfPi);
 					case RotationAxis.X: return FromRadians(FP.Zero);
 					default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
@@ -284,7 +284,7 @@ namespace Fixed32
 			{
 				switch (rotationAxis)
 				{
-					case RotationAxis.Y: return FromRadians(-2 * FMath.Atan2(quaternion.X, quaternion.W));
+					case RotationAxis.Y: return FromRadians(-2 * FP.Atan2(quaternion.X, quaternion.W));
 					case RotationAxis.Z: return FromRadians(-FP.HalfPi);
 					case RotationAxis.X: return FromRadians(FP.Zero);
 					default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
@@ -292,9 +292,9 @@ namespace Fixed32
 			}
 			switch (rotationAxis)
 			{
-				case RotationAxis.Y: return FromRadians(FMath.Atan2(2 * quaternion.Y * quaternion.W - 2 * quaternion.X * quaternion.Z, FP.One - 2 * (quaternion.Y * quaternion.Y) - 2 * (quaternion.Z * quaternion.Z)));
-				case RotationAxis.Z: return FromRadians(FMath.Asin(2 * test));
-				case RotationAxis.X: return FromRadians(FMath.Atan2(2 * quaternion.X * quaternion.W - 2 * quaternion.Y * quaternion.Z, FP.One - 2 * (quaternion.X * quaternion.X) - 2 * (quaternion.Z * quaternion.Z)));
+				case RotationAxis.Y: return FromRadians(FP.Atan2(2 * quaternion.Y * quaternion.W - 2 * quaternion.X * quaternion.Z, FP.One - 2 * (quaternion.Y * quaternion.Y) - 2 * (quaternion.Z * quaternion.Z)));
+				case RotationAxis.Z: return FromRadians(FP.Asin(2 * test));
+				case RotationAxis.X: return FromRadians(FP.Atan2(2 * quaternion.X * quaternion.W - 2 * quaternion.Y * quaternion.Z, FP.One - 2 * (quaternion.X * quaternion.X) - 2 * (quaternion.Z * quaternion.Z)));
 				default: throw new ArgumentOutOfRangeException(nameof(rotationAxis), rotationAxis, null);
 			}
 		}

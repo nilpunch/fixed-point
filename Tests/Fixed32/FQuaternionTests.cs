@@ -15,7 +15,7 @@ namespace Fixed32
 			FP dot = FQuaternion.Dot(rotation180, rotation180);
 
 			// Assert
-			Assert.IsTrue(FMath.ApproximatelyEqual(dot, FP.One));
+			Assert.IsTrue(FP.ApproximatelyEqual(dot, FP.One));
 		}
 
 		[Test]
@@ -29,7 +29,7 @@ namespace Fixed32
 			FP negativeDot = FQuaternion.Dot(rotation180, rotationMinus180);
 
 			// Assert
-			Assert.IsTrue(FMath.ApproximatelyEqual(negativeDot, FP.MinusOne));
+			Assert.IsTrue(FP.ApproximatelyEqual(negativeDot, FP.MinusOne));
 		}
 
 		[Test]
