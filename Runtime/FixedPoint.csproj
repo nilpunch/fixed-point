@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>library</OutputType>
+        <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>9</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>disable</Nullable>
+        <RootNamespace>Fixed</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.2.0</Version>
+        <Title>Fixed Point</Title>
+        <Authors>nilpunch</Authors>
+        <Description>Configurable 32-bit and 64-bit fixed point math library.</Description>
+        <Copyright>Copyright (c) 2026 Daniil Pankevich</Copyright>
+        <PackageLicenseUrl>https://github.com/nilpunch/fixed-point/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageTags>fixed; point; fp; determinism; gamedev; unity</PackageTags>
+        <RepositoryUrl>https://github.com/nilpunch/fixed-point</RepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="..\LICENSE" Pack="true" PackagePath=""/>
+        <Content Include="..\README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.meta"/>
+        <None Remove="**\*.asmdef"/>
+        <None Remove="package.json"/>
+        <None Remove="LICENSE.meta"/>
+    </ItemGroup>
+
+</Project>
