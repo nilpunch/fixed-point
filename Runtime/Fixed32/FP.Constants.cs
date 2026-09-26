@@ -98,7 +98,7 @@ namespace Fixed32
 		public static FP Three
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => FromRaw(TwoRaw);
+			get => FromRaw(ThreeRaw);
 		}
 
 		public static FP Zero
